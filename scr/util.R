@@ -1,5 +1,5 @@
 # Import of libraries
-import_libaries <- function(libraries_list) {
+import_libraries <- function(libraries_list) {
   if(!require("easypackages")) {
     install.packages("easypackages")
   }
