@@ -55,10 +55,10 @@ ggplot(edges, aes(x = edges$Source, y = edges$Target, color = "red")) + geom_poi
 degree <- centr_degree(graph, mode = "all", normalized = TRUE)
 hist(degree$res, breaks = 20)
 
-# ggraph(graph, layout = 'kk') + 
-#   geom_edge_fan(colour = "gray") + 
-#   geom_node_point(aes(size = degree)) +
-#   theme_graph()
+ggraph(graph, layout = 'kk') +
+  geom_edge_fan(colour = "gray") +
+  geom_node_point(aes(size = degree$res)) +
+  theme_graph()
 
 # node with the higest degree
 V(graph)$label[degree$res==max(degree$res)] # "Colon cancer"
@@ -91,10 +91,25 @@ V(graph)$label[closeness==max(closeness)] # "Lipodystrophy"
 pagerank <- page_rank(graph, v = V(graph), directed = TRUE)
 hist(pagerank$vector, xlim = c(0, 1))
 
-# ggraph(graph, layout = 'kk') + 
-#   geom_edge_fan(colour = "gray") + 
-#   geom_node_point(aes(size = pagerank)) +
-#   theme_graph()
+ggraph(graph, layout = 'kk') +
+  geom_edge_fan(colour = "gray") +
+  geom_node_point(aes(size = pagerank$vector)) +
+  theme_graph()
 
 # node with the higest pagerank
 V(graph)$label[pagerank$vector==max(pagerank$vector)] # "Colon cancer"
+
+## Eigenvector
+eigen <- eigen_centrality(graph, directed = TRUE)
+hist(eigen$vector, xlim = c(0, 1))
+
+ggraph(graph, layout = 'kk') +
+  geom_edge_fan(colour = "gray") +
+  geom_node_point(aes(size = eigen$vector)) +
+  theme_graph()
+
+# node with the higest eigen
+V(graph)$label[eigen$vector==max(eigen$vector)] # "Colon cancer"
+
+### Community Detection ###
+
