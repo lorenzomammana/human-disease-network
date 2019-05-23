@@ -1,0 +1,134 @@
+```{r}
+# set working directory
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+# source a set of functions
+source("util.R")
+
+# import libraries
+libraries_list <- c("ggraph", "igraph", "dplyr", "readr", "DiagrammeR", "tidyverse", "Cairo", "networkD3", "CINNA")
+import_libraries(libraries_list)
+```
+
+```{r}
+# import graph
+edges <- read.csv(
+  "dataset/diseasome [Edges].csv",
+  head = TRUE
+)
+
+nodes <- read.csv(
+  "dataset/diseasome [Nodes].csv",
+  head = TRUE
+)
+
+nodes <- nodes %>% select(-timeset)
+edges <- edges %>% select(-timeset, -label)
+
+graph <- graph.data.frame(edges, directed = TRUE, vertices = nodes)
+# print(graph, e=TRUE, v=TRUE) ## IGRAPH 9af20f4 DNW- 1419 3926
+
+ggraph(graph, layout = 'kk') + 
+  #geom_edge_link(aes(alpha = edges$weight)) +
+  geom_edge_fan(colour = "gray") + 
+  geom_node_point() +
+  theme_graph()
+  #+  #geom_node_text(aes(label=nodes$label)) ## FIXME: label size
+```
+
+```{r}
+# similarities
+ggplot(edges, aes(x = edges$Source, y = edges$Target, color = "red")) + geom_point()
+
+# no isolated nodes
+```
+
+
+## Centrality Analitycs
+
+### Degree
+
+```{r}
+degree <- centr_degree(graph, mode = "all", normalized = TRUE)
+hist(degree$res, breaks = 20)
+```
+
+```{r}
+ggraph(graph, layout = 'kk') +
+  geom_edge_fan(colour = "gray") +
+  geom_node_point(aes(size = degree$res)) +
+  theme_graph()
+
+# node with the higest degree
+V(graph)$label[degree$res==max(degree$res)] # "Colon cancer"
+```
+
+### Betweeness
+
+```{r}
+betweenness <- betweenness(graph, v = V(graph), directed = TRUE, normalized = TRUE)
+hist(betweenness, breaks = 20, xlim = c(0, 1))
+```
+
+```{r}
+ggraph(graph, layout = 'kk') + 
+  geom_edge_fan(colour = "gray") + 
+  geom_node_point(aes(size = betweenness)) +
+  theme_graph()
+
+# node with the higest betweenness
+V(graph)$label[betweenness==max(betweenness)] # "Cardiomyopathy"
+```
+
+### Closeness
+
+```{r}
+closeness <- closeness(graph, v = V(graph), normalized = TRUE)
+hist(closeness, breaks = 20, xlim = c(0, 1))
+```
+
+```{r}
+ggraph(graph, layout = 'kk') + 
+  geom_edge_fan(colour = "gray") + 
+  geom_node_point(aes(size = closeness)) +
+  theme_graph()
+
+# node with the higest closeness
+V(graph)$label[closeness==max(closeness)] # "Lipodystrophy"
+```
+
+### Pagerank
+```{r}
+pagerank <- page_rank(graph, v = V(graph), directed = TRUE)
+hist(pagerank$vector, xlim = c(0, 1))
+```
+
+```{r}
+ggraph(graph, layout = 'kk') +
+  geom_edge_fan(colour = "gray") +
+  geom_node_point(aes(size = pagerank$vector)) +
+  theme_graph()
+
+# node with the higest pagerank
+V(graph)$label[pagerank$vector==max(pagerank$vector)] # "Colon cancer"
+```
+
+### Eigenvector
+
+```{r}
+eigen <- eigen_centrality(graph, directed = TRUE)
+hist(eigen$vector, xlim = c(0, 1))
+```
+
+```{r}
+ggraph(graph, layout = 'kk') +
+  geom_edge_fan(colour = "gray") +
+  geom_node_point(aes(size = eigen$vector)) +
+  theme_graph()
+
+# node with the higest eigen
+V(graph)$label[eigen$vector==max(eigen$vector)] # "Colon cancer"
+```
+
+## Community Detection
+
