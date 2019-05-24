@@ -1,0 +1,226 @@
+# Network analysis
+
+## Operazioni preliminari
+```{r}
+# set working directory
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+# source a set of functions
+source("util.R")
+
+# import libraries
+libraries_list <- c("ggraph", "igraph", "dplyr", "readr", "DiagrammeR", "tidyverse", "Cairo", "networkD3", "CINNA", "scales")
+import_libraries(libraries_list)
+```
+
+```{r graph}
+# import graph
+edges <- read.csv(
+  "../dataset/diseasome [Edges].csv",
+  head = TRUE
+)
+
+nodes <- read.csv(
+  "../dataset/diseasome [Nodes].csv",
+  head = TRUE
+)
+
+nodes <- nodes %>% select(-timeset)
+edges <- edges %>% select(-timeset, -label)
+
+graph <- graph.data.frame(edges, directed = TRUE, vertices = nodes)
+# print(graph, e=TRUE, v=TRUE) ## IGRAPH 9af20f4 DNW- 1419 3926
+
+ggraph(graph, layout = 'kk') +
+  geom_edge_fan(colour = "gray") + 
+  geom_node_point() +
+  theme_graph(base_family = "sans", base_size = 11) +
+  ggtitle("Human Disease Network")
+```
+
+```{r edge_similarity}
+# similarities
+ggplot(edges, aes(x = edges$Source, y = edges$Target, color = "red")) + 
+  geom_point() + 
+  labs(x = "Source") +
+  labs(y = "Target") +
+  ggtitle("Edges similarity")
+
+# no isolated nodes
+```
+
+
+## Centrality Analitycs
+
+### Degree
+
+```{r degree_histogram}
+degree <- centr_degree(graph, mode = "all", normalized = TRUE)
+
+ggplot(mapping=aes(degree$res)) + 
+  geom_histogram(col="black", fill="red") + 
+  scale_y_log10(labels = trans_format("log10", math_format(expr = 10^.x))) +
+  scale_x_continuous(breaks = seq(0, 160, by = 20)) +
+  labs(x = "degree") +
+  labs(y = "frequency") +
+  ggtitle("Degree histogram") +
+  theme_bw()
+```
+
+
+```{r graph_degree}
+ggraph(graph, layout = 'kk') +
+  geom_edge_fan(colour = "gray") +
+  geom_node_point(aes(size = degree$res)) + # FIXME: titla legend
+  theme_graph(base_size = 11, base_family = "sans") +
+  ggtitle("Human Disease Network Degree Centrality") 
+
+# node with the higest degree
+V(graph)$label[degree$res==max(degree$res)] # "Colon cancer"
+```
+
+### Betweenness
+
+```{r betweennes_histogram}
+betweenness <- betweenness(graph, v = V(graph), directed = TRUE, normalized = TRUE)
+
+ggplot(mapping=aes(betweenness)) + 
+  geom_histogram(col="black", fill="red") + 
+  scale_y_log10(labels = trans_format("log10", math_format(expr = 10^.x))) +
+  scale_x_continuous(limits = c(0, 1)) +
+  labs(x = "betweenness") +
+  labs(y = "frequency") +
+  ggtitle("Betweenness histogram") +
+  theme_bw()
+```
+
+```{r graph_betweennes}
+ggraph(graph, layout = 'kk') + 
+  geom_edge_fan(colour = "gray") + 
+  geom_node_point(aes(size = betweenness)) +
+  theme_graph(base_family = "sans", base_size = 11) +
+  ggtitle("Human Disease Network Betweenness Centrality") 
+
+# node with the higest betweenness
+V(graph)$label[betweenness==max(betweenness)] # "Cardiomyopathy"
+```
+
+### Closeness
+
+```{r closeness_histogram}
+closeness <- closeness(graph, v = V(graph), normalized = TRUE)
+
+ggplot(mapping=aes(closeness)) + 
+  geom_histogram(col="black", fill="red") + 
+  scale_y_log10(labels = trans_format("log10", math_format(expr = 10^.x))) +
+  scale_x_continuous(limits = c(0, 1)) +
+  labs(x = "closeness") +
+  labs(y = "frequency") +
+  ggtitle("Closeness histogram") +
+  theme_bw()
+```
+
+```{r graph_closeness}
+ggraph(graph, layout = 'kk') + 
+  geom_edge_fan(colour = "gray") + 
+  geom_node_point(aes(size = closeness)) +
+  theme_graph(base_family = "sans", base_size = 11) +
+  ggtitle("Human Disease Network Closeness Centrality") 
+
+# node with the higest closeness
+V(graph)$label[closeness==max(closeness)] # "Lipodystrophy"
+```
+
+### Pagerank
+```{r pagerank_histogram}
+pagerank <- page_rank(graph, v = V(graph), directed = TRUE)
+
+ggplot(mapping=aes(pagerank$vector)) + 
+  geom_histogram(col="black", fill="red") + 
+  scale_y_log10(labels = trans_format("log10", math_format(expr = 10^.x))) +
+  #scale_x_continuous(limits = c(0, 1)) +
+  labs(x = "pagerank") +
+  labs(y = "frequency") +
+  ggtitle("Pagerank histogram") +
+  theme_bw()
+```
+
+```{r graph_pagerank}
+ggraph(graph, layout = 'kk') +
+  geom_edge_fan(colour = "gray") +
+  geom_node_point(aes(size = pagerank$vector)) + #FIXME: legent title
+  theme_graph(base_family = "sans", base_size = 11) +
+  ggtitle("Human Disease Network Pagerank Centrality") 
+
+# node with the higest pagerank
+V(graph)$label[pagerank$vector==max(pagerank$vector)] # "Colon cancer"
+```
+
+### Eigenvector
+
+```{r eigen_histogram}
+eigen <- eigen_centrality(graph, directed = TRUE)
+
+ggplot(mapping=aes(eigen$vector)) + 
+  geom_histogram(col="black", fill="red") + 
+  scale_y_log10(labels = trans_format("log10", math_format(expr = 10^.x))) +
+  scale_x_continuous(limits = c(0, 1)) +
+  labs(x = "eigen") +
+  labs(y = "frequency") +
+  ggtitle("Eigenvector histogram") +
+  theme_bw()
+```
+
+```{r graph_eigen}
+ggraph(graph, layout = 'kk') +
+  geom_edge_fan(colour = "gray") +
+  geom_node_point(aes(size = eigen$vector)) + # FIXME: label legend
+  theme_graph(base_family = "sans", base_size = 11) +
+  ggtitle("Human Disease Network Eigenvector Centrality") 
+
+# node with the higest eigen
+V(graph)$label[eigen$vector==max(eigen$vector)] # "Colon cancer"
+```
+
+## Community Detection
+
+Potrebbe essere una buona ideare provare a fare il clustering basandoci sul tipo di malattia e poi verificare la differenza con gli algoritmi di clustering
+Questo va in un altro capitolo
+
+```{r}
+nogenes <- induced_subgraph(graph, which(nodes$X1 != "gene"))
+
+disease_clusters <- unique(nodes$X1)
+
+i = 1
+for (disease in disease_clusters)
+{
+  V(nogenes)[V(nogenes)$X1 == disease]$color = i
+  i = i + 1
+}
+
+ggraph(nogenes, layout = 'kk') +
+  geom_edge_fan(colour = "gray", show.legend = TRUE) + 
+  geom_node_point(colour = V(nogenes)$color) +
+  theme_graph(base_family = "sans", base_size = 11) +
+  ggtitle("Human Disease Network")
+```
+
+```{r}
+nogenes <- induced_subgraph(graph, which(nodes$X1 != "gene"))
+
+g.communities <- edge.betweenness.community(nogenes, directed = FALSE, weights = NULL)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
