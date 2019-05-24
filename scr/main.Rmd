@@ -93,7 +93,7 @@ V(graph)$label[degree$res==max(degree$res)] # "Colon cancer"
 ggsave("images/graph_degree.pdf", device = "pdf", width = 30, height = 21, units = "cm")
 ```
 
-### Betweeness
+### Betweenness
 
 ```{r}
 betweenness <- betweenness(graph, v = V(graph), directed = TRUE, normalized = TRUE)
