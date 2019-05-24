@@ -147,7 +147,7 @@ ggplot(mapping=aes(pagerank$vector)) +
 ```{r graph_pagerank}
 ggraph(graph, layout = 'kk') +
   geom_edge_fan(colour = "gray") +
-  geom_node_point(aes(size = pagerank$vector)) + #FIXME: legent title
+  geom_node_point(aes(size = pagerank$vector)) + #FIXME: legend title
   theme_graph(base_family = "sans", base_size = 11) +
   ggtitle("Human Disease Network Pagerank Centrality") 
 
@@ -198,29 +198,31 @@ for (disease in disease_clusters)
   i = i + 1
 }
 
-ggraph(nogenes, layout = 'kk') +
+ggraph(nogenes, layout = "kk") +
   geom_edge_fan(colour = "gray", show.legend = TRUE) + 
   geom_node_point(colour = V(nogenes)$color) +
   theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Human Disease Network")
+  ggtitle("Human Disease Network Clusters")
 ```
 
 ```{r}
-nogenes <- induced_subgraph(graph, which(nodes$X1 != "gene"))
+UD_graph <- graph.data.frame(edges, directed = FALSE, vertices = nodes)
 
-g.communities <- edge.betweenness.community(nogenes, directed = FALSE, weights = NULL)
+UD_nogenes <- induced_subgraph(UD_graph, which(nodes$X1 != "gene"))
+
+g.communities <- edge.betweenness.community(UD_nogenes, directed = FALSE, weights = NULL)
 ```
 
+```{r}
+UD_louvain <- cluster_louvain(UD_graph)
 
+#plot(UD_graph, vertex.color=rainbow(26, alpha=0.6)[UD_louvain$membership], vertex.label=NA, vertex.size=5)
 
+ggraph(UD_graph, layout = 'kk') +
+  geom_edge_fan(colour = "gray") + 
+  geom_node_point(aes(colour = UD_louvain$membership)) +
+  theme_graph(base_family = "sans", base_size = 11) +
+  ggtitle("Human Disease Network Louvain Membership")
 
-
-
-
-
-
-
-
-
-
+```
 
