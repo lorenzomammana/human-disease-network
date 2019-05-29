@@ -1,7 +1,7 @@
 # Network analysis
 
 ## Operazioni preliminari
-```{r}
+```{r message=FALSE, warning=FALSE}
 # set working directory
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 # source a set of functions
@@ -179,50 +179,5 @@ ggraph(graph, layout = 'kk') +
 
 # node with the higest eigen
 V(graph)$label[eigen$vector==max(eigen$vector)] # "Colon cancer"
-```
-
-## Community Detection
-
-Potrebbe essere una buona ideare provare a fare il clustering basandoci sul tipo di malattia e poi verificare la differenza con gli algoritmi di clustering
-Questo va in un altro capitolo
-
-```{r}
-nogenes <- induced_subgraph(graph, which(nodes$X1 != "gene"))
-
-disease_clusters <- unique(nodes$X1)
-
-i = 1
-for (disease in disease_clusters)
-{
-  V(nogenes)[V(nogenes)$X1 == disease]$color = i
-  i = i + 1
-}
-
-ggraph(nogenes, layout = "kk") +
-  geom_edge_fan(colour = "gray", show.legend = TRUE) + 
-  geom_node_point(colour = V(nogenes)$color) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Human Disease Network Clusters")
-```
-
-```{r}
-UD_graph <- graph.data.frame(edges, directed = FALSE, vertices = nodes)
-
-UD_nogenes <- induced_subgraph(UD_graph, which(nodes$X1 != "gene"))
-
-g.communities <- edge.betweenness.community(UD_nogenes, directed = FALSE, weights = NULL)
-```
-
-```{r}
-UD_louvain <- cluster_louvain(UD_graph)
-
-#plot(UD_graph, vertex.color=rainbow(26, alpha=0.6)[UD_louvain$membership], vertex.label=NA, vertex.size=5)
-
-ggraph(UD_graph, layout = 'kk') +
-  geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(colour = UD_louvain$membership)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Human Disease Network Louvain Membership")
-
 ```
 
