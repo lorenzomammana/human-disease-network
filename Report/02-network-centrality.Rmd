@@ -75,8 +75,8 @@ ggplot(mapping=aes(degree$res)) +
 ```{r graph_degree}
 ggraph(graph, layout = 'kk') +
   geom_edge_fan(colour = "gray") +
-  geom_node_point(aes(size = degree$res)) + 
-  labs(size="degree") +
+  geom_node_point(aes(size = degree$res, colour=degree$res)) + 
+  labs(size="degree", colour="degree") +
   theme_graph(base_size = 11, base_family = "sans") +
   ggtitle("Human Disease Network Degree Centrality") 
 
@@ -102,8 +102,10 @@ ggplot(mapping=aes(betweenness)) +
 ```{r graph_betweennes}
 ggraph(graph, layout = 'kk') + 
   geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(size = betweenness)) +
+  geom_node_point(aes(size = ifelse(betweenness > .08, 20, betweenness+5), colour = betweenness)) +
   theme_graph(base_family = "sans", base_size = 11) +
+  #geom_node_label(aes(label = ifelse(betweenness > .12, levels(nodes$label), NA), size = 2)) +
+  labs(size="betweenness", col="betweenness") +
   ggtitle("Human Disease Network Betweenness Centrality") 
 
 # node with the higest betweenness
