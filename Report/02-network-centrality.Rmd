@@ -36,6 +36,11 @@ ggraph(graph, layout = 'kk') +
   theme_graph(base_family = "sans", base_size = 11) +
   ggtitle("Human Disease Network")
 ```
+```{r}
+vcount(graph)
+ecount(graph)
+```
+
 
 ```{r edge_similarity}
 # similarities
@@ -147,8 +152,9 @@ ggplot(mapping=aes(pagerank$vector)) +
 ```{r graph_pagerank}
 ggraph(graph, layout = 'kk') +
   geom_edge_fan(colour = "gray") +
-  geom_node_point(aes(size = pagerank$vector)) + #FIXME: legend title
+  geom_node_point(aes(size = pagerank$vector)) +
   theme_graph(base_family = "sans", base_size = 11) +
+  labs(size="pagerank") +
   ggtitle("Human Disease Network Pagerank Centrality") 
 
 # node with the higest pagerank
@@ -173,11 +179,11 @@ ggplot(mapping=aes(eigen$vector)) +
 ```{r graph_eigen}
 ggraph(graph, layout = 'kk') +
   geom_edge_fan(colour = "gray") +
-  geom_node_point(aes(size = eigen$vector)) + # FIXME: label legend
+  geom_node_point(aes(size = eigen$vector)) +
   theme_graph(base_family = "sans", base_size = 11) +
+  labs(size="eigenvector") +
   ggtitle("Human Disease Network Eigenvector Centrality") 
 
 # node with the higest eigen
 V(graph)$label[eigen$vector==max(eigen$vector)] # "Colon cancer"
 ```
-
