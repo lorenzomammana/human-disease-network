@@ -1,7 +1,6 @@
 # Clustering
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
-# set working directory
 # source a set of functions
 source("util.R")
 
@@ -23,30 +22,56 @@ nodes <- read.csv(
 nodes <- nodes %>% select(-timeset)
 edges <- edges %>% select(-timeset, -label)
 
-graph <- graph.data.frame(edges, directed = TRUE, vertices = nodes)
+graph <- graph.data.frame(edges, directed = FALSE, vertices = nodes)
 # print(graph, e=TRUE, v=TRUE) ## IGRAPH 9af20f4 DNW- 1419 3926
 ```
 
+Settiamo il peso di ogni arco pari al numero di geni che condividono le malattie:
+```{r}
+for (i in 1:length(edges[, 5]))
+{
+  edge <- edges[i, ]
+  
+  n1 <- V(graph)[as.character(edge$Source)]
+  n2 <- V(graph)[as.character(edge$Target)]
+  
+  n1.neigh <- neighborhood(graph, nodes = n1)[[1]]
+  n2.neigh <- neighborhood(graph, nodes = n2)[[1]]
+  
+  n1.neigh <- as.numeric(n1.neigh[n1.neigh$X1 == "gene"])
+  n2.neigh <- as.numeric(n2.neigh[n2.neigh$X1 == "gene"])
+  
+  weight <- length(intersect(n1.neigh, n2.neigh))
+  
+  edges[i, ]$weight <- weight
+}
+
+graph <- graph.data.frame(edges, directed = FALSE, vertices = nodes)
+```
 
 Le malattie sono già clusterizzate in macrogruppi medici (cancro, cardiovascolare, etc...), proviamo a vedere se questi cluster si trovano vicini all'interno della rete:
 ```{r}
-nogenes <- induced_subgraph(graph, which(nodes$X1 != "gene"))
+UD_nogenes <- induced_subgraph(graph, which(nodes$X1 != "gene"))
+
+# Rimuovo i doppi nodi
+UD_nogenes <- igraph::simplify(UD_nogenes)
 
 disease_clusters <- unique(nodes$X1)
 
 i = 1
 for (disease in disease_clusters)
 {
-  V(nogenes)[V(nogenes)$X1 == disease]$color = i
+  V(UD_nogenes)[V(UD_nogenes)$X1 == disease]$color = i
   i = i + 1
 }
 
-ggraph(nogenes, layout = "kk") +
+ggraph(UD_nogenes, layout = "kk") +
   geom_edge_fan(colour = "gray", show.legend = TRUE) + 
-  geom_node_point(colour = V(nogenes)$color) +
+  geom_node_point(colour = V(UD_nogenes)$color) +
   theme_graph(base_family = "sans", base_size = 11) +
   ggtitle("Human Disease Network Clusters")
 ```
+
 ```{r}
 
 graphs <- NULL
@@ -101,9 +126,18 @@ UD_graph <- graph.data.frame(edges, directed = FALSE, vertices = nodes)
 
 UD_nogenes <- induced_subgraph(UD_graph, which(nodes$X1 != "gene"))
 
-g.communities <- edge.betweenness.community(UD_nogenes, directed = FALSE, weights = NULL)
+# Rimuovo i doppi nodi
+UD_nogenes <- igraph::simplify(UD_nogenes)
 
-V(UD_nogenes)[g.communities[[7]]]$X1
+betwennes.communities <- edge.betweenness.community(UD_nogenes, directed = FALSE, weights = E(UD_nogenes)$weight)
+
+V(UD_nogenes)[betwennes.communities[[2]]]$X1
+```
+
+```{r}
+fgreedy.communities <- fastgreedy.community(UD_nogenes, modularity = TRUE, weights = E(UD_nogenes)$weight)
+
+V(UD_nogenes)[fgreedy.communities[[5]]]$X1
 ```
 
 ```{r}
