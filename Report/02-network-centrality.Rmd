@@ -75,7 +75,8 @@ ggplot(mapping=aes(degree$res)) +
 ```{r graph_degree}
 ggraph(graph, layout = 'kk') +
   geom_edge_fan(colour = "gray") +
-  geom_node_point(aes(size = degree$res)) + # FIXME: titla legend
+  geom_node_point(aes(size = degree$res)) + 
+  labs(size="degree") +
   theme_graph(base_size = 11, base_family = "sans") +
   ggtitle("Human Disease Network Degree Centrality") 
 
