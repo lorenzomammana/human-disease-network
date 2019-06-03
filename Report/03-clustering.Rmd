@@ -167,17 +167,19 @@ ggraph(UD_nogenes, layout = 'kk') +
 
 library(MCL)
 
-adjmat <- as_adj(UD_nogenes, type = "both")
+adjmat <- as_adj(UD_nogenes, type = "both", attr = "weight")
 
-mcl_clusters <- mcl(adjmat, addLoops = TRUE) # 69 cluster
+mcl_clusters <- mcl(adjmat, addLoops = TRUE) # 73 cluster
 
-ggraph(graph, layout = 'kk') +
+ggraph(UD_nogenes, layout = 'kk') +
   geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(colour = mcl_clusters$Cluster)) +
+  geom_node_point() +
+  geom_node_point(aes(colour = mcl_clusters$Cluster)) + ## FIXME Error: Aesthetics must be either length 1 or the same as the data (1419): colour
+  labs(col="cluster") +
   scale_color_gradientn(colours = rainbow(5)) +
   theme_graph(base_family = "sans", base_size = 11) +
   ggtitle("Human Disease Network Louvain Membership")
-```
+
 ```
 ```{r}
 V(UD_nogenes)[mcl_clusters$Cluster == 1]
@@ -187,9 +189,9 @@ V(UD_nogenes)[mcl_clusters$Cluster == 3]$X1
 mcl_cancer_subgraph <- induced_subgraph(UD_nogenes, V(UD_nogenes)[mcl_clusters$Cluster == 3])
 
 ggraph(mcl_cancer_subgraph, layout = 'kk') +
-        geom_edge_fan(colour = "gray", show.legend = TRUE) +
-      geom_node_point(colour = "red") +
-      theme_graph(base_family = "sans", base_size = 11) +
-      ggtitle("Cancer MCL subgraph")
+  geom_edge_fan(colour = "gray", show.legend = TRUE) +
+  geom_node_point(colour = "red") +
+  theme_graph(base_family = "sans", base_size = 11) +
+  ggtitle("Cancer MCL subgraph")
 ```
 
