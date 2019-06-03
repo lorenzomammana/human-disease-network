@@ -67,7 +67,9 @@ for (disease in disease_clusters)
 
 ggraph(UD_nogenes, layout = "kk") +
   geom_edge_fan(colour = "gray", show.legend = TRUE) + 
-  geom_node_point(colour = V(UD_nogenes)$color) +
+  geom_node_point(aes(colour = V(UD_nogenes)$color)) +
+  labs(col="cluster") +
+  scale_color_gradientn(colours = rainbow(5)) +
   theme_graph(base_family = "sans", base_size = 11) +
   ggtitle("Human Disease Network Clusters")
 ```
@@ -133,52 +135,79 @@ betwennes.communities <- edge.betweenness.community(UD_nogenes, directed = FALSE
 
 V(UD_nogenes)[betwennes.communities[[2]]]$X1
 ```
-
+## Fastgreedy
+Primo algoritmo di clustering:
 ```{r}
-fgreedy.communities <- fastgreedy.community(UD_nogenes, modularity = TRUE, weights = E(UD_nogenes)$weight) #26 communities
+fgreedy.communities <- fastgreedy.community(UD_nogenes, modularity = TRUE, weights = E(UD_nogenes)$weight)
 
 V(UD_nogenes)[fgreedy.communities[[5]]]$X1
-```
 
+fgreedy.communities #IGRAPH clustering fast greedy, groups: 26 (communities), mod: 0.82 
+
+ggraph(UD_nogenes, layout = 'kk') +
+  geom_edge_fan(colour = "gray") + 
+  geom_node_point(aes(colour = fgreedy.communities$membership)) +
+  labs(col="cluster") +
+  scale_color_gradientn(colours = rainbow(5)) +
+  theme_graph(base_family = "sans", base_size = 11) +
+  ggtitle("Human Disease Network Fastgreedy Membership")
+
+```
+## Louvain
+Secondo algoritmo di clustering:
 ```{r}
 UD_louvain <- cluster_louvain(UD_nogenes, weights = E(UD_nogenes)$weight)
+
+UD_louvain # IGRAPH clustering multi level, groups: 27 (communities), mod: 0.83
+
+V(UD_nogenes)[UD_louvain[[5]]]$X1 
 
 #plot(UD_graph, vertex.color=rainbow(26, alpha=0.6)[UD_louvain$membership], vertex.label=NA, vertex.size=5)
 
 ggraph(UD_nogenes, layout = 'kk') +
   geom_edge_fan(colour = "gray") + 
-  geom_node_point(colour = UD_louvain$membership) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Human Disease Network Louvain Membership")
-
-```
-
-```{r}
-UD_springlass <- cluster_spinglass(UD_nogenes, spins = 225, weights = E(UD_nogenes)$weight)
-
-ggraph(UD_nogenes, layout = 'kk') +
-  geom_edge_fan(colour = "gray") + 
-  geom_node_point(colour = UD_springlass$membership) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Human Disease Network Louvain Membership")
-```
-
-```{r}
-
-library(MCL)
-
-adjmat <- as_adj(UD_nogenes, type = "both", attr = "weight")
-
-mcl_clusters <- mcl(adjmat, addLoops = TRUE) # 73 cluster
-
-ggraph(UD_nogenes, layout = 'kk') +
-  geom_edge_fan(colour = "gray") + 
-  geom_node_point() +
-  geom_node_point(aes(colour = mcl_clusters$Cluster)) + ## FIXME Error: Aesthetics must be either length 1 or the same as the data (1419): colour
+  geom_node_point(aes(colour = UD_louvain$membership)) +
   labs(col="cluster") +
   scale_color_gradientn(colours = rainbow(5)) +
   theme_graph(base_family = "sans", base_size = 11) +
   ggtitle("Human Disease Network Louvain Membership")
+
+```
+## Spinglass
+Terzo algoritmo di clustering:
+```{r}
+UD_springlass <- cluster_spinglass(UD_nogenes, spins = 225, weights = E(UD_nogenes)$weight)
+
+UD_springlass #IGRAPH clustering spinglass, groups: 43 (communities), mod: 0.4 
+
+V(UD_nogenes)[UD_springlass[[5]]]$X1
+
+ggraph(UD_nogenes, layout = 'kk') +
+  geom_edge_fan(colour = "gray") + 
+  geom_node_point(aes(colour = UD_springlass$membership)) +
+  labs(col="cluster") +
+  scale_color_gradientn(colours = rainbow(5)) +
+  theme_graph(base_family = "sans", base_size = 11) +
+  ggtitle("Human Disease Network Spinglass Membership")
+
+```
+## Markov Cluster Algorithm
+Quarto algoritmo di clustering:
+```{r}
+library(MCL)
+adjmat <- as_adj(UD_nogenes, type = "both", attr = "weight")
+
+mcl_clusters <- mcl(adjmat, addLoops = TRUE) # 73 cluster
+
+mcl_clusters #73 (communities)
+
+ggraph(UD_nogenes, layout = 'kk') +
+  geom_edge_fan(colour = "gray") + 
+  geom_node_point(aes(colour = mcl_clusters$Cluster)) +
+  labs(col="cluster") +
+  scale_color_gradientn(colours = rainbow(5)) +
+  theme_graph(base_family = "sans", base_size = 11) +
+  ggtitle("Human Disease Network Markov Clusters")
 
 ```
 ```{r}
