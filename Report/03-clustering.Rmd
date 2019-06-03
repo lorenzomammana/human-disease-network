@@ -83,7 +83,7 @@ for (disease in disease_clusters)
   if (disease == "gene")
     next
     
-  graphs[[i]] <- induced.subgraph(nogenes, which(V(nogenes)$X1 == disease))
+  graphs[[i]] <- induced.subgraph(UD_nogenes, which(V(UD_nogenes)$X1 == disease))
   
   if (disease %in% c("Unclassified", "Respiratory"))
   {
@@ -135,13 +135,13 @@ V(UD_nogenes)[betwennes.communities[[2]]]$X1
 ```
 
 ```{r}
-fgreedy.communities <- fastgreedy.community(UD_nogenes, modularity = TRUE, weights = E(UD_nogenes)$weight)
+fgreedy.communities <- fastgreedy.community(UD_nogenes, modularity = TRUE, weights = E(UD_nogenes)$weight) #26 communities
 
 V(UD_nogenes)[fgreedy.communities[[5]]]$X1
 ```
 
 ```{r}
-UD_louvain <- cluster_louvain(UD_nogenes)
+UD_louvain <- cluster_louvain(UD_nogenes, weights = E(UD_nogenes)$weight)
 
 #plot(UD_graph, vertex.color=rainbow(26, alpha=0.6)[UD_louvain$membership], vertex.label=NA, vertex.size=5)
 
@@ -154,8 +154,7 @@ ggraph(UD_nogenes, layout = 'kk') +
 ```
 
 ```{r}
-UD_springlass <- cluster_spinglass(UD_nogenes, spins = 225)
-
+UD_springlass <- cluster_spinglass(UD_nogenes, spins = 225, weights = E(UD_nogenes)$weight)
 
 ggraph(UD_nogenes, layout = 'kk') +
   geom_edge_fan(colour = "gray") + 
@@ -168,9 +167,9 @@ ggraph(UD_nogenes, layout = 'kk') +
 
 library(MCL)
 
-adjmat <- as_adj(nogenes, type = "both")
+adjmat <- as_adj(UD_nogenes, type = "both")
 
-mcl_clusters <- mcl(adjmat, addLoops = TRUE)
+mcl_clusters <- mcl(adjmat, addLoops = TRUE) # 69 cluster
 
 ggraph(graph, layout = 'kk') +
   geom_edge_fan(colour = "gray") + 
@@ -179,3 +178,18 @@ ggraph(graph, layout = 'kk') +
   theme_graph(base_family = "sans", base_size = 11) +
   ggtitle("Human Disease Network Louvain Membership")
 ```
+```
+```{r}
+V(UD_nogenes)[mcl_clusters$Cluster == 1]
+
+V(UD_nogenes)[mcl_clusters$Cluster == 3]$X1
+
+mcl_cancer_subgraph <- induced_subgraph(UD_nogenes, V(UD_nogenes)[mcl_clusters$Cluster == 3])
+
+ggraph(mcl_cancer_subgraph, layout = 'kk') +
+        geom_edge_fan(colour = "gray", show.legend = TRUE) +
+      geom_node_point(colour = "red") +
+      theme_graph(base_family = "sans", base_size = 11) +
+      ggtitle("Cancer MCL subgraph")
+```
+
