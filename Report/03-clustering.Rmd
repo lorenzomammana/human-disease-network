@@ -135,6 +135,15 @@ betwennes.communities <- edge.betweenness.community(UD_nogenes, directed = FALSE
 
 V(UD_nogenes)[betwennes.communities[[2]]]$X1
 ```
+```{r}
+nodes_results <- nodes %>% filter(X1 != "gene") %>% select(-X0)
+nodes_results$Fastgreedy <- NA
+nodes_results$Louvain <- NA
+nodes_results$Spinglass <- NA
+nodes_results$Markov <- NA
+
+```
+
 ## Fastgreedy
 Primo algoritmo di clustering:
 ```{r}
@@ -153,6 +162,21 @@ ggraph(UD_nogenes, layout = 'kk') +
   ggtitle("Human Disease Network Fastgreedy Membership")
 
 ```
+```{r}
+
+fgreedy_cluster_df <- as.data.frame(matrix(1:length(fgreedy.communities), nrow = length(fgreedy.communities), dimnames = list(NULL, "id")))
+
+for (c in 1:length(fgreedy.communities))
+{
+  fgreedy_cluster_df$name[c] <- max(names(table(V(UD_nogenes)[fgreedy.communities[[c]]]$X1)))
+}
+
+for (n in 1:length(fgreedy.communities$membership))
+{
+  nodes_results$Fastgreedy[n] <- fgreedy_cluster_df$name[fgreedy.communities$membership[n]]
+}
+```
+
 ## Louvain
 Secondo algoritmo di clustering:
 ```{r}
@@ -173,24 +197,54 @@ ggraph(UD_nogenes, layout = 'kk') +
   ggtitle("Human Disease Network Louvain Membership")
 
 ```
+
+```{r}
+
+louvain_cluster_df <- as.data.frame(matrix(1:length(UD_louvain), nrow = length(UD_louvain), dimnames = list(NULL, "id")))
+
+for (c in 1:length(UD_louvain))
+{
+  louvain_cluster_df$name[c] <- max(names(table(V(UD_nogenes)[UD_louvain[[c]]]$X1)))
+}
+
+for (n in 1:length(UD_louvain$membership))
+{
+  nodes_results$Louvain[n] <- louvain_cluster_df$name[UD_louvain$membership[n]]
+}
+
+```
 ## Spinglass
 Terzo algoritmo di clustering:
 ```{r}
-UD_springlass <- cluster_spinglass(UD_nogenes, spins = 225, weights = E(UD_nogenes)$weight)
+UD_spinglass <- cluster_spinglass(UD_nogenes, spins = 225, weights = E(UD_nogenes)$weight)
 
-UD_springlass #IGRAPH clustering spinglass, groups: 43 (communities), mod: 0.4 
+UD_spinglass #IGRAPH clustering spinglass, groups: 43 (communities), mod: 0.4 
 
-V(UD_nogenes)[UD_springlass[[5]]]$X1
+V(UD_nogenes)[UD_spinglass[[5]]]$X1
 
 ggraph(UD_nogenes, layout = 'kk') +
   geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(colour = UD_springlass$membership)) +
+  geom_node_point(aes(colour = UD_spinglass$membership)) +
   labs(col="cluster") +
   scale_color_gradientn(colours = rainbow(5)) +
   theme_graph(base_family = "sans", base_size = 11) +
   ggtitle("Human Disease Network Spinglass Membership")
 
 ```
+```{r}
+spinglass_cluster_df <- as.data.frame(matrix(1:length(UD_spinglass$csize), nrow = length(UD_spinglass$csize), dimnames = list(NULL, "id")))
+
+for (c in 1:length(UD_springlass$csize))
+{
+  spinglass_cluster_df$name[c] <- max(names(table(V(UD_nogenes)[UD_spinglass[[c]]]$X1)))
+}
+
+for (n in 1:length(UD_spinglass$membership))
+{
+  nodes_results$Spinglass[n] <- spinglass_cluster_df$name[UD_spinglass$membership[n]]
+}
+```
+
 ## Markov Cluster Algorithm
 Quarto algoritmo di clustering:
 ```{r}
@@ -222,5 +276,20 @@ ggraph(mcl_cancer_subgraph, layout = 'kk') +
   geom_node_point(colour = "red") +
   theme_graph(base_family = "sans", base_size = 11) +
   ggtitle("Cancer MCL subgraph")
+```
+```{r}
+
+markov_cluster_df <- as.data.frame(matrix(0:(mcl_clusters$K+1), nrow = mcl_clusters$K+2, dimnames = list(NULL, "id")))
+markov_cluster_df$name <- NA
+
+for (c in 0:(mcl_clusters$K+1))
+{
+  markov_cluster_df$name[c+1] <- max(names(table(V(UD_nogenes)[mcl_clusters$Cluster == c]$X1)))
+}
+
+for (n in 1:length(mcl_clusters$Cluster))
+{
+  nodes_results$Markov[n] <- markov_cluster_df$name[mcl_clusters$Cluster[n]+1]
+}
 ```
 
