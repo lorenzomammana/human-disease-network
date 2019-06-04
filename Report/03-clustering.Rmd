@@ -144,6 +144,33 @@ nodes_results$Markov <- NA
 
 ```
 
+## Regola di clustering
+Ogni cluster viene labellato con la label più frequente all'interno del cluster:
+```{r}
+label_cluster <- function(clusters)
+{
+  cluster_df <-
+    as.data.frame(matrix(
+      1:length(clusters),
+      nrow = length(clusters),
+      dimnames = list(NULL, "id")
+    ))
+  
+  for (c in 1:length(clusters))
+  {
+    labels <- V(UD_nogenes)[clusters[[c]]]$X1
+    labels <- labels[labels != "Multiple"]
+    
+    value <- which.max(unlist(table(labels)))
+    
+    cluster_df$name[cluster_df$id == c] <-
+      names(value)[1]
+  }
+  
+  return(cluster_df)
+}
+```
+
 ## Fastgreedy
 Primo algoritmo di clustering:
 ```{r}
@@ -162,17 +189,10 @@ ggraph(UD_nogenes, layout = 'kk') +
   ggtitle("Human Disease Network Fastgreedy Membership")
 
 ```
+
+
 ```{r}
-
-fgreedy_cluster_df <- as.data.frame(matrix(1:length(fgreedy.communities), nrow = length(fgreedy.communities), dimnames = list(NULL, "id")))
-
-for (c in 1:length(fgreedy.communities))
-{
-  value <- max(as.numeric(unlist(table(V(UD_nogenes)[fgreedy.communities[[c]]]$X1))))
-  
-  fgreedy_cluster_df$name[fgreedy_cluster_df$id == c] <- 
-      names(which(table(V(UD_nogenes)[fgreedy.communities[[c]]]$X1) == value)[1])
-}
+fgreedy_cluster_df <- label_cluster(fgreedy.communities)
 
 for (n in 1:length(fgreedy.communities$membership))
 {
@@ -183,17 +203,11 @@ for (n in 1:length(fgreedy.communities$membership))
 ## Louvain
 Secondo algoritmo di clustering:
 ```{r}
-UD_louvain <- cluster_louvain(UD_nogenes, weights = E(UD_nogenes)$weight)
-
-UD_louvain # IGRAPH clustering multi level, groups: 27 (communities), mod: 0.83
-
-V(UD_nogenes)[UD_louvain[[5]]]$X1 
-
-#plot(UD_graph, vertex.color=rainbow(26, alpha=0.6)[UD_louvain$membership], vertex.label=NA, vertex.size=5)
+louvain.communities <- cluster_louvain(UD_nogenes, weights = E(UD_nogenes)$weight)
 
 ggraph(UD_nogenes, layout = 'kk') +
   geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(colour = UD_louvain$membership)) +
+  geom_node_point(aes(colour = louvain.communities$membership)) +
   labs(col="cluster") +
   scale_color_gradientn(colours = rainbow(5)) +
   theme_graph(base_family = "sans", base_size = 11) +
@@ -202,16 +216,7 @@ ggraph(UD_nogenes, layout = 'kk') +
 ```
 
 ```{r}
-
-louvain_cluster_df <- as.data.frame(matrix(1:length(UD_louvain), nrow = length(UD_louvain), dimnames = list(NULL, "id")))
-
-for (c in 1:length(UD_louvain))
-{
-  value <- max(as.numeric(unlist(table(V(UD_nogenes)[UD_louvain[[c]]]$X1))))
-  
-  louvain_cluster_df$name[louvain_cluster_df$id == c] <- 
-    names(which(table(V(UD_nogenes)[UD_louvain[[c]]]$X1) == value)[1])
-}
+louvain_cluster_df <- label_cluster(louvain.communities)
 
 for (n in 1:length(UD_louvain$membership))
 {
@@ -222,15 +227,13 @@ for (n in 1:length(UD_louvain$membership))
 ## Spinglass
 Terzo algoritmo di clustering:
 ```{r}
-UD_spinglass <- cluster_spinglass(UD_nogenes, spins = 225, weights = E(UD_nogenes)$weight)
+spinglass.communities <- cluster_spinglass(UD_nogenes, spins = 225, weights = E(UD_nogenes)$weight)
 
-UD_spinglass #IGRAPH clustering spinglass, groups: 43 (communities), mod: 0.4 
-
-V(UD_nogenes)[UD_spinglass[[5]]]$X1
+#IGRAPH clustering spinglass, groups: 43 (communities), mod: 0.4 
 
 ggraph(UD_nogenes, layout = 'kk') +
   geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(colour = UD_spinglass$membership)) +
+  geom_node_point(aes(colour = spinglass.communities$membership)) +
   labs(col="cluster") +
   scale_color_gradientn(colours = rainbow(5)) +
   theme_graph(base_family = "sans", base_size = 11) +
@@ -239,14 +242,7 @@ ggraph(UD_nogenes, layout = 'kk') +
 ```
 
 ```{r}
-spinglass_cluster_df <- as.data.frame(matrix(1:length(UD_spinglass$csize), nrow = length(UD_spinglass$csize), dimnames = list(NULL, "id")))
-
-for (c in 1:length(UD_spinglass$csize))
-{
-    value <- max(as.numeric(unlist(table(V(UD_nogenes)[UD_spinglass[[c]]]$X1))))
-    spinglass_cluster_df$name[spinglass_cluster_df$id == c] <- 
-      names(which(table(V(UD_nogenes)[UD_spinglass[[c]]]$X1) == value)[1])
-}
+spinglass_cluster_df <- label_cluster(spinglass.communities)
 
 for (n in 1:length(UD_spinglass$membership))
 {
@@ -260,13 +256,11 @@ Quarto algoritmo di clustering:
 library(MCL)
 adjmat <- as_adj(UD_nogenes, type = "both", attr = "weight")
 
-mcl_clusters <- mcl(adjmat, addLoops = TRUE) # 73 cluster
-
-mcl_clusters #73 (communities)
+mcl.communities <- mcl(adjmat, addLoops = FALSE) # 73 cluster
 
 ggraph(UD_nogenes, layout = 'kk') +
   geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(colour = mcl_clusters$Cluster)) +
+  geom_node_point(aes(colour = mcl.communities$Cluster)) +
   labs(col="cluster") +
   scale_color_gradientn(colours = rainbow(5)) +
   theme_graph(base_family = "sans", base_size = 11) +
@@ -275,11 +269,7 @@ ggraph(UD_nogenes, layout = 'kk') +
 ```
 
 ```{r}
-V(UD_nogenes)[mcl_clusters$Cluster == 1]
-
-V(UD_nogenes)[mcl_clusters$Cluster == 3]$X1
-
-mcl_cancer_subgraph <- induced_subgraph(UD_nogenes, V(UD_nogenes)[mcl_clusters$Cluster == 3])
+mcl_cancer_subgraph <- induced_subgraph(UD_nogenes, V(UD_nogenes)[mcl.communities$Cluster == 3])
 
 ggraph(mcl_cancer_subgraph, layout = 'kk') +
   geom_edge_fan(colour = "gray", show.legend = TRUE) +
@@ -290,23 +280,28 @@ ggraph(mcl_cancer_subgraph, layout = 'kk') +
 
 ```{r}
 
-markov_cluster_df <- as.data.frame(matrix(0:(mcl_clusters$K+1), nrow = mcl_clusters$K+2, dimnames = list(NULL, "id")))
+markov_cluster_df <- as.data.frame(matrix(1:(mcl.communities$K), nrow = mcl.communities$K, dimnames = list(NULL, "id")))
 markov_cluster_df$name <- NA
+markov_cluster_df$id <- unique(mcl.communities$Cluster)
 
-for (c in 0:(mcl_clusters$K+1))
+for (id in markov_cluster_df$id)
 {
-  if (c == 70 | c == 27) {
-    markov_cluster_df$name[markov_cluster_df$id == c] <- NA
-  } else {
-     value <- max(as.numeric(unlist(table(V(UD_nogenes)[mcl_clusters$Cluster == c]$X1))))
-    markov_cluster_df$name[markov_cluster_df$id == c] <- 
-      names(which(table(V(UD_nogenes)[mcl_clusters$Cluster == c]$X1) == value)[1])
-  }
+
+    labels <- V(UD_nogenes)[mcl.communities$Cluster == id]$X1
+    labels <- labels[labels != "Multiple"]
+    
+    value <- which.max(unlist(table(labels)))
+    
+    
+    if (length(value) != 0)
+    {
+      markov_cluster_df$name[markov_cluster_df$id == id] <- names(value)[1]
+    }
 }
 
-for (n in 1:length(mcl_clusters$Cluster))
+for (n in 1:length(mcl.communities$Cluster))
 {
-  nodes_results$Markov[n] <- markov_cluster_df$name[mcl_clusters$Cluster[n]+1]
+  nodes_results$Markov[n] <- markov_cluster_df$name[mcl.communities$Cluster[n] == markov_cluster_df$id]
 }
 ```
 
@@ -316,20 +311,37 @@ Confusion matrix and accuracy
 ```{r}
 library(caret)
 
-fgreedy_union <- union(nodes_results$X1, nodes_results$Fastgreedy)
-fgreedy_table <- table(factor(nodes_results$X1, fgreedy_union), factor(nodes_results$Fastgreedy, fgreedy_union))
-fastgreedy_confmat <- confusionMatrix(fgreedy_table)
+compute_confmat <- function(groundtruth, communities.algo)
+{
+  l.union <- union(groundtruth, communities.algo)
+  
+  groundtruth[groundtruth == "Multiple"] <- communities.algo[groundtruth == "Multiple"]
+  
+  atable <-
+    table(
+      factor(groundtruth, l.union),
+      factor(communities.algo, l.union)
+    )
+  
+  return(confusionMatrix(atable))
+}
 
-louvain_union <- union(nodes_results$X1, nodes_results$Louvain)
-louvain_table <- table(factor(nodes_results$X1, louvain_union), factor(nodes_results$Louvain, louvain_union))
-louvain_confmat <- confusionMatrix(louvain_table)
 
-spinglass_union <- union(nodes_results$X1, nodes_results$Spinglass)
-spinglass_table <- table(factor(nodes_results$X1, spinglass_union), factor(nodes_results$Spinglass, spinglass_union))
-spinglass_confmat <- confusionMatrix(spinglass_table)
+fastgreedy_confmat <- compute_confmat(nodes_results$X1, nodes_results$Fastgreedy)
 
-markov_union <- union(nodes_results$X1, nodes_results$Markov)
-markov_table <- table(factor(nodes_results$X1, markov_union), factor(nodes_results$Markov, markov_union))
-markov_confmat <- confusionMatrix(markov_table)
+louvain_confmat <- compute_confmat(nodes_results$X1, nodes_results$Louvain)
+
+spinglass_confmat <- compute_confmat(nodes_results$X1, nodes_results$Spinglass)
+
+markov_confmat <- compute_confmat(nodes_results$X1, nodes_results$Markov)
+
+
+fastgreedy_confmat$overall[1]
+
+louvain_confmat$overall[1]
+
+spinglass_confmat$overall[1]
+
+markov_confmat$overall[1]
 ```
 
