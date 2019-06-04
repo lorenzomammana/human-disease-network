@@ -310,3 +310,26 @@ for (n in 1:length(mcl_clusters$Cluster))
 }
 ```
 
+## Analysis 
+Confusion matrix and accuracy
+
+```{r}
+library(caret)
+
+fgreedy_union <- union(nodes_results$X1, nodes_results$Fastgreedy)
+fgreedy_table <- table(factor(nodes_results$X1, fgreedy_union), factor(nodes_results$Fastgreedy, fgreedy_union))
+fastgreedy_confmat <- confusionMatrix(fgreedy_table)
+
+louvain_union <- union(nodes_results$X1, nodes_results$Louvain)
+louvain_table <- table(factor(nodes_results$X1, louvain_union), factor(nodes_results$Louvain, louvain_union))
+louvain_confmat <- confusionMatrix(louvain_table)
+
+spinglass_union <- union(nodes_results$X1, nodes_results$Spinglass)
+spinglass_table <- table(factor(nodes_results$X1, spinglass_union), factor(nodes_results$Spinglass, spinglass_union))
+spinglass_confmat <- confusionMatrix(spinglass_table)
+
+markov_union <- union(nodes_results$X1, nodes_results$Markov)
+markov_table <- table(factor(nodes_results$X1, markov_union), factor(nodes_results$Markov, markov_union))
+markov_confmat <- confusionMatrix(markov_table)
+```
+
