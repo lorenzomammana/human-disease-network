@@ -168,7 +168,10 @@ fgreedy_cluster_df <- as.data.frame(matrix(1:length(fgreedy.communities), nrow =
 
 for (c in 1:length(fgreedy.communities))
 {
-  fgreedy_cluster_df$name[c] <- max(names(table(V(UD_nogenes)[fgreedy.communities[[c]]]$X1)))
+  value <- max(as.numeric(unlist(table(V(UD_nogenes)[fgreedy.communities[[c]]]$X1))))
+  
+  fgreedy_cluster_df$name[fgreedy_cluster_df$id == c] <- 
+      names(which(table(V(UD_nogenes)[fgreedy.communities[[c]]]$X1) == value)[1])
 }
 
 for (n in 1:length(fgreedy.communities$membership))
@@ -204,7 +207,10 @@ louvain_cluster_df <- as.data.frame(matrix(1:length(UD_louvain), nrow = length(U
 
 for (c in 1:length(UD_louvain))
 {
-  louvain_cluster_df$name[c] <- max(names(table(V(UD_nogenes)[UD_louvain[[c]]]$X1)))
+  value <- max(as.numeric(unlist(table(V(UD_nogenes)[UD_louvain[[c]]]$X1))))
+  
+  louvain_cluster_df$name[louvain_cluster_df$id == c] <- 
+    names(which(table(V(UD_nogenes)[UD_louvain[[c]]]$X1) == value)[1])
 }
 
 for (n in 1:length(UD_louvain$membership))
@@ -231,12 +237,15 @@ ggraph(UD_nogenes, layout = 'kk') +
   ggtitle("Human Disease Network Spinglass Membership")
 
 ```
+
 ```{r}
 spinglass_cluster_df <- as.data.frame(matrix(1:length(UD_spinglass$csize), nrow = length(UD_spinglass$csize), dimnames = list(NULL, "id")))
 
-for (c in 1:length(UD_springlass$csize))
+for (c in 1:length(UD_spinglass$csize))
 {
-  spinglass_cluster_df$name[c] <- max(names(table(V(UD_nogenes)[UD_spinglass[[c]]]$X1)))
+    value <- max(as.numeric(unlist(table(V(UD_nogenes)[UD_spinglass[[c]]]$X1))))
+    spinglass_cluster_df$name[spinglass_cluster_df$id == c] <- 
+      names(which(table(V(UD_nogenes)[UD_spinglass[[c]]]$X1) == value)[1])
 }
 
 for (n in 1:length(UD_spinglass$membership))
@@ -264,6 +273,7 @@ ggraph(UD_nogenes, layout = 'kk') +
   ggtitle("Human Disease Network Markov Clusters")
 
 ```
+
 ```{r}
 V(UD_nogenes)[mcl_clusters$Cluster == 1]
 
@@ -277,6 +287,7 @@ ggraph(mcl_cancer_subgraph, layout = 'kk') +
   theme_graph(base_family = "sans", base_size = 11) +
   ggtitle("Cancer MCL subgraph")
 ```
+
 ```{r}
 
 markov_cluster_df <- as.data.frame(matrix(0:(mcl_clusters$K+1), nrow = mcl_clusters$K+2, dimnames = list(NULL, "id")))
@@ -284,7 +295,13 @@ markov_cluster_df$name <- NA
 
 for (c in 0:(mcl_clusters$K+1))
 {
-  markov_cluster_df$name[c+1] <- max(names(table(V(UD_nogenes)[mcl_clusters$Cluster == c]$X1)))
+  if (c == 70 | c == 27) {
+    markov_cluster_df$name[markov_cluster_df$id == c] <- NA
+  } else {
+     value <- max(as.numeric(unlist(table(V(UD_nogenes)[mcl_clusters$Cluster == c]$X1))))
+    markov_cluster_df$name[markov_cluster_df$id == c] <- 
+      names(which(table(V(UD_nogenes)[mcl_clusters$Cluster == c]$X1) == value)[1])
+  }
 }
 
 for (n in 1:length(mcl_clusters$Cluster))
