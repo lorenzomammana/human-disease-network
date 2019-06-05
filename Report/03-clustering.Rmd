@@ -344,4 +344,29 @@ spinglass_confmat$overall[1]
 cat("markov")
 markov_confmat$overall[1]
 ```
+#### Analisi sulle malattie che venivano contrassegnate come Unclassified:
+```{r}
+unclassified_disease <- nodes_results %>% filter(X1 == "Unclassified")
+unclassified_disease
+```
+
+- Bannayan-Riley-Ruvalcaba syndrome identificata da tutti e quattro gli algoritmi come cancer: 
+da alcune risorse (https://omim.org/entry/158350?search=bannayan-riley-ruvalcaba%20syndrome&highlight=%22bannayan%20riley%20ruvalcaba%20syndrome%22%20%22bannayan%20riley%20ruvalcaba%20syndromic%22%20%22bannayan%20riley%20ruvalcaba%22%20%22bannayanrileyruvalcaba%20syndrome%22%20%22bannayanrileyruvalcaba%20syndromic%22%20bannayanrileyruvalcaba%20syndrome%20syndromic) pare ci sia un collegamento con il cancro al seno.
+
+- Benzene toxicity susceptibility to : leukemia, post-chemotherapy, susceptibility to, included
+breast cancer, post-chemotherapy poor survival in
+
+- Aquaporin-1 deficiency classicifata in Hematological: 
+collegamenti rilevati :Blood group, Colton
+
+
+#### Analisi sulle malattie che venivano contrassegnate come Multiple:
+```{r}
+multiple_disease <- nodes_results %>% filter(X1 == "Multiple")
+multiple_disease
+```
+
+- Fanconi anemia is a clinically and genetically heterogeneous disorder that causes genomic instability. Characteristic clinical features include developmental abnormalities in major organ systems, early-onset bone marrow failure, and a high predisposition to cancer
+
+- Dejerine-Sottas neuropathy is a demyelinating peripheral neuropathy with onset in infancy
 
