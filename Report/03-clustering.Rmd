@@ -75,7 +75,6 @@ ggraph(UD_nogenes, layout = "kk") +
 ```
 
 ```{r}
-
 graphs <- NULL
 plots <- NULL
 i <- 1
@@ -101,9 +100,7 @@ for (disease in disease_clusters)
       theme_graph(base_family = "sans", base_size = 11) +
       ggtitle(disease)
   }
-  
   i = i + 1
-
 }
 
 # grid.arrange(grobs = plots)
@@ -205,6 +202,8 @@ Secondo algoritmo di clustering:
 ```{r}
 louvain.communities <- cluster_louvain(UD_nogenes, weights = E(UD_nogenes)$weight)
 
+louvain.communities #IGRAPH clustering multi level, groups: 27 (communities), mod: 0.83 + groups:  
+
 ggraph(UD_nogenes, layout = 'kk') +
   geom_edge_fan(colour = "gray") + 
   geom_node_point(aes(colour = louvain.communities$membership)) +
@@ -218,9 +217,9 @@ ggraph(UD_nogenes, layout = 'kk') +
 ```{r}
 louvain_cluster_df <- label_cluster(louvain.communities)
 
-for (n in 1:length(UD_louvain$membership))
+for (n in 1:length(louvain.communities$membership))
 {
-  nodes_results$Louvain[n] <- louvain_cluster_df$name[UD_louvain$membership[n]]
+  nodes_results$Louvain[n] <- louvain_cluster_df$name[louvain.communities$membership[n]]
 }
 
 ```
@@ -229,7 +228,7 @@ Terzo algoritmo di clustering:
 ```{r}
 spinglass.communities <- cluster_spinglass(UD_nogenes, spins = 225, weights = E(UD_nogenes)$weight)
 
-#IGRAPH clustering spinglass, groups: 43 (communities), mod: 0.4 
+spinglass.communities #IGRAPH clustering spinglass, groups: varia... 39/43 ... (communities), mod: 0.4 
 
 ggraph(UD_nogenes, layout = 'kk') +
   geom_edge_fan(colour = "gray") + 
@@ -244,9 +243,9 @@ ggraph(UD_nogenes, layout = 'kk') +
 ```{r}
 spinglass_cluster_df <- label_cluster(spinglass.communities)
 
-for (n in 1:length(UD_spinglass$membership))
+for (n in 1:length(spinglass.communities$membership))
 {
-  nodes_results$Spinglass[n] <- spinglass_cluster_df$name[UD_spinglass$membership[n]]
+  nodes_results$Spinglass[n] <- spinglass_cluster_df$name[spinglass.communities$membership[n]]
 }
 ```
 
@@ -256,7 +255,7 @@ Quarto algoritmo di clustering:
 library(MCL)
 adjmat <- as_adj(UD_nogenes, type = "both", attr = "weight")
 
-mcl.communities <- mcl(adjmat, addLoops = FALSE) # 73 cluster
+mcl.communities <- mcl(adjmat, addLoops = FALSE) # 71 cluster
 
 ggraph(UD_nogenes, layout = 'kk') +
   geom_edge_fan(colour = "gray") + 
@@ -267,7 +266,7 @@ ggraph(UD_nogenes, layout = 'kk') +
   ggtitle("Human Disease Network Markov Clusters")
 
 ```
-
+Esempio di sottografo con label cancer
 ```{r}
 mcl_cancer_subgraph <- induced_subgraph(UD_nogenes, V(UD_nogenes)[mcl.communities$Cluster == 3])
 
@@ -279,7 +278,6 @@ ggraph(mcl_cancer_subgraph, layout = 'kk') +
 ```
 
 ```{r}
-
 markov_cluster_df <- as.data.frame(matrix(1:(mcl.communities$K), nrow = mcl.communities$K, dimnames = list(NULL, "id")))
 markov_cluster_df$name <- NA
 markov_cluster_df$id <- unique(mcl.communities$Cluster)
@@ -326,7 +324,6 @@ compute_confmat <- function(groundtruth, communities.algo)
   return(confusionMatrix(atable))
 }
 
-
 fastgreedy_confmat <- compute_confmat(nodes_results$X1, nodes_results$Fastgreedy)
 
 louvain_confmat <- compute_confmat(nodes_results$X1, nodes_results$Louvain)
@@ -335,13 +332,16 @@ spinglass_confmat <- compute_confmat(nodes_results$X1, nodes_results$Spinglass)
 
 markov_confmat <- compute_confmat(nodes_results$X1, nodes_results$Markov)
 
-
+cat("fastgreedy")
 fastgreedy_confmat$overall[1]
 
+cat("louvain")
 louvain_confmat$overall[1]
 
+cat("spinglass")
 spinglass_confmat$overall[1]
 
+cat("markov")
 markov_confmat$overall[1]
 ```
 
