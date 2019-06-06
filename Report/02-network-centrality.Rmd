@@ -12,6 +12,54 @@ libraries_list <- c("ggraph", "igraph", "dplyr", "readr", "DiagrammeR", "tidyver
 import_libraries(libraries_list)
 ```
 
+```{r}
+histogram_plot <- function(mapping, scale, x_lab, y_lab, title){
+  ggplot(mapping=aes(mapping)) + 
+    geom_histogram(col="black", fill="red") + 
+    scale_y_log10(labels = trans_format("log10", math_format(expr = 10^.x))) +
+    scale_x_continuous(scale) +
+    labs(x = x_lab) +
+    labs(y = y_lab) +
+    ggtitle(title) +
+    theme_bw()
+}
+
+plot_graph <- function(graph, layout, measure, node_s1, node_s2, node_s3, label, label_s1, title){
+  ggraph(graph, layout=layout) + #  "graphopt""
+  geom_edge_fan(colour = "gray66") +
+  geom_node_point(aes(fill="red", 
+                      size=ifelse(measure > node_s1, 30,
+                           ifelse(measure > node_s2,  8, 
+                           ifelse(measure > node_s3,  3, 1)))),
+                      shape=21, col="grey25", show.legend = FALSE) +
+  geom_node_text(aes(label = ifelse(measure > label_s1, 
+                                    as.character(label), NA), size=2), 
+                 show.legend = FALSE) +
+  scale_edge_width_continuous(range=c(0.2,0.9)) +
+  scale_size_continuous(range=c(1, 10)) +
+  theme_graph(base_size = 11, base_family = "sans") +
+  ggtitle(title) 
+}
+
+plot_pretty_graph <- function(graph, layout, measure, edge_width, node_s1, node_s2, node_s3, label, label_s1, title){
+  ggraph(graph, layout=layout) + #  "graphopt""
+  geom_edge_fan(aes(width=edge_width), colour = "gray66", show.legend = FALSE) +
+  geom_node_point(aes(fill=nodes$X1[nodes$X0 == "disease"],
+                      size=ifelse(measure > node_s1, 30,
+                           ifelse(measure > node_s2,  8, 
+                           ifelse(measure > node_s3,  3, 1)))),
+                      shape=21, col="grey25", show.legend = FALSE) +
+  geom_node_text(aes(label = ifelse(measure > label_s1, 
+                                    as.character(label), NA), size=2), 
+                 show.legend = FALSE) +
+  #labs(size="indegree", fill="cluster") +
+  scale_edge_width_continuous(range=c(0.2,0.9)) +
+  scale_size_continuous(range=c(1, 10)) +
+  theme_graph(base_size = 11, base_family = "sans") +
+  ggtitle(title) 
+}
+```
+
 ```{r graph}
 # import graph
 edges <- read.csv(
@@ -36,11 +84,11 @@ ggraph(graph, layout = 'kk') +
   theme_graph(base_family = "sans", base_size = 11) +
   ggtitle("Human Disease Network")
 ```
+
 ```{r}
 vcount(graph)
 ecount(graph)
 ```
-
 
 ```{r edge_similarity}
 # similarities
@@ -53,32 +101,17 @@ ggplot(edges, aes(x = edges$Source, y = edges$Target, color = "red")) +
 # no isolated nodes
 ```
 
-
 ## Centrality Analitycs
 
 ### Degree
-
 ```{r degree_histogram}
 degree <- centr_degree(graph, mode = "all", normalized = TRUE)
 
-ggplot(mapping=aes(degree$res)) + 
-  geom_histogram(col="black", fill="red") + 
-  scale_y_log10(labels = trans_format("log10", math_format(expr = 10^.x))) +
-  scale_x_continuous(breaks = seq(0, 160, by = 20)) +
-  labs(x = "degree") +
-  labs(y = "frequency") +
-  ggtitle("Degree histogram") +
-  theme_bw()
+histogram_plot(degree$res, seq(0, 160, by = 20), "degree", "frequency", "Degree histogram")
 ```
 
-
 ```{r graph_degree}
-ggraph(graph, layout = 'kk') +
-  geom_edge_fan(colour = "gray") +
-  geom_node_point(aes(size = degree$res, colour=degree$res)) + 
-  labs(size="degree", colour="degree") +
-  theme_graph(base_size = 11, base_family = "sans") +
-  ggtitle("Human Disease Network Degree Centrality") 
+plot_graph(graph, "dh", degree$res, 75, 25, 15, nodes$label, 75, "Human Disease Network Degree Centrality")
 
 # node with the highest degree
 V(graph)$label[degree$res==max(degree$res)] # "Colon cancer"
@@ -89,24 +122,11 @@ V(graph)$label[degree$res==max(degree$res)] # "Colon cancer"
 ```{r betweennes_histogram}
 betweenness <- betweenness(graph, v = V(graph), directed = TRUE, normalized = TRUE)
 
-ggplot(mapping=aes(betweenness)) + 
-  geom_histogram(col="black", fill="red") + 
-  scale_y_log10(labels = trans_format("log10", math_format(expr = 10^.x))) +
-  scale_x_continuous(limits = c(0, 1)) +
-  labs(x = "betweenness") +
-  labs(y = "frequency") +
-  ggtitle("Betweenness histogram") +
-  theme_bw()
+histogram_plot(betweenness, c(0, 1), "betweenness", "frequency", "Betweenness histogram")
 ```
 
 ```{r graph_betweennes}
-ggraph(graph, layout = 'kk') + 
-  geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(size = ifelse(betweenness > .08, 20, betweenness+5), colour = betweenness)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  #geom_node_label(aes(label = ifelse(betweenness > .12, levels(nodes$label), NA), size = 2)) +
-  labs(size="betweenness", col="betweenness") +
-  ggtitle("Human Disease Network Betweenness Centrality") 
+plot_graph(graph, "dh", betweenness, 0.14, 0.01, 0.0001, nodes$label, 0.14, "Human Disease Network Betweenness Centrality")
 
 # node with the highest betweenness
 V(graph)$label[betweenness==max(betweenness)] # "Cardiomyopathy"
@@ -117,22 +137,11 @@ V(graph)$label[betweenness==max(betweenness)] # "Cardiomyopathy"
 ```{r closeness_histogram}
 closeness <- closeness(graph, v = V(graph), normalized = TRUE)
 
-ggplot(mapping=aes(closeness)) + 
-  geom_histogram(col="black", fill="red") + 
-  scale_y_log10(labels = trans_format("log10", math_format(expr = 10^.x))) +
-  scale_x_continuous(limits = c(0, 1)) +
-  labs(x = "closeness") +
-  labs(y = "frequency") +
-  ggtitle("Closeness histogram") +
-  theme_bw()
+histogram_plot(closeness, c(0, 1), "closeness", "frequency", "Closeness histogram")
 ```
 
 ```{r graph_closeness}
-ggraph(graph, layout = 'kk') + 
-  geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(size = closeness)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Human Disease Network Closeness Centrality") 
+plot_graph(graph, "dh", closeness, 0.23, 0.09, 0.07, nodes$label, 0.23, "Human Disease Network Closeness Centrality")
 
 # node with the highest closeness
 V(graph)$label[closeness==max(closeness)] # "Lipodystrophy"
@@ -142,23 +151,11 @@ V(graph)$label[closeness==max(closeness)] # "Lipodystrophy"
 ```{r pagerank_histogram}
 pagerank <- page_rank(graph, v = V(graph), directed = TRUE)
 
-ggplot(mapping=aes(pagerank$vector)) + 
-  geom_histogram(col="black", fill="red") + 
-  scale_y_log10(labels = trans_format("log10", math_format(expr = 10^.x))) +
-  #scale_x_continuous(limits = c(0, 1)) +
-  labs(x = "pagerank") +
-  labs(y = "frequency") +
-  ggtitle("Pagerank histogram") +
-  theme_bw()
+histogram_plot(pagerank$vector, c(0, 1), "pagerank", "frequency", "Pagerank histogram")
 ```
 
 ```{r graph_pagerank}
-ggraph(graph, layout = 'kk') +
-  geom_edge_fan(colour = "gray") +
-  geom_node_point(aes(size = pagerank$vector)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  labs(size="pagerank") +
-  ggtitle("Human Disease Network Pagerank Centrality") 
+plot_graph(graph, "dh", pagerank$vector, 0.003, 0.001, 0.0007, nodes$label, 0.003, "Human Disease Network Pagerank Centrality")
 
 # node with the highest pagerank
 V(graph)$label[pagerank$vector==max(pagerank$vector)] # "Colon cancer"
@@ -169,23 +166,11 @@ V(graph)$label[pagerank$vector==max(pagerank$vector)] # "Colon cancer"
 ```{r eigen_histogram}
 eigen <- eigen_centrality(graph, directed = TRUE)
 
-ggplot(mapping=aes(eigen$vector)) + 
-  geom_histogram(col="black", fill="red") + 
-  scale_y_log10(labels = trans_format("log10", math_format(expr = 10^.x))) +
-  scale_x_continuous(limits = c(0, 1)) +
-  labs(x = "eigen") +
-  labs(y = "frequency") +
-  ggtitle("Eigenvector histogram") +
-  theme_bw()
+histogram_plot(eigen$vector, c(0, 1), "eigen", "frequency", "Eigenvector histogram")
 ```
 
 ```{r graph_eigen}
-ggraph(graph, layout = 'kk') +
-  geom_edge_fan(colour = "gray") +
-  geom_node_point(aes(size = eigen$vector)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  labs(size="eigenvector") +
-  ggtitle("Human Disease Network Eigenvector Centrality") 
+plot_graph(graph, "dh", eigen$vector, 0.55, 0.04, 0.00005, nodes$label, 0.55, "Human Disease Network Eigenvector Centrality")
 
 # node with the highest eigen
 V(graph)$label[eigen$vector==max(eigen$vector)] # "Colon cancer"
@@ -217,7 +202,6 @@ for (i in 1:length(edges[, 5]))
 
 weighted_graph <- graph.data.frame(edges, directed = FALSE, vertices = nodes)
 
-
 UD_nogenes <- induced_subgraph(weighted_graph, which(nodes$X1 != "gene"))
 
 # Rimuovo i doppi nodi
@@ -236,41 +220,14 @@ ecount(UD_nogenes)
 ## Centrality Analitycs
 
 ### Degree
-
 ```{r UD_nogenes_degree_histogram}
 UD_nogenes_degree <- centr_degree(UD_nogenes, mode = "all", normalized = TRUE)
 
-ggplot(mapping=aes(UD_nogenes_degree$res)) + 
-  geom_histogram(col="black", fill="red") + 
-  scale_y_log10(labels = trans_format("log10", math_format(expr = 10^.x))) +
-  scale_x_continuous(breaks = seq(0, 160, by = 20)) +
-  labs(x = "degree") +
-  labs(y = "frequency") +
-  ggtitle("Degree histogram (nogenes)") +
-  theme_bw()
-```
-```{r}
-plot_graph <- function(graph, layout, measure, edge_width, node_s1, node_s2, node_s3, label, label_s1, title){
-  ggraph(graph, layout=layout) + #  "graphopt""
-  geom_edge_fan(aes(width=edge_width), colour = "gray66", show.legend = FALSE) +
-  geom_node_point(aes(fill=nodes$X1[nodes$X0 == "disease"],
-                      size=ifelse(measure > node_s1, 30,
-                           ifelse(measure > node_s2,  8, 
-                           ifelse(measure > node_s3,  3, 1)))),
-                      shape=21, col="grey25", show.legend = FALSE) +
-  geom_node_text(aes(label = ifelse(measure > label_s1, 
-                                    as.character(label), NA), size=2), 
-                 show.legend = FALSE) +
-  #labs(size="indegree", fill="cluster") +
-  scale_edge_width_continuous(range=c(0.2,0.9)) +
-  scale_size_continuous(range=c(1, 10)) +
-  theme_graph(base_size = 11, base_family = "sans") +
-  ggtitle(title) 
-}
+histogram_plot(UD_nogenes_degree$res, seq(0, 160, by = 20), "degree", "frequency", "Degree histogram (nogenes)")
 ```
 
 ```{r UD_nogenes_degree}
-plot_graph(UD_nogenes, "dh", UD_nogenes_degree$res, E(UD_nogenes)$weight, 25, 15, 8, nodes$label[nodes$X0 == "disease"], 25, "Human Disease Network (nogenes) Degree Centrality")
+plot_pretty_graph(UD_nogenes, "dh", UD_nogenes_degree$res, E(UD_nogenes)$weight, 25, 15, 8, nodes$label[nodes$X0 == "disease"], 25, "Human Disease Network (nogenes) Degree Centrality")
 
 # node with the highest degree
 V(UD_nogenes)$label[UD_nogenes_degree$res==max(UD_nogenes_degree$res)] # "Colon cancer"
@@ -280,40 +237,25 @@ V(UD_nogenes)$label[UD_nogenes_degree$res==max(UD_nogenes_degree$res)] # "Colon 
 ```{r UD_nogenes_betweennes_histogram}
 UD_nogenes_betweenness <- betweenness(UD_nogenes, v = V(UD_nogenes), directed = TRUE, normalized = TRUE, weights=E(UD_nogenes)$weight)
 
-ggplot(mapping=aes(UD_nogenes_betweenness)) + 
-  geom_histogram(col="black", fill="red") + 
-  scale_y_log10(labels = trans_format("log10", math_format(expr = 10^.x))) +
-  scale_x_continuous(limits = c(0, 1)) +
-  labs(x = "betweenness") +
-  labs(y = "frequency") +
-  ggtitle("Betweenness histogram (nogenes)") +
-  theme_bw()
+histogram_plot(UD_nogenes_betweenness, c(0, 1), "betweenness", "frequency", "Betweenness histogram (nogenes)")
 ```
 
 ```{r UD_nogenes_UD_nogenes_betweennes}
-plot_graph(UD_nogenes, "dh", UD_nogenes_betweenness, E(UD_nogenes)$weight, 0.3, 0.1, 0.005, nodes$label[nodes$X0 == "disease"], 0.3, "Human Disease Network (nogenes) Betweenness Centrality")
+plot_pretty_graph(UD_nogenes, "dh", UD_nogenes_betweenness, E(UD_nogenes)$weight, 0.3, 0.1, 0.005, nodes$label[nodes$X0 == "disease"], 0.3, "Human Disease Network (nogenes) Betweenness Centrality")
 
 # node with the highest betweenness
 V(UD_nogenes)$label[UD_nogenes_betweenness==max(UD_nogenes_betweenness)] # "Cardiomyopathy"
 ```
 
 ### Closeness
-
 ```{r UD_nogenes_closeness_histogram}
 UD_nogenes_closeness <- closeness(UD_nogenes, v = V(UD_nogenes), normalized = TRUE, weights=E(UD_nogenes)$weight)
 
-ggplot(mapping=aes(UD_nogenes_closeness)) + 
-  geom_histogram(col="black", fill="red") + 
-  scale_y_log10(labels = trans_format("log10", math_format(expr = 10^.x))) +
-  scale_x_continuous(limits = c(0, 1)) +
-  labs(x = "closeness") +
-  labs(y = "frequency") +
-  ggtitle("Closeness histogram (nogenes)") +
-  theme_bw()
+histogram_plot(UD_nogenes_closeness, c(0, 1), "closeness", "frequency", "Closeness histogram (nogenes)")
 ```
 
 ```{r UD_nogenes_closeness}
-plot_graph(UD_nogenes, "dh", UD_nogenes_closeness, E(UD_nogenes)$weight, 0.11, 0.09, 0.07, nodes$label[nodes$X0 == "disease"], 0.11, "Human Disease Network (nogenes) Closeness Centrality")
+plot_pretty_graph(UD_nogenes, "dh", UD_nogenes_closeness, E(UD_nogenes)$weight, 0.11, 0.09, 0.07, nodes$label[nodes$X0 == "disease"], 0.11, "Human Disease Network (nogenes) Closeness Centrality")
 
 # node with the highest closeness
 V(UD_nogenes)$label[UD_nogenes_closeness==max(UD_nogenes_closeness)] # "Diabetes mellitus" cambiato da quello senza pesi e con geni
@@ -323,40 +265,25 @@ V(UD_nogenes)$label[UD_nogenes_closeness==max(UD_nogenes_closeness)] # "Diabetes
 ```{r UD_nogenes_pagerank_histogram}
 UD_nogenes_pagerank <- page_rank(UD_nogenes, v = V(UD_nogenes), directed = TRUE, weights=E(UD_nogenes)$weight)
 
-ggplot(mapping=aes(UD_nogenes_pagerank$vector)) + 
-  geom_histogram(col="black", fill="red") + 
-  scale_y_log10(labels = trans_format("log10", math_format(expr = 10^.x))) +
-  #scale_x_continuous(limits = c(0, 1)) +
-  labs(x = "pagerank") +
-  labs(y = "frequency") +
-  ggtitle("Pagerank histogram (nogenes)") +
-  theme_bw()
+histogram_plot(UD_nogenes_pagerank$vector, c(0, 1), "pagerank", "frequency", "Pagerank histogram (nogenes)")
 ```
 
 ```{r UD_nogenes_pagerank}
-plot_graph(UD_nogenes, "dh", UD_nogenes_pagerank$vector, E(UD_nogenes)$weight, 0.01, 0.0025, 0.0008, nodes$label[nodes$X0 == "disease"], 0.01, "Human Disease Network (nogenes) Pagerank Centrality")
+plot_pretty_graph(UD_nogenes, "dh", UD_nogenes_pagerank$vector, E(UD_nogenes)$weight, 0.01, 0.0025, 0.0008, nodes$label[nodes$X0 == "disease"], 0.01, "Human Disease Network (nogenes) Pagerank Centrality")
 
 # node with the highest pagerank
 V(UD_nogenes)$label[UD_nogenes_pagerank$vector==max(UD_nogenes_pagerank$vector)] # "Colon cancer"
 ```
 
 ### Eigenvector
-
 ```{r UD_nogenes_eigen_histogram}
 UD_nogenes_eigen <- eigen_centrality(UD_nogenes, directed = TRUE, weights=E(UD_nogenes)$weight)
 
-ggplot(mapping=aes(UD_nogenes_eigen$vector)) + 
-  geom_histogram(col="black", fill="red") + 
-  scale_y_log10(labels = trans_format("log10", math_format(expr = 10^.x))) +
-  scale_x_continuous(limits = c(0, 1)) +
-  labs(x = "eigen") +
-  labs(y = "frequency") +
-  ggtitle("Eigenvector histogram (nogenes)") +
-  theme_bw()
+histogram_plot(UD_nogenes_eigen$vector, c(0, 1), "eigen", "frequency", "Eigenvector histogram (nogenes)")
 ```
 
 ```{r UD_nogenes_eigen}
-plot_graph(UD_nogenes, "dh", UD_nogenes_eigen$vector, E(UD_nogenes)$weight, 0.6, 0.04, 0.001, nodes$label[nodes$X0 == "disease"], 0.6, "Human Disease Network (nogenes) Eigenvector Centrality")
+plot_pretty_graph(UD_nogenes, "dh", UD_nogenes_eigen$vector, E(UD_nogenes)$weight, 0.6, 0.04, 0.001, nodes$label[nodes$X0 == "disease"], 0.6, "Human Disease Network (nogenes) Eigenvector Centrality")
 
 # node with the highest eigen
 V(UD_nogenes)$label[UD_nogenes_eigen$vector==max(UD_nogenes_eigen$vector)] # "Colon cancer"
@@ -366,6 +293,7 @@ V(UD_nogenes)$label[UD_nogenes_eigen$vector==max(UD_nogenes_eigen$vector)] # "Co
 
 ```{r}
 dendrogram <- as.dendrogram(hclust(dist(UD_nogenes[,])))
+
 ggraph(dendrogram, 'dendrogram') + 
   geom_edge_diagonal() +
   ggtitle("Human Disease Network (nogenes) dendogram") 
