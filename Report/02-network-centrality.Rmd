@@ -365,3 +365,11 @@ plot_graph(UD_nogenes, "dh", UD_nogenes_eigen$vector, E(UD_nogenes)$weight, 0.9,
 # node with the higest eigen
 V(UD_nogenes)$label[UD_nogenes_eigen$vector==max(UD_nogenes_eigen$vector)] # "Colon cancer"
 ```
+#### Dendogramma
+
+```{r}
+dendrogram <- as.dendrogram(hclust(dist(UD_nogenes[,])))
+ggraph(dendrogram, 'dendrogram') + 
+  geom_edge_diagonal() +
+  ggtitle("Human Disease Network (nogenes) dendogram") 
+```
