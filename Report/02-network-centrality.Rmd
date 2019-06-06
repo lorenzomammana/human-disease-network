@@ -80,7 +80,7 @@ ggraph(graph, layout = 'kk') +
   theme_graph(base_size = 11, base_family = "sans") +
   ggtitle("Human Disease Network Degree Centrality") 
 
-# node with the higest degree
+# node with the highest degree
 V(graph)$label[degree$res==max(degree$res)] # "Colon cancer"
 ```
 
@@ -108,7 +108,7 @@ ggraph(graph, layout = 'kk') +
   labs(size="betweenness", col="betweenness") +
   ggtitle("Human Disease Network Betweenness Centrality") 
 
-# node with the higest betweenness
+# node with the highest betweenness
 V(graph)$label[betweenness==max(betweenness)] # "Cardiomyopathy"
 ```
 
@@ -134,7 +134,7 @@ ggraph(graph, layout = 'kk') +
   theme_graph(base_family = "sans", base_size = 11) +
   ggtitle("Human Disease Network Closeness Centrality") 
 
-# node with the higest closeness
+# node with the highest closeness
 V(graph)$label[closeness==max(closeness)] # "Lipodystrophy"
 ```
 
@@ -160,7 +160,7 @@ ggraph(graph, layout = 'kk') +
   labs(size="pagerank") +
   ggtitle("Human Disease Network Pagerank Centrality") 
 
-# node with the higest pagerank
+# node with the highest pagerank
 V(graph)$label[pagerank$vector==max(pagerank$vector)] # "Colon cancer"
 ```
 
@@ -187,7 +187,7 @@ ggraph(graph, layout = 'kk') +
   labs(size="eigenvector") +
   ggtitle("Human Disease Network Eigenvector Centrality") 
 
-# node with the higest eigen
+# node with the highest eigen
 V(graph)$label[eigen$vector==max(eigen$vector)] # "Colon cancer"
 ```
 
@@ -272,7 +272,7 @@ plot_graph <- function(graph, layout, measure, edge_width, node_s1, node_s2, nod
 ```{r UD_nogenes_degree}
 plot_graph(UD_nogenes, "dh", UD_nogenes_degree$res, E(UD_nogenes)$weight, 25, 15, 8, nodes$label[nodes$X0 == "disease"], 25, "Human Disease Network (nogenes) Degree Centrality")
 
-# node with the higest degree
+# node with the highest degree
 V(UD_nogenes)$label[UD_nogenes_degree$res==max(UD_nogenes_degree$res)] # "Colon cancer"
 ```
 ### Betweenness
@@ -293,7 +293,7 @@ ggplot(mapping=aes(UD_nogenes_betweenness)) +
 ```{r UD_nogenes_UD_nogenes_betweennes}
 plot_graph(UD_nogenes, "dh", UD_nogenes_betweenness, E(UD_nogenes)$weight, 0.3, 0.1, 0.005, nodes$label[nodes$X0 == "disease"], 0.3, "Human Disease Network (nogenes) Betweenness Centrality")
 
-# node with the higest betweenness
+# node with the highest betweenness
 V(UD_nogenes)$label[UD_nogenes_betweenness==max(UD_nogenes_betweenness)] # "Cardiomyopathy"
 ```
 
@@ -313,14 +313,10 @@ ggplot(mapping=aes(UD_nogenes_closeness)) +
 ```
 
 ```{r UD_nogenes_closeness}
-ggraph(UD_nogenes, layout = 'kk') + 
-  geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(size = UD_nogenes_closeness)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Human Disease Network (nogenes) Closeness Centrality") 
+plot_graph(UD_nogenes, "dh", UD_nogenes_closeness, E(UD_nogenes)$weight, 0.11, 0.09, 0.07, nodes$label[nodes$X0 == "disease"], 0.11, "Human Disease Network (nogenes) Closeness Centrality")
 
-# node with the higest closeness
-V(UD_nogenes)$label[UD_nogenes_closeness==max(UD_nogenes_closeness)] # "Lipodystrophy"
+# node with the highest closeness
+V(UD_nogenes)$label[UD_nogenes_closeness==max(UD_nogenes_closeness)] # "Diabetes mellitus" cambiato da quello senza pesi e con geni
 ```
 
 ### Pagerank
@@ -340,7 +336,7 @@ ggplot(mapping=aes(UD_nogenes_pagerank$vector)) +
 ```{r UD_nogenes_pagerank}
 plot_graph(UD_nogenes, "dh", UD_nogenes_pagerank$vector, E(UD_nogenes)$weight, 0.01, 0.0025, 0.0008, nodes$label[nodes$X0 == "disease"], 0.01, "Human Disease Network (nogenes) Pagerank Centrality")
 
-# node with the higest pagerank
+# node with the highest pagerank
 V(UD_nogenes)$label[UD_nogenes_pagerank$vector==max(UD_nogenes_pagerank$vector)] # "Colon cancer"
 ```
 
@@ -360,11 +356,12 @@ ggplot(mapping=aes(UD_nogenes_eigen$vector)) +
 ```
 
 ```{r UD_nogenes_eigen}
-plot_graph(UD_nogenes, "dh", UD_nogenes_eigen$vector, E(UD_nogenes)$weight, 0.9, 0.04, 0.01, nodes$label[nodes$X0 == "disease"], 0.9, "Human Disease Network (nogenes) Eigenvector Centrality")
+plot_graph(UD_nogenes, "dh", UD_nogenes_eigen$vector, E(UD_nogenes)$weight, 0.6, 0.04, 0.001, nodes$label[nodes$X0 == "disease"], 0.6, "Human Disease Network (nogenes) Eigenvector Centrality")
 
-# node with the higest eigen
+# node with the highest eigen
 V(UD_nogenes)$label[UD_nogenes_eigen$vector==max(UD_nogenes_eigen$vector)] # "Colon cancer"
 ```
+
 #### Dendogramma
 
 ```{r}
