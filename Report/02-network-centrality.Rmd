@@ -270,17 +270,11 @@ plot_graph <- function(graph, layout, measure, edge_width, node_s1, node_s2, nod
 ```
 
 ```{r UD_nogenes_degree}
-ggraph(UD_nogenes, layout = 'kk') +
-  geom_edge_fan(colour = "gray") +
-  geom_node_point(aes(size = UD_nogenes_degree$res, colour=UD_nogenes_degree$res)) + 
-  labs(size="degree", colour="degree") +
-  theme_graph(base_size = 11, base_family = "sans") +
-  ggtitle("Human Disease Network (nogenes) Degree Centrality") 
+plot_graph(UD_nogenes, "dh", UD_nogenes_degree$res, E(UD_nogenes)$weight, 25, 15, 8, nodes$label[nodes$X0 == "disease"], 25, "Human Disease Network (nogenes) Degree Centrality")
 
 # node with the higest degree
 V(UD_nogenes)$label[UD_nogenes_degree$res==max(UD_nogenes_degree$res)] # "Colon cancer"
 ```
-
 ### Betweenness
 
 ```{r UD_nogenes_betweennes_histogram}
@@ -297,13 +291,7 @@ ggplot(mapping=aes(UD_nogenes_betweenness)) +
 ```
 
 ```{r UD_nogenes_UD_nogenes_betweennes}
-ggraph(UD_nogenes, layout = 'kk') + 
-  geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(size = ifelse(UD_nogenes_betweenness > .08, 20, UD_nogenes_betweenness+5), colour = UD_nogenes_betweenness)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  #geom_node_label(aes(label = ifelse(betweenness > .12, levels(nodes$label), NA), size = 2)) +
-  labs(size="betweenness", col="betweenness") +
-  ggtitle("Human Disease Network (niogenes) Betweenness Centrality") 
+plot_graph(UD_nogenes, "dh", UD_nogenes_betweenness, E(UD_nogenes)$weight, 0.3, 0.1, 0.005, nodes$label[nodes$X0 == "disease"], 0.3, "Human Disease Network (nogenes) Betweenness Centrality")
 
 # node with the higest betweenness
 V(UD_nogenes)$label[UD_nogenes_betweenness==max(UD_nogenes_betweenness)] # "Cardiomyopathy"
@@ -350,12 +338,7 @@ ggplot(mapping=aes(UD_nogenes_pagerank$vector)) +
 ```
 
 ```{r UD_nogenes_pagerank}
-ggraph(UD_nogenes, layout = 'kk') +
-  geom_edge_fan(colour = "gray") +
-  geom_node_point(aes(size = UD_nogenes_pagerank$vector)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  labs(size="pagerank") +
-  ggtitle("Human Disease Network (nogenes) Pagerank Centrality") 
+plot_graph(UD_nogenes, "dh", UD_nogenes_pagerank$vector, E(UD_nogenes)$weight, 0.01, 0.0025, 0.0008, nodes$label[nodes$X0 == "disease"], 0.01, "Human Disease Network (nogenes) Pagerank Centrality")
 
 # node with the higest pagerank
 V(UD_nogenes)$label[UD_nogenes_pagerank$vector==max(UD_nogenes_pagerank$vector)] # "Colon cancer"
@@ -377,12 +360,7 @@ ggplot(mapping=aes(UD_nogenes_eigen$vector)) +
 ```
 
 ```{r UD_nogenes_eigen}
-ggraph(UD_nogenes, layout = 'kk') +
-  geom_edge_fan(colour = "gray") +
-  geom_node_point(aes(size = UD_nogenes_eigen$vector)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  labs(size="eigenvector") +
-  ggtitle("Human Disease Network (nogenes) Eigenvector Centrality") 
+plot_graph(UD_nogenes, "dh", UD_nogenes_eigen$vector, E(UD_nogenes)$weight, 0.9, 0.04, 0.01, nodes$label[nodes$X0 == "disease"], 0.9, "Human Disease Network (nogenes) Eigenvector Centrality")
 
 # node with the higest eigen
 V(UD_nogenes)$label[UD_nogenes_eigen$vector==max(UD_nogenes_eigen$vector)] # "Colon cancer"
