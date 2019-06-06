@@ -249,7 +249,25 @@ ggplot(mapping=aes(UD_nogenes_degree$res)) +
   ggtitle("Degree histogram (nogenes)") +
   theme_bw()
 ```
-
+```{r}
+plot_graph <- function(graph, layout, measure, edge_width, node_s1, node_s2, node_s3, label, label_s1, title){
+  ggraph(graph, layout=layout) + #  "graphopt""
+  geom_edge_fan(aes(width=edge_width), colour = "gray66", show.legend = FALSE) +
+  geom_node_point(aes(fill=nodes$X1[nodes$X0 == "disease"],
+                      size=ifelse(measure > node_s1, 30,
+                           ifelse(measure > node_s2,  8, 
+                           ifelse(measure > node_s3,  3, 1)))),
+                      shape=21, col="grey25", show.legend = FALSE) +
+  geom_node_text(aes(label = ifelse(measure > label_s1, 
+                                    as.character(label), NA), size=2), 
+                 show.legend = FALSE) +
+  #labs(size="indegree", fill="cluster") +
+  scale_edge_width_continuous(range=c(0.2,0.9)) +
+  scale_size_continuous(range=c(1, 10)) +
+  theme_graph(base_size = 11, base_family = "sans") +
+  ggtitle(title) 
+}
+```
 
 ```{r UD_nogenes_degree}
 ggraph(UD_nogenes, layout = 'kk') +
