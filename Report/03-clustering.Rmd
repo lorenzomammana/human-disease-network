@@ -5,7 +5,8 @@
 source("util.R")
 
 # import libraries
-libraries_list <- c("ggraph", "igraph", "dplyr", "readr", "DiagrammeR", "tidyverse", "Cairo", "networkD3", "CINNA", "scales", "gridExtra")
+libraries_list <- c("ggraph", "igraph", "dplyr", "readr", "DiagrammeR", "tidyverse",
+                    "Cairo", "networkD3", "CINNA", "scales", "gridExtra", "leiden")
 import_libraries(libraries_list)
 
 # import graph
@@ -114,7 +115,7 @@ n.cluster <- 0
 for (g in graphs)
 {
   component <- components(g)
-  n.cluster = n.cluster + length(component[component$csize > 8]$csize)
+  n.cluster = n.cluster + length(component[component$csize > 1]$csize)
 }
 
 print(n.cluster)
@@ -158,10 +159,16 @@ label_cluster <- function(clusters)
     labels <- V(UD_nogenes)[clusters[[c]]]$X1
     labels <- labels[labels != "Multiple"]
     
-    value <- which.max(unlist(table(labels)))
-    
-    cluster_df$name[cluster_df$id == c] <-
-      names(value)[1]
+    if (length(labels) != 0)
+    {
+      value <- which.max(unlist(table(labels)))
+
+      cluster_df$name[cluster_df$id == c] <- names(value)[1]
+    } else
+    {
+      cluster_df$name[cluster_df$id == c] <- "Multiple"
+    }
+
   }
   
   return(cluster_df)
@@ -303,6 +310,27 @@ for (n in 1:length(mcl.communities$Cluster))
 }
 ```
 
+## Leiden Algorithm
+Quinto algoritmo di clustering, dovrebbe migliorare i risultati e anche la rapidità di esecuzione di louvain:
+```{r}
+library(leiden)
+
+leiden.communities <- leiden(adjmat, resolution_parameter = 40)
+
+print(max(leiden.communities))
+leiden.communities <- make_clusters(UD_nogenes, membership = leiden.communities)
+
+```
+
+```{r}
+leiden_cluster_df <- label_cluster(leiden.communities)
+
+for (n in 1:length(leiden.communities$membership))
+{
+  nodes_results$Leiden[n] <- leiden_cluster_df$name[leiden.communities$membership[n]]
+}
+```
+
 ## Analysis 
 Confusion matrix and accuracy
 
@@ -332,6 +360,8 @@ spinglass_confmat <- compute_confmat(nodes_results$X1, nodes_results$Spinglass)
 
 markov_confmat <- compute_confmat(nodes_results$X1, nodes_results$Markov)
 
+leiden_confmat <- compute_confmat(nodes_results$X1, nodes_results$Leiden)
+
 cat("fastgreedy")
 fastgreedy_confmat$overall[1]
 
@@ -343,6 +373,9 @@ spinglass_confmat$overall[1]
 
 cat("markov")
 markov_confmat$overall[1]
+
+cat("leiden")
+leiden_confmat$overall[1]
 ```
 #### Analisi sulle malattie che venivano contrassegnate come Unclassified:
 ```{r}
