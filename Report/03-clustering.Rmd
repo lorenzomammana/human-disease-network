@@ -29,34 +29,40 @@ graph <- graph.data.frame(edges, directed = FALSE, vertices = nodes)
 
 Settiamo il peso di ogni arco pari al numero di geni che condividono le malattie:
 ```{r}
-for (i in 1:length(edges[, 5]))
-{
-  edge <- edges[i, ]
-  
-  n1 <- V(graph)[as.character(edge$Source)]
-  n2 <- V(graph)[as.character(edge$Target)]
-  
-  n1.neigh <- neighborhood(graph, nodes = n1)[[1]]
-  n2.neigh <- neighborhood(graph, nodes = n2)[[1]]
-  
-  n1.neigh <- as.numeric(n1.neigh[n1.neigh$X1 == "gene"])
-  n2.neigh <- as.numeric(n2.neigh[n2.neigh$X1 == "gene"])
-  
-  weight <- length(intersect(n1.neigh, n2.neigh))
-  
-  edges[i, ]$weight <- weight
-}
+# for (i in 1:length(edges[, 5]))
+# {
+#   edge <- edges[i, ]
+# 
+#   n1 <- V(graph)[as.character(edge$Source)]
+#   n2 <- V(graph)[as.character(edge$Target)]
+# 
+#   n1.neigh <- neighborhood(graph, nodes = n1)[[1]]
+#   n2.neigh <- neighborhood(graph, nodes = n2)[[1]]
+# 
+#   n1.neigh <- as.numeric(n1.neigh[n1.neigh$X1 == "gene"])
+#   n2.neigh <- as.numeric(n2.neigh[n2.neigh$X1 == "gene"])
+# 
+#   weight <- length(intersect(n1.neigh, n2.neigh))
+# 
+#   edges[i, ]$weight <- weight
+# }
 
-graph <- graph.data.frame(edges, directed = FALSE, vertices = nodes)
+weight <- readRDS("edgeweights.rds")
+edges$weight <- weight
 ```
 
-Le malattie sono già clusterizzate in macrogruppi medici (cancro, cardiovascolare, etc...), proviamo a vedere se questi cluster si trovano vicini all'interno della rete:
+Creiamo il grafo finale:
 ```{r}
+graph <- graph.data.frame(edges, directed = FALSE, vertices = nodes)
+
 UD_nogenes <- induced_subgraph(graph, which(nodes$X1 != "gene"))
 
 # Rimuovo i doppi nodi
 UD_nogenes <- igraph::simplify(UD_nogenes)
+```
 
+Le malattie sono già clusterizzate in macrogruppi medici (cancro, cardiovascolare, etc...), proviamo a vedere se questi cluster si trovano vicini all'interno della rete:
+```{r}
 disease_clusters <- unique(nodes$X1)
 
 i = 1
@@ -109,36 +115,26 @@ for (disease in disease_clusters)
 
 Vediamo quante componenti connesse abbiamo per ogni cluster:
 ```{r}
-
 n.cluster <- 0
 
 for (g in graphs)
 {
   component <- components(g)
-  n.cluster = n.cluster + length(component[component$csize > 1]$csize)
+  n.cluster = n.cluster + length(component$csize[component$csize > 0])
 }
 
 print(n.cluster)
 ```
 
 ```{r}
-UD_graph <- graph.data.frame(edges, directed = FALSE, vertices = nodes)
-
-UD_nogenes <- induced_subgraph(UD_graph, which(nodes$X1 != "gene"))
-
-# Rimuovo i doppi nodi
-UD_nogenes <- igraph::simplify(UD_nogenes)
-
-betwennes.communities <- edge.betweenness.community(UD_nogenes, directed = FALSE, weights = E(UD_nogenes)$weight)
-
-V(UD_nogenes)[betwennes.communities[[2]]]$X1
-```
-```{r}
 nodes_results <- nodes %>% filter(X1 != "gene") %>% select(-X0)
+nodes_results$Betweenness <- NA
 nodes_results$Fastgreedy <- NA
 nodes_results$Louvain <- NA
 nodes_results$Spinglass <- NA
 nodes_results$Markov <- NA
+nodes_results$Leiden <- NA
+nodes_results$Label_prop <- NA
 
 ```
 
@@ -175,10 +171,25 @@ label_cluster <- function(clusters)
 }
 ```
 
-## Fastgreedy
-Primo algoritmo di clustering:
+## Edge betweennes
+
+Primo algoritmo di clustering
+
 ```{r}
-fgreedy.communities <- fastgreedy.community(UD_nogenes, modularity = TRUE, weights = E(UD_nogenes)$weight)
+betweennes.communities <- cluster_edge_betweenness(UD_nogenes, directed = FALSE, weights = E(UD_nogenes)$weight)
+
+betweennes_cluster_df <- label_cluster(betweennes.communities)
+
+for (n in 1:length(betweennes.communities$membership))
+{
+  nodes_results$Betweenness[n] <- betweennes_cluster_df$name[betweennes.communities$membership[n]]
+}
+```
+
+## Fastgreedy
+Secondo algoritmo di clustering:
+```{r}
+fgreedy.communities <- cluster_fast_greedy(UD_nogenes, modularity = TRUE, weights = E(UD_nogenes)$weight)
 
 V(UD_nogenes)[fgreedy.communities[[5]]]$X1
 
@@ -205,7 +216,7 @@ for (n in 1:length(fgreedy.communities$membership))
 ```
 
 ## Louvain
-Secondo algoritmo di clustering:
+Terzo algoritmo di clustering:
 ```{r}
 louvain.communities <- cluster_louvain(UD_nogenes, weights = E(UD_nogenes)$weight)
 
@@ -230,10 +241,11 @@ for (n in 1:length(louvain.communities$membership))
 }
 
 ```
+
 ## Spinglass
-Terzo algoritmo di clustering:
+Quarto algoritmo di clustering:
 ```{r}
-spinglass.communities <- cluster_spinglass(UD_nogenes, spins = 225, weights = E(UD_nogenes)$weight)
+spinglass.communities <- cluster_spinglass(UD_nogenes, spins = 197, weights = E(UD_nogenes)$weight)
 
 spinglass.communities #IGRAPH clustering spinglass, groups: varia... 39/43 ... (communities), mod: 0.4 
 
@@ -257,12 +269,12 @@ for (n in 1:length(spinglass.communities$membership))
 ```
 
 ## Markov Cluster Algorithm
-Quarto algoritmo di clustering:
+Quinto algoritmo di clustering:
 ```{r}
 library(MCL)
 adjmat <- as_adj(UD_nogenes, type = "both", attr = "weight")
 
-mcl.communities <- mcl(adjmat, addLoops = FALSE) # 71 cluster
+mcl.communities <- mcl(adjmat, addLoops = FALSE, inflation = 4, allow1 = TRUE) # 169 cluster
 
 ggraph(UD_nogenes, layout = 'kk') +
   geom_edge_fan(colour = "gray") + 
@@ -303,7 +315,7 @@ for (id in markov_cluster_df$id)
       markov_cluster_df$name[markov_cluster_df$id == id] <- names(value)[1]
     }
 }
-
+  
 for (n in 1:length(mcl.communities$Cluster))
 {
   nodes_results$Markov[n] <- markov_cluster_df$name[mcl.communities$Cluster[n] == markov_cluster_df$id]
@@ -311,11 +323,12 @@ for (n in 1:length(mcl.communities$Cluster))
 ```
 
 ## Leiden Algorithm
-Quinto algoritmo di clustering, dovrebbe migliorare i risultati e anche la rapidità di esecuzione di louvain:
+Sesto algoritmo di clustering, dovrebbe migliorare i risultati e anche la rapidità di esecuzione di louvain:
 ```{r}
 library(leiden)
+adjmat <- as_adj(UD_nogenes, type = "both", attr = "weight")
 
-leiden.communities <- leiden(adjmat, resolution_parameter = 40)
+leiden.communities <- leiden(adjmat, resolution_parameter = 70)
 
 print(max(leiden.communities))
 leiden.communities <- make_clusters(UD_nogenes, membership = leiden.communities)
@@ -331,10 +344,91 @@ for (n in 1:length(leiden.communities$membership))
 }
 ```
 
+
+## Label propagation
+
+Settimo algoritmo di clustering.
+Label propagation senza inizializzazione
+
+```{r}
+label_prop.communities <- cluster_label_prop(UD_nogenes, weights = E(UD_nogenes)$weight)
+```
+
+```{r}
+label_prop_cluster_df <- label_cluster(label_prop.communities)
+
+for (n in 1:length(label_prop.communities$membership))
+{
+  nodes_results$Label_prop[n] <- label_prop_cluster_df$name[label_prop.communities$membership[n]]
+}
+```
+
+Proviamo a fissare alcune label:
+
+```{r}
+
+V(UD_nogenes)$initial <- NA
+V(UD_nogenes)$fixed <- NA
+
+# Questo dovrebbe etichettare un po' di cluster singoli e un po' dei loro vicini per arrivare ad un 20% di nodi già labellati
+# Però le performance degradano fino al 40% :)
+# for (g in graphs)
+# {
+#   component <- components(g)
+#   for (i in 1:length(components(g)$csize))
+#   {
+#     if (component$csize[i] == 1)
+#     {
+#       node_idx <- component$membership[component$membership == i]
+#       
+#       node <- names(node_idx)
+#       
+#       if (runif(1) < 0.5)
+#       {
+#         V(UD_nogenes)[node]$initial <- which(disease_clusters == V(UD_nogenes)[node]$X1)
+#         V(UD_nogenes)[node]$fixed <- TRUE
+#         
+#         for (idx in neighborhood(UD_nogenes, nodes = node_idx, order = 3))
+#         {
+#           if (runif(1) < 0.009)
+#           {
+#             V(UD_nogenes)[idx]$initial <- which(disease_clusters == V(UD_nogenes)[idx]$X1)
+#             V(UD_nogenes)[idx]$fixed <- TRUE
+#           }
+#         }
+#       }
+#       
+#     }
+#   }
+# }
+
+for (i in 1:length(V(UD_nogenes)))
+{
+  if (runif(1) < 0.2)
+  {
+    V(UD_nogenes)[i]$initial <- which(disease_clusters == V(UD_nogenes)[i]$X1)
+    V(UD_nogenes)[i]$fixed <- TRUE
+  }
+}
+
+V(UD_nogenes)$initial[is.na(V(UD_nogenes)$initial)] <- -1
+V(UD_nogenes)$fixed[is.na(V(UD_nogenes)$fixed)] <- FALSE
+
+label_prop_init.communities <- cluster_label_prop(UD_nogenes, weights = E(UD_nogenes)$weight,
+                                                  initial = V(UD_nogenes)$initial, fixed = V(UD_nogenes)$fixed)
+
+label_prop_init_cluster_df <- label_cluster(label_prop_init.communities)
+
+for (n in 1:length(label_prop_init.communities$membership))
+{
+  nodes_results$Label_prop_init[n] <- label_prop_init_cluster_df$name[label_prop_init.communities$membership[n]]
+}
+```
+
 ## Analysis 
 Confusion matrix and accuracy
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(caret)
 
 compute_confmat <- function(groundtruth, communities.algo)
@@ -352,6 +446,8 @@ compute_confmat <- function(groundtruth, communities.algo)
   return(confusionMatrix(atable))
 }
 
+betweennes_confmat <- compute_confmat(nodes_results$X1, nodes_results$Betweenness)
+
 fastgreedy_confmat <- compute_confmat(nodes_results$X1, nodes_results$Fastgreedy)
 
 louvain_confmat <- compute_confmat(nodes_results$X1, nodes_results$Louvain)
@@ -361,6 +457,13 @@ spinglass_confmat <- compute_confmat(nodes_results$X1, nodes_results$Spinglass)
 markov_confmat <- compute_confmat(nodes_results$X1, nodes_results$Markov)
 
 leiden_confmat <- compute_confmat(nodes_results$X1, nodes_results$Leiden)
+
+label_prop_confmat <- compute_confmat(nodes_results$X1, nodes_results$Label_prop)
+
+label_prop_init_confmat <- compute_confmat(nodes_results$X1, nodes_results$Label_prop_init)
+
+cat("betweennes")
+betweennes_confmat$overall[1]
 
 cat("fastgreedy")
 fastgreedy_confmat$overall[1]
@@ -376,6 +479,12 @@ markov_confmat$overall[1]
 
 cat("leiden")
 leiden_confmat$overall[1]
+
+cat("label propagation")
+label_prop_confmat$overall[1]
+
+cat("label propagation with initialization")
+label_prop_init_confmat$overall[1]
 ```
 #### Analisi sulle malattie che venivano contrassegnate come Unclassified:
 ```{r}
