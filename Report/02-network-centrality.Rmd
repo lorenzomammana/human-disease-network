@@ -35,7 +35,6 @@ plot_graph <- function(graph, layout, measure, node_s1, node_s2, node_s3, label,
   geom_node_text(aes(label = ifelse(measure > label_s1, 
                                     as.character(label), NA), size=2), 
                  show.legend = FALSE) +
-  scale_edge_width_continuous(range=c(0.2,0.9)) +
   scale_size_continuous(range=c(1, 10)) +
   theme_graph(base_size = 11, base_family = "sans") +
   ggtitle(title) 
@@ -108,14 +107,32 @@ ggplot(edges, aes(x = edges$Source, y = edges$Target, color = "red")) +
 degree <- centr_degree(graph, mode = "all", normalized = TRUE)
 
 histogram_plot(degree$res, seq(0, 160, by = 20), "degree", "frequency", "Degree histogram")
+
+# nodes with the highest degree
+V(graph)$label[order(degree$res, decreasing=TRUE)][1:5]
+# "Colon cancer", "Deafness", "Leukemia", "Breast cancer", "Diabetes mellitus"
 ```
 
-```{r graph_degree}
-plot_graph(graph, "dh", degree$res, 75, 25, 15, nodes$label, 75, "Human Disease Network Degree Centrality")
+```{r indegree_histogram}
+indegree <- centr_degree(graph, mode = "in", normalized = TRUE)
 
-# node with the highest degree
-V(graph)$label[degree$res==max(degree$res)] # "Colon cancer"
+histogram_plot(indegree$res, seq(0, 160, by = 20), "indegree", "frequency", "Indegree histogram")
+
+# node with the highest indegree
+V(graph)$label[order(indegree$res, decreasing=TRUE)][1:5]
+# "Colon cancer", "Deafness", "Leukemia", "Breast cancer", "Diabetes mellitus"
 ```
+
+```{r outdegree_histogram}
+outdegree <- centr_degree(graph, mode = "out", normalized = TRUE)
+
+histogram_plot(outdegree$res, seq(0, 160, by = 20), "outdegree", "frequency", "Outdegree histogram")
+
+# node with the highest outdegree
+V(graph)$label[order(outdegree$res, decreasing=TRUE)][1:5]
+# "Colon cancer"      "Deafness"          "Leukemia"          "Breast cancer"    "Diabetes mellitus"
+```
+Otteniamo sempre gli stessi risultati
 
 ### Betweenness
 
@@ -123,13 +140,14 @@ V(graph)$label[degree$res==max(degree$res)] # "Colon cancer"
 betweenness <- betweenness(graph, v = V(graph), directed = TRUE, normalized = TRUE)
 
 histogram_plot(betweenness, c(0, 1), "betweenness", "frequency", "Betweenness histogram")
+
+# node with the highest betweenness
+V(graph)$label[order(betweenness, decreasing=TRUE)][1:5] 
+# "Cardiomyopathy" "Lipodystrophy"     "Diabetes mellitus" "Glioblastoma"      "Deafness" 
 ```
 
 ```{r graph_betweennes}
 plot_graph(graph, "dh", betweenness, 0.14, 0.01, 0.0001, nodes$label, 0.14, "Human Disease Network Betweenness Centrality")
-
-# node with the highest betweenness
-V(graph)$label[betweenness==max(betweenness)] # "Cardiomyopathy"
 ```
 
 ### Closeness
@@ -138,13 +156,14 @@ V(graph)$label[betweenness==max(betweenness)] # "Cardiomyopathy"
 closeness <- closeness(graph, v = V(graph), normalized = TRUE)
 
 histogram_plot(closeness, c(0, 1), "closeness", "frequency", "Closeness histogram")
+
+# node with the highest closeness
+V(graph)$label[order(closeness, decreasing=TRUE)][1:5] 
+# "Lipodystrophy"     "Diabetes mellitus" "Glioblastoma"      "Obesity"           "Cardiomyopathy"
 ```
 
 ```{r graph_closeness}
 plot_graph(graph, "dh", closeness, 0.23, 0.09, 0.07, nodes$label, 0.23, "Human Disease Network Closeness Centrality")
-
-# node with the highest closeness
-V(graph)$label[closeness==max(closeness)] # "Lipodystrophy"
 ```
 
 ### Pagerank
@@ -152,13 +171,14 @@ V(graph)$label[closeness==max(closeness)] # "Lipodystrophy"
 pagerank <- page_rank(graph, v = V(graph), directed = TRUE)
 
 histogram_plot(pagerank$vector, c(0, 1), "pagerank", "frequency", "Pagerank histogram")
+
+# node with the highest pagerank
+V(graph)$label[order(pagerank$vector, decreasing=TRUE)][1:5] 
+# "Colon cancer"      "Deafness"          "Leukemia"          "Diabetes mellitus" "Thyroid carcinoma"
 ```
 
 ```{r graph_pagerank}
 plot_graph(graph, "dh", pagerank$vector, 0.003, 0.001, 0.0007, nodes$label, 0.003, "Human Disease Network Pagerank Centrality")
-
-# node with the highest pagerank
-V(graph)$label[pagerank$vector==max(pagerank$vector)] # "Colon cancer"
 ```
 
 ### Eigenvector
@@ -167,13 +187,14 @@ V(graph)$label[pagerank$vector==max(pagerank$vector)] # "Colon cancer"
 eigen <- eigen_centrality(graph, directed = TRUE)
 
 histogram_plot(eigen$vector, c(0, 1), "eigen", "frequency", "Eigenvector histogram")
+
+# node with the highest eigen
+V(graph)$label[order(eigen$vector, decreasing=TRUE)][1:5] 
+# "Colon cancer"      "Breast cancer"     "Thyroid carcinoma" "Pancreatic cancer" "Hepatic adenoma"  
 ```
 
 ```{r graph_eigen}
 plot_graph(graph, "dh", eigen$vector, 0.55, 0.04, 0.00005, nodes$label, 0.55, "Human Disease Network Eigenvector Centrality")
-
-# node with the highest eigen
-V(graph)$label[eigen$vector==max(eigen$vector)] # "Colon cancer"
 ```
 
 ## Network without genes and weighted
