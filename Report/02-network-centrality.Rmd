@@ -14,14 +14,17 @@ import_libraries(libraries_list)
 
 ```{r}
 histogram_plot <- function(mapping, scale, x_lab, y_lab, title){
-  ggplot(mapping=aes(mapping)) + 
-    geom_histogram(col="black", fill="red") + 
+  #gg <- 
+  ggplot(mapping=aes(x=mapping)) + 
+    geom_histogram(col="black", fill="#80C58D") + 
+    stat_bin(aes(y=..count.., label=..count..), geom="text", vjust=-.5, size=3) +
     scale_y_log10(labels = trans_format("log10", math_format(expr = 10^.x))) +
-    scale_x_continuous(scale) +
-    labs(x = x_lab) +
-    labs(y = y_lab) +
+    scale_x_continuous(x_lab, scale) +
+    labs(x=x_lab, y=y_lab) +
     ggtitle(title) +
     theme_bw()
+  
+#  gg + geom_density(aes(mapping, y=..scaled.., fill="#FF6666"), alpha=.2)
 }
 
 plot_graph <- function(graph, layout, measure, node_s1, node_s2, node_s3, label, label_s1, title){
@@ -77,11 +80,13 @@ edges <- edges %>% select(-timeset, -label)
 graph <- graph.data.frame(edges, directed = TRUE, vertices = nodes)
 # print(graph, e=TRUE, v=TRUE) ## IGRAPH 9af20f4 DNW- 1419 3926
 
-ggraph(graph, layout = 'kk') +
-  geom_edge_fan(colour = "gray") + 
-  geom_node_point() +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Human Disease Network")
+ggraph(graph, layout="kk") + #  "graphopt""
+    geom_edge_fan(colour = "gray66", show.legend = FALSE) +
+    geom_node_point(fill= ifelse(nodes$X0 == "gene", "#FFAB40", "#4182A8"), #"#FFAB40",
+                    shape=21, col="grey25", show.legend = FALSE) +
+    scale_size_continuous(range=c(1, 10)) +
+    theme_graph(base_size = 11, base_family = "sans") +
+    ggtitle("Human Disease Network") 
 ```
 
 ```{r}
@@ -228,11 +233,14 @@ UD_nogenes <- induced_subgraph(weighted_graph, which(nodes$X1 != "gene"))
 # Rimuovo i doppi nodi
 UD_nogenes <- igraph::simplify(UD_nogenes)
 
-ggraph(UD_nogenes, layout = 'kk') +
-  geom_edge_fan(colour = "gray") + 
-  geom_node_point() +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Human Disease Network")
+ggraph(UD_nogenes, layout="graphopt") + #  "graphopt""
+  geom_edge_fan(aes(width=E(UD_nogenes)$weight), colour = "gray66", show.legend = FALSE) +
+  geom_node_point(fill="#FFAB40", shape=21, 
+                  col="grey25", show.legend = FALSE) +
+  scale_edge_width_continuous(range=c(0.2,0.9)) +
+  scale_size_continuous(range=c(1, 10)) +
+  theme_graph(base_size = 11, base_family = "sans") +
+  ggtitle("Human Disease Network Nogenes") 
 ```
 ```{r}
 vcount(UD_nogenes)
