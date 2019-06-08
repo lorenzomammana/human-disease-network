@@ -245,13 +245,15 @@ ecount(UD_nogenes)
 UD_nogenes_degree <- centr_degree(UD_nogenes, mode = "all", normalized = TRUE)
 
 histogram_plot(UD_nogenes_degree$res, seq(0, 160, by = 20), "degree", "frequency", "Degree histogram (nogenes)")
+
+# nodes with the highest degree
+V(graph)$label[order(UD_nogenes_degree$res, decreasing=TRUE)][1:5]
+# "Colon cancer", "Breast cancer"     "Gastric cancer"    "Leukemia"  "Thyroid carcinoma"
 ```
+
 
 ```{r UD_nogenes_degree}
 plot_pretty_graph(UD_nogenes, "dh", UD_nogenes_degree$res, E(UD_nogenes)$weight, 25, 15, 8, nodes$label[nodes$X0 == "disease"], 25, "Human Disease Network (nogenes) Degree Centrality")
-
-# node with the highest degree
-V(UD_nogenes)$label[UD_nogenes_degree$res==max(UD_nogenes_degree$res)] # "Colon cancer"
 ```
 ### Betweenness
 
@@ -259,13 +261,14 @@ V(UD_nogenes)$label[UD_nogenes_degree$res==max(UD_nogenes_degree$res)] # "Colon 
 UD_nogenes_betweenness <- betweenness(UD_nogenes, v = V(UD_nogenes), directed = TRUE, normalized = TRUE, weights=E(UD_nogenes)$weight)
 
 histogram_plot(UD_nogenes_betweenness, c(0, 1), "betweenness", "frequency", "Betweenness histogram (nogenes)")
+
+# nodes with the highest betweenness
+V(graph)$label[order(UD_nogenes_betweenness, decreasing=TRUE)][1:5]
+# "Cardiomyopathy"    "Lipodystrophy"     "Diabetes mellitus" "Glioblastoma"      "Myopathy"
 ```
 
 ```{r UD_nogenes_UD_nogenes_betweennes}
 plot_pretty_graph(UD_nogenes, "dh", UD_nogenes_betweenness, E(UD_nogenes)$weight, 0.3, 0.1, 0.005, nodes$label[nodes$X0 == "disease"], 0.3, "Human Disease Network (nogenes) Betweenness Centrality")
-
-# node with the highest betweenness
-V(UD_nogenes)$label[UD_nogenes_betweenness==max(UD_nogenes_betweenness)] # "Cardiomyopathy"
 ```
 
 ### Closeness
@@ -273,13 +276,14 @@ V(UD_nogenes)$label[UD_nogenes_betweenness==max(UD_nogenes_betweenness)] # "Card
 UD_nogenes_closeness <- closeness(UD_nogenes, v = V(UD_nogenes), normalized = TRUE, weights=E(UD_nogenes)$weight)
 
 histogram_plot(UD_nogenes_closeness, c(0, 1), "closeness", "frequency", "Closeness histogram (nogenes)")
+
+# nodes with the highest closeness
+V(graph)$label[order(UD_nogenes_closeness, decreasing=TRUE)][1:5]
+# "Diabetes mellitus"  "Lipodystrophy"      "Glioblastoma"       "Cardiomyopathy"    "Insulin resistance"
 ```
 
 ```{r UD_nogenes_closeness}
 plot_pretty_graph(UD_nogenes, "dh", UD_nogenes_closeness, E(UD_nogenes)$weight, 0.11, 0.09, 0.07, nodes$label[nodes$X0 == "disease"], 0.11, "Human Disease Network (nogenes) Closeness Centrality")
-
-# node with the highest closeness
-V(UD_nogenes)$label[UD_nogenes_closeness==max(UD_nogenes_closeness)] # "Diabetes mellitus" cambiato da quello senza pesi e con geni
 ```
 
 ### Pagerank
@@ -287,13 +291,14 @@ V(UD_nogenes)$label[UD_nogenes_closeness==max(UD_nogenes_closeness)] # "Diabetes
 UD_nogenes_pagerank <- page_rank(UD_nogenes, v = V(UD_nogenes), directed = TRUE, weights=E(UD_nogenes)$weight)
 
 histogram_plot(UD_nogenes_pagerank$vector, c(0, 1), "pagerank", "frequency", "Pagerank histogram (nogenes)")
+
+# nodes with the highest pagerank
+V(graph)$label[order(UD_nogenes_pagerank$vector, decreasing=TRUE)][1:5]
+# "Colon cancer"      "Deafness"          "Diabetes mellitus" "Breast cancer"     "Leukemia" 
 ```
 
 ```{r UD_nogenes_pagerank}
 plot_pretty_graph(UD_nogenes, "dh", UD_nogenes_pagerank$vector, E(UD_nogenes)$weight, 0.01, 0.0025, 0.0008, nodes$label[nodes$X0 == "disease"], 0.01, "Human Disease Network (nogenes) Pagerank Centrality")
-
-# node with the highest pagerank
-V(UD_nogenes)$label[UD_nogenes_pagerank$vector==max(UD_nogenes_pagerank$vector)] # "Colon cancer"
 ```
 
 ### Eigenvector
@@ -301,21 +306,27 @@ V(UD_nogenes)$label[UD_nogenes_pagerank$vector==max(UD_nogenes_pagerank$vector)]
 UD_nogenes_eigen <- eigen_centrality(UD_nogenes, directed = TRUE, weights=E(UD_nogenes)$weight)
 
 histogram_plot(UD_nogenes_eigen$vector, c(0, 1), "eigen", "frequency", "Eigenvector histogram (nogenes)")
+
+# nodes with the highest eigenvector
+V(graph)$label[order(UD_nogenes_eigen$vector, decreasing=TRUE)][1:5]
+#"Colon cancer"      "Breast cancer"     "Ovarian cancer"    "Lymphoma"          "Pancreatic cancer"
 ```
 
 ```{r UD_nogenes_eigen}
 plot_pretty_graph(UD_nogenes, "dh", UD_nogenes_eigen$vector, E(UD_nogenes)$weight, 0.6, 0.04, 0.001, nodes$label[nodes$X0 == "disease"], 0.6, "Human Disease Network (nogenes) Eigenvector Centrality")
-
-# node with the highest eigen
-V(UD_nogenes)$label[UD_nogenes_eigen$vector==max(UD_nogenes_eigen$vector)] # "Colon cancer"
 ```
 
 #### Dendogramma
 
 ```{r}
-dendrogram <- as.dendrogram(hclust(dist(UD_nogenes[,])))
+dendrogram <- as.dendrogram(hclust(dist(graph[,])))
+dendrogram_nogenes <- as.dendrogram(hclust(dist(UD_nogenes[,])))
 
 ggraph(dendrogram, 'dendrogram') + 
+  geom_edge_diagonal() +
+  ggtitle("Human Disease Network dendogram") 
+
+ggraph(dendrogram_nogenes, 'dendrogram') + 
   geom_edge_diagonal() +
   ggtitle("Human Disease Network (nogenes) dendogram") 
 ```
