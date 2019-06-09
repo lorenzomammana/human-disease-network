@@ -30,9 +30,9 @@ edges <- edges %>% select(-timeset, -label)
 graph <- graph.data.frame(edges, directed = TRUE, vertices = nodes)
 # print(graph, e=TRUE, v=TRUE) ## IGRAPH 9af20f4 DNW- 1419 3926
 
-ggraph(graph, layout="kk") + #  "graphopt""
+ggraph(graph, layout="graphopt") + #  "graphopt""
     geom_edge_fan(colour = "gray66", show.legend = FALSE) +
-    geom_node_point(fill= ifelse(nodes$X0 == "gene", "#FFAB40", "#4182A8"), #"#FFAB40",
+    geom_node_point(fill= ifelse(nodes$X0 == "gene", "#FFAB40", "#F8F445"), #"#FFAB40",
                     shape=21, col="grey25", show.legend = FALSE) +
     scale_size_continuous(range=c(1, 10)) +
     theme_graph(base_size = 11, base_family = "sans") +
@@ -211,7 +211,7 @@ V(graph)$label[order(UD_nogenes_degree$res, decreasing=TRUE)][1:5]
 
 
 ```{r UD_nogenes_degree}
-plot_pretty_graph(UD_nogenes, "dh", UD_nogenes_degree$res, E(UD_nogenes)$weight, 25, 15, 8, nodes$label[nodes$X0 == "disease"], 25, "Human Disease Network (nogenes) Degree Centrality")
+plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_degree$res, E(UD_nogenes)$weight, 25, 15, 8, nodes$label[nodes$X0 == "disease"], 25, "Human Disease Network (nogenes) Degree Centrality")
 ```
 ### Betweenness
 
@@ -226,7 +226,7 @@ V(graph)$label[order(UD_nogenes_betweenness, decreasing=TRUE)][1:5]
 ```
 
 ```{r UD_nogenes_UD_nogenes_betweennes}
-plot_pretty_graph(UD_nogenes, "dh", UD_nogenes_betweenness, E(UD_nogenes)$weight, 0.3, 0.1, 0.005, nodes$label[nodes$X0 == "disease"], 0.3, "Human Disease Network (nogenes) Betweenness Centrality")
+plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_betweenness, E(UD_nogenes)$weight, 0.3, 0.1, 0.005, nodes$label[nodes$X0 == "disease"], 0.3, "Human Disease Network (nogenes) Betweenness Centrality")
 ```
 
 ### Closeness
@@ -241,7 +241,7 @@ V(graph)$label[order(UD_nogenes_closeness, decreasing=TRUE)][1:5]
 ```
 
 ```{r UD_nogenes_closeness}
-plot_pretty_graph(UD_nogenes, "dh", UD_nogenes_closeness, E(UD_nogenes)$weight, 0.11, 0.09, 0.07, nodes$label[nodes$X0 == "disease"], 0.11, "Human Disease Network (nogenes) Closeness Centrality")
+plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_closeness, E(UD_nogenes)$weight, 0.11, 0.09, 0.07, nodes$label[nodes$X0 == "disease"], 0.11, "Human Disease Network (nogenes) Closeness Centrality")
 ```
 
 ### Pagerank
@@ -256,7 +256,7 @@ V(graph)$label[order(UD_nogenes_pagerank$vector, decreasing=TRUE)][1:5]
 ```
 
 ```{r UD_nogenes_pagerank}
-plot_pretty_graph(UD_nogenes, "dh", UD_nogenes_pagerank$vector, E(UD_nogenes)$weight, 0.01, 0.0025, 0.0008, nodes$label[nodes$X0 == "disease"], 0.01, "Human Disease Network (nogenes) Pagerank Centrality")
+plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_pagerank$vector, E(UD_nogenes)$weight, 0.01, 0.0025, 0.0008, nodes$label[nodes$X0 == "disease"], 0.01, "Human Disease Network (nogenes) Pagerank Centrality")
 ```
 
 ### Eigenvector
@@ -271,7 +271,7 @@ V(graph)$label[order(UD_nogenes_eigen$vector, decreasing=TRUE)][1:5]
 ```
 
 ```{r UD_nogenes_eigen}
-plot_pretty_graph(UD_nogenes, "dh", UD_nogenes_eigen$vector, E(UD_nogenes)$weight, 0.6, 0.04, 0.001, nodes$label[nodes$X0 == "disease"], 0.6, "Human Disease Network (nogenes) Eigenvector Centrality")
+plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_eigen$vector, E(UD_nogenes)$weight, 0.6, 0.04, 0.001, nodes$label[nodes$X0 == "disease"], 0.6, "Human Disease Network (nogenes) Eigenvector Centrality")
 ```
 
 #### Dendogramma
