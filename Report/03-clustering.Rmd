@@ -67,7 +67,8 @@ for (disease in disease_clusters)
   i = i + 1
 }
 
-plot_pretty_graph(UD_nogenes, "graphopt", V(UD_nogenes)$color, 22, E(UD_nogenes)$weight, "Human Disease Network Clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", V(UD_nogenes)$color, 22, E(UD_nogenes)$weight, 
+                  "Human Disease Network Clusters")
 ```
 
 ```{r}
@@ -124,7 +125,8 @@ UD_nogenes <- induced_subgraph(UD_graph, which(nodes$X1 != "gene"))
 # Rimuovo i doppi nodi
 UD_nogenes <- igraph::simplify(UD_nogenes)
 
-betwennes.communities <- edge.betweenness.community(UD_nogenes, directed = FALSE, weights = E(UD_nogenes)$weight)
+betwennes.communities <- edge.betweenness.community(UD_nogenes, directed = FALSE, 
+                                                    weights = E(UD_nogenes)$weight)
 
 V(UD_nogenes)[betwennes.communities[[2]]]$X1
 ```
@@ -134,7 +136,6 @@ nodes_results$Fastgreedy <- NA
 nodes_results$Louvain <- NA
 nodes_results$Spinglass <- NA
 nodes_results$Markov <- NA
-
 ```
 
 ## Regola di clustering
@@ -172,14 +173,17 @@ label_cluster <- function(clusters)
 
 ## Fastgreedy
 Primo algoritmo di clustering:
-```{r}
-fgreedy.communities <- fastgreedy.community(UD_nogenes, modularity = TRUE, weights = E(UD_nogenes)$weight)
+```{r Fastgreedy_graph}
+fgreedy.communities <- fastgreedy.community(UD_nogenes, modularity = TRUE, 
+                                            weights = E(UD_nogenes)$weight)
 
 V(UD_nogenes)[fgreedy.communities[[5]]]$X1
 
 fgreedy.communities #IGRAPH clustering fast greedy, groups: 26 (communities), mod: 0.82 
 
-plot_pretty_graph(UD_nogenes, "graphopt", fgreedy.communities$membership, length(fgreedy.communities), E(UD_nogenes)$weight, "Human Disease Network Fastgreedy Membership")
+plot_pretty_graph(UD_nogenes, "graphopt", fgreedy.communities$membership, 
+                  length(fgreedy.communities), E(UD_nogenes)$weight, 
+                  "Human Disease Network Fastgreedy Membership")
 
 ```
 
@@ -195,12 +199,14 @@ for (n in 1:length(fgreedy.communities$membership))
 
 ## Louvain
 Secondo algoritmo di clustering:
-```{r}
+```{r Louvain_graph}
 louvain.communities <- cluster_louvain(UD_nogenes, weights = E(UD_nogenes)$weight)
 
 louvain.communities #IGRAPH clustering multi level, groups: 27 (communities), mod: 0.83 + groups:  
 
-plot_pretty_graph(UD_nogenes, "graphopt", louvain.communities$membership, length(louvain.communities), E(UD_nogenes)$weight, "Human Disease Network Louvain Membership")
+plot_pretty_graph(UD_nogenes, "graphopt", louvain.communities$membership, 
+                  length(louvain.communities), E(UD_nogenes)$weight, 
+                  "Human Disease Network Louvain Membership")
 
 ```
 
@@ -215,12 +221,16 @@ for (n in 1:length(louvain.communities$membership))
 ```
 ## Spinglass
 Terzo algoritmo di clustering:
-```{r}
-spinglass.communities <- cluster_spinglass(UD_nogenes, spins = 225, weights = E(UD_nogenes)$weight)
+```{r Spinglass_graph}
+spinglass.communities <- cluster_spinglass(UD_nogenes, spins = 225, 
+                                           weights = E(UD_nogenes)$weight)
 
-spinglass.communities #IGRAPH clustering spinglass, groups: varia... 39/43 ... (communities), mod: 0.4 
+spinglass.communities 
+#IGRAPH clustering spinglass, groups: varia... 39/43 ... (communities), mod: 0.4 
 
-plot_pretty_graph(UD_nogenes, "graphopt", spinglass.communities$membership, length(spinglass.communities), E(UD_nogenes)$weight, "Human Disease Network Spinglass Membership")
+plot_pretty_graph(UD_nogenes, "graphopt", spinglass.communities$membership, 
+                  length(spinglass.communities), E(UD_nogenes)$weight, 
+                  "Human Disease Network Spinglass Membership")
 
 ```
 
@@ -235,21 +245,24 @@ for (n in 1:length(spinglass.communities$membership))
 
 ## Markov Cluster Algorithm
 Quarto algoritmo di clustering:
-```{r}
+```{r Markov_graph}
 library(MCL)
 adjmat <- as_adj(UD_nogenes, type = "both", attr = "weight")
 
 mcl.communities <- mcl(adjmat, addLoops = FALSE) # 71 cluster
 
-plot_pretty_graph(UD_nogenes, "graphopt", mcl.communities$Cluster, length(mcl.communities), E(UD_nogenes)$weight, "Human Disease Network Markov Clusters")
-
+plot_pretty_graph(UD_nogenes, "graphopt", mcl.communities$Cluster, 
+                  length(mcl.communities), E(UD_nogenes)$weight, 
+                  "Human Disease Network Markov Clusters")
 ```
 Esempio di sottografo con label cancer
-```{r}
-mcl_cancer_subgraph <- induced_subgraph(UD_nogenes, V(UD_nogenes)[mcl.communities$Cluster == 3])
+```{r Markov_cancer_graph}
+mcl_cancer_subgraph <- induced_subgraph(UD_nogenes, 
+                                        V(UD_nogenes)[mcl.communities$Cluster == 3])
 
 ggraph(mcl_cancer_subgraph, layout="graphopt") +
-  geom_edge_fan(aes(width=E(mcl_cancer_subgraph)$weight), colour = "gray66", show.legend = FALSE) +
+  geom_edge_fan(aes(width=E(mcl_cancer_subgraph)$weight), 
+                colour = "gray66", show.legend = FALSE) +
   geom_node_point(aes(fill="#8DD3C7"), shape=21, col="grey25", show.legend = FALSE) +
   scale_edge_width_continuous(range=c(0.2,0.9)) +
   scale_size_continuous(range=c(1, 10)) +
@@ -258,7 +271,8 @@ ggraph(mcl_cancer_subgraph, layout="graphopt") +
 ```
 
 ```{r}
-markov_cluster_df <- as.data.frame(matrix(1:(mcl.communities$K), nrow = mcl.communities$K, dimnames = list(NULL, "id")))
+markov_cluster_df <- as.data.frame(matrix(1:(mcl.communities$K), nrow = mcl.communities$K, 
+                                          dimnames = list(NULL, "id")))
 markov_cluster_df$name <- NA
 markov_cluster_df$id <- unique(mcl.communities$Cluster)
 
@@ -285,7 +299,7 @@ for (n in 1:length(mcl.communities$Cluster))
 
 ## Leiden Algorithm
 Quinto algoritmo di clustering, dovrebbe migliorare i risultati e anche la rapidità di esecuzione di louvain:
-```{r}
+```{r Leiden_graph}
 library(leiden)
 
 leiden.communities <- leiden(adjmat, resolution_parameter = 40)
@@ -293,6 +307,9 @@ leiden.communities <- leiden(adjmat, resolution_parameter = 40)
 print(max(leiden.communities))
 leiden.communities <- make_clusters(UD_nogenes, membership = leiden.communities)
 
+plot_pretty_graph(UD_nogenes, "graphopt", leiden.communities$membership, 
+                  length(leiden.communities), E(UD_nogenes)$weight, 
+                  "Human Disease Network Leiden Membership")
 ```
 
 ```{r}

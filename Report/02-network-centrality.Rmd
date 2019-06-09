@@ -156,7 +156,7 @@ plot_graph(graph, "dh", eigen$vector, 0.55, 0.04, 0.00005, nodes$label, 0.55, "H
 
 Settiamo il peso di ogni arco pari al numero di geni che condividono le malattie:
 
-```{r}
+```{r UD_nogenes_netwrok}
 for (i in 1:length(edges[, 5]))
 {
   edge <- edges[i, ]
@@ -276,7 +276,7 @@ plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_eigen$vector, E(UD_nog
 
 #### Dendogramma
 
-```{r}
+```{r dendograms}
 dendrogram <- as.dendrogram(hclust(dist(graph[,])))
 dendrogram_nogenes <- as.dendrogram(hclust(dist(UD_nogenes[,])))
 
