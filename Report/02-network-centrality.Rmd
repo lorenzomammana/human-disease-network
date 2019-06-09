@@ -141,7 +141,7 @@ Otteniamo sempre gli stessi risultati
 
 ### Betweenness
 
-```{r betweennes_histogram}
+```{r betweennes_histogram, cache=TRUE}
 betweenness <- betweenness(graph, v = V(graph), directed = TRUE, normalized = TRUE)
 
 histogram_plot(betweenness, c(0, 1), "betweenness", "frequency", "Betweenness histogram")
@@ -151,13 +151,13 @@ V(graph)$label[order(betweenness, decreasing=TRUE)][1:5]
 # "Cardiomyopathy" "Lipodystrophy"     "Diabetes mellitus" "Glioblastoma"      "Deafness" 
 ```
 
-```{r graph_betweennes}
+```{r graph_betweennes, cache=TRUE}
 plot_graph(graph, "dh", betweenness, 0.14, 0.01, 0.0001, nodes$label, 0.14, "Human Disease Network Betweenness Centrality")
 ```
 
 ### Closeness
 
-```{r closeness_histogram}
+```{r closeness_histogram, cache=TRUE}
 closeness <- closeness(graph, v = V(graph), normalized = TRUE)
 
 histogram_plot(closeness, c(0, 1), "closeness", "frequency", "Closeness histogram")
@@ -167,12 +167,12 @@ V(graph)$label[order(closeness, decreasing=TRUE)][1:5]
 # "Lipodystrophy"     "Diabetes mellitus" "Glioblastoma"      "Obesity"           "Cardiomyopathy"
 ```
 
-```{r graph_closeness}
+```{r graph_closeness, cache=TRUE}
 plot_graph(graph, "dh", closeness, 0.23, 0.09, 0.07, nodes$label, 0.23, "Human Disease Network Closeness Centrality")
 ```
 
 ### Pagerank
-```{r pagerank_histogram}
+```{r pagerank_histogram, cache=TRUE}
 pagerank <- page_rank(graph, v = V(graph), directed = TRUE)
 
 histogram_plot(pagerank$vector, c(0, 1), "pagerank", "frequency", "Pagerank histogram")
@@ -182,13 +182,13 @@ V(graph)$label[order(pagerank$vector, decreasing=TRUE)][1:5]
 # "Colon cancer"      "Deafness"          "Leukemia"          "Diabetes mellitus" "Thyroid carcinoma"
 ```
 
-```{r graph_pagerank}
+```{r graph_pagerank, cache=TRUE}
 plot_graph(graph, "dh", pagerank$vector, 0.003, 0.001, 0.0007, nodes$label, 0.003, "Human Disease Network Pagerank Centrality")
 ```
 
 ### Eigenvector
 
-```{r eigen_histogram}
+```{r eigen_histogram, cache=TRUE}
 eigen <- eigen_centrality(graph, directed = TRUE)
 
 histogram_plot(eigen$vector, c(0, 1), "eigen", "frequency", "Eigenvector histogram")
@@ -198,7 +198,7 @@ V(graph)$label[order(eigen$vector, decreasing=TRUE)][1:5]
 # "Colon cancer"      "Breast cancer"     "Thyroid carcinoma" "Pancreatic cancer" "Hepatic adenoma"  
 ```
 
-```{r graph_eigen}
+```{r graph_eigen, cache=TRUE}
 plot_graph(graph, "dh", eigen$vector, 0.55, 0.04, 0.00005, nodes$label, 0.55, "Human Disease Network Eigenvector Centrality")
 ```
 
