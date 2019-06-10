@@ -159,7 +159,6 @@ for (g in graphs)
   for (i in 1:length(component$csize))
   {
     comp <- component$membership[component$membership == i]
-    clusters[[cont.cluster]] <- names(comp)
     cont.cluster = cont.cluster + 1
   }
 }
@@ -225,7 +224,7 @@ Il primo algoritmo di clustering che abbiamo utilizzato è basato sull'utilizzo 
 L'algoritmo di Girvan-Newman [-@girvan-newman] si basa sull'idea che gli archi che connettono moduli separati della rete 
 dovrebbero avere un alto valore di edge betweennes. 
 
-```{r Girvan–Newman Clusters message=FALSE, warning=FALSE}
+```{r Newman Clusters, message=FALSE, warning=FALSE}
 betweennes.communities <- cluster_edge_betweenness(UD_nogenes, directed = FALSE, 
                                                    weights = E(UD_nogenes)$weight)
 
@@ -323,7 +322,7 @@ for (n in 1:length(spinglass.communities$membership))
 L'algoritmo MCL [-@mcl] si basa sulla simulazione di percorsi stocastici sul grafo, sfruttando il paradigma di clustering secondo il quale le community hanno la seguente proprietà: \newline
 "Un cammino randomico su un grafo G che visita un cluster denso molto probabilmente uscirà dal cluster solamente dopo aver attraversato buona parte dei suoi vertici".
 Il parametro inflation permette di aumentare la granularità, questo fa in modo di permettere all'algoritmo di rilevare cluster più piccoli e quindi aumentare il numero di cluster rilevati dall'algoritmo.
-```{r Markov Clusters message=FALSE, warning=FALSE}
+```{r Markov Clusters, message=FALSE, warning=FALSE}
 adjmat <- as_adj(UD_nogenes, type = "both", attr = "weight")
 mcl.communities <- mcl(adjmat, addLoops = FALSE, inflation = 4, allow1 = TRUE) 
 
@@ -336,7 +335,7 @@ plot_pretty_graph(UD_nogenes, "graphopt", mcl.communities$Cluster, length(mcl.co
 L'algoritmo rileva ben 169 communities, l'accuratezza ci dimostrerà se sono sensate, oppure i raggruppamenti sono molto randomici.
 
 Esempio di sottografo con label cancer
-```{r Cancer MCL subgraph eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+```{r Cancer MCL subgraph, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 mcl_cancer_subgraph <- induced_subgraph(UD_nogenes, V(UD_nogenes)[mcl.communities$Cluster == 3])
 
 ggraph(mcl_cancer_subgraph, layout="graphopt") +
