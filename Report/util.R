@@ -67,3 +67,37 @@ plot_pretty_graph_centrality <- function(graph, layout, measure, edge_width, nod
     theme_graph(base_size = 11, base_family = "sans") +
     ggtitle(title) 
 }
+
+contingency_matrix <- function(graph, ground_clusters, label_clusters)
+{
+  clusters <- unique(label_clusters)
+  cont_mat <- matrix(0, nrow = length(ground_clusters) + 1, ncol = length(clusters) + 1)
+  
+  for (i in 1:length(ground_clusters))
+  {
+    for (j in 1:length(clusters))
+    {
+      label_nodes <- names(V(graph)[which(label_clusters == clusters[j])])
+      nij <- length(intersect(ground_clusters[[i]], label_nodes))
+      cont_mat[i, j] <- nij
+      cont_mat[i, length(clusters) + 1] <- cont_mat[i, length(clusters) + 1] + nij
+      cont_mat[length(ground_clusters) + 1, j] <- cont_mat[length(ground_clusters) + 1, j] + nij
+      cont_mat[length(ground_clusters) + 1, length(clusters) + 1] <- 
+        cont_mat[length(ground_clusters) + 1, length(clusters) + 1] + nij
+    }
+  }
+  
+  return (cont_mat)
+}
+
+compute_ari <- function(cont_mat)
+{
+  element_sum <- sum(choose(cont_mat, 2)[-nrow(cont_mat), -ncol(cont_mat)])
+  row_sum <- sum(choose(cont_mat[-nrow(cont_mat), ncol(cont_mat)], 2))
+  col_sum <- sum(choose(cont_mat[nrow(cont_mat), -ncol(cont_mat)], 2))
+  
+  ari <- element_sum - ((row_sum * col_sum) / choose(cont_mat[nrow(cont_mat), ncol(cont_mat)], 2))
+  ari <- ari / (0.5 * (row_sum + col_sum) - (row_sum * col_sum / choose(cont_mat[nrow(cont_mat), ncol(cont_mat)], 2)))
+  
+  return (ari)
+}

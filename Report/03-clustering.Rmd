@@ -152,11 +152,22 @@ Vediamo quante componenti connesse abbiamo per ogni cluster:
 ```{r}
 n.cluster <- 0
 n.cluster.single <- 0
+
+clusters <- list()
+cont.cluster <- 1
+
 for (g in graphs)
 {
   component <- components(g)
   n.cluster = n.cluster + length(component$csize[component$csize > 0])
   n.cluster.single = n.cluster.single + length(component$csize[component$csize == 1])
+  
+  for (i in 1:length(component$csize))
+  {
+    comp <- component$membership[component$membership == i]
+    clusters[[cont.cluster]] <- names(comp)
+    cont.cluster = cont.cluster + 1
+  }
 }
 print(n.cluster)
 print(n.cluster.single)
@@ -501,6 +512,8 @@ for (n in 1:length(label_prop_init.communities$membership))
 
 ## Valutazione degli algoritmi
 
+### Accuracy
+
 Valutiamo gli algoritmi in termini di accuratezza di classificazione dei nodi.
 Abbiamo deciso di considerare i nodi con etichetta "Multiple", che identificano nodi appartenenti a più cluster come dei "Jolly", facendo in modo che risultino sempre veri positivi.
 
@@ -524,7 +537,7 @@ compute_confmat <- function(groundtruth, communities.algo)
 accuracy_df = data.frame(matrix(ncol = 23, nrow = 8))
 colnames(accuracy_df) <- c(disease_clusters, "Accuracy")
 rownames(accuracy_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
-                           "leiden", "label prop", "init label prop")
+                           "leiden", "label prop", "label prop init")
 
 for (i in 4:length(nodes_results))
 {
@@ -538,6 +551,37 @@ accuracy_df$Multiple <- NULL
 panderOptions('table.split.table', 8*12)
 pander(format(accuracy_df, digits = 3))
 ```
+
+### Adjusted Rand index
+
+L'adjusted Rand index (ARI) misura l'accuratezza dei raggruppamenti costruiti dagli algoritmi utilizzando la seguente formula applicata sulla tabella di contingenza dell'algoritmo:
+
+$$ ARI = \frac{\sum_{ij}{n_{ij}\choose 2} - \Big[\sum_i{a_i\choose 2} \sum_i{b_j\choose 2} \Big]/{n\choose 2}}
+              {\frac{1}{2} \Big[\sum_i{a_i\choose 2} + \sum_i{b_j\choose 2} \Big] 
+              - \Big[\sum_i{a_i\choose 2} \sum_i{b_j\choose 2} \Big]/{n\choose 2}}  $$
+            
+
+Dove $a_i$ è la somma della riga i, $b_j$ è la somma della colonna j ed n è il numero totale di nodi nel grafo.
+
+```{r message=FALSE, warning=FALSE}
+ari_df <- data.frame(matrix(ncol = 1, nrow = 8))
+colnames(ari_df) <- c("Adjusted Rand index")
+rownames(ari_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
+                           "leiden", "label prop", "label prop init")
+
+for (i in 1:8)
+{
+  ari_df[i, ] <- compute_ari(readRDS(paste(
+    "contingency_matrices/",
+    gsub(" ", "_", rownames(ari_df)[i]),
+    ".rds",
+    sep = ""
+  )))
+}
+
+
+```
+
 #### Analisi sulle malattie che venivano contrassegnate come Unclassified:
 ```{r}
 unclassified_disease <- nodes_results %>% filter(X1 == "Unclassified")
