@@ -73,7 +73,7 @@ UD_nogenes <- igraph::simplify(UD_nogenes)
 
 Le malattie nel grafo sono clusterizzate in macrogruppi medici (cancro, cardiovascolare, etc...), verifichiamo se questi cluster si trovano
 effettivamente vicini all'interno della rete
-```{r}
+```{r Human Disease Network Clusters}
 disease_clusters <- unique(V(UD_nogenes)$X1)
 
 i = 1
@@ -117,8 +117,6 @@ for (disease in disease_clusters)
   }
   i = i + 1
 }
-
-
 ```
 
 Proviamo a plottare le componenti connesse che condividono la stessa malattia:
@@ -216,7 +214,7 @@ Il primo algoritmo di clustering che abbiamo utilizzato è basato sull'utilizzo 
 L'algoritmo di Girvan-Newman [-@girvan-newman] si basa sull'idea che gli archi che connettono moduli separati della rete 
 dovrebbero avere un alto valore di edge betweennes. 
 
-```{r message=FALSE, warning=FALSE}
+```{r Girvan–Newman Clusters message=FALSE, warning=FALSE}
 betweennes.communities <- cluster_edge_betweenness(UD_nogenes, directed = FALSE, 
                                                    weights = E(UD_nogenes)$weight)
 
@@ -237,11 +235,10 @@ for (n in 1:length(betweennes.communities$membership))
 ```
 
 ## Fastgreedy
-
 L'algoritmo fastgreedy [-@fastgreedy] cerca le communities all'interno della rete andando a massimizzare il valore di modularità, utilizzando un approccio bottom-up, rispetto a quello top-down utilizzato da Girvan–Newman. \newline
 Inizialmente ogni nodo rappresenta una community e, iterativamente, ogni nodo viene unito in modo tale che l'unione sia localmente ottima (massimo aumento della modularità). L'algoritmo si ferma quando non è più possibile far aumentare la modularità.
 
-```{r}
+```{r Fastgreedy Clusters}
 fgreedy.communities <- cluster_fast_greedy(UD_nogenes, modularity = TRUE,
                                            weights = E(UD_nogenes)$weight)
 
@@ -265,7 +262,7 @@ for (n in 1:length(fgreedy.communities$membership))
 L'algoritmo denominato Louvain [-@louvain] possiamo vederlo come una evoluzione del precedente. \newline
 Anche in questo caso l'obiettivo è quello di massimizzare la modularità, vengono seguiti gli stessi step dell'algoritmo precedente, dopo di che viene creato un grafo i cui nodi sono le community create e si ripete il procedimento fino a quando non è più possibile far aumentare la modularità:
 
-```{r}
+```{r Louvain Clusters}
 louvain.communities <- cluster_louvain(UD_nogenes, weights = E(UD_nogenes)$weight)
 
 print(paste("N° di communities: ", max(louvain.communities$membership)))
@@ -289,7 +286,7 @@ for (n in 1:length(louvain.communities$membership))
 
 Questo algoritmo [-@spinglass] fa utilizzo di tecniche derivate dalla statistica fisica per costruire le community. 
 Permette di specificare il parametro spins che idealmente rappresenta il numero k di cluster, il problema è che l'algoritmo cerca di riempire tutti i 225 cluster, ma è possibile che non ci riesca e quindi il risultato mostrerà un numero di cluster molto ridotto:
-```{r}
+```{r Spinglass Clusters}
 spinglass.communities <- cluster_spinglass(UD_nogenes, spins = 225, 
                                            weights = E(UD_nogenes)$weight)
 
@@ -315,7 +312,7 @@ for (n in 1:length(spinglass.communities$membership))
 L'algoritmo MCL [-@mcl] si basa sulla simulazione di percorsi stocastici sul grafo, sfruttando il paradigma di clustering secondo il quale le community hanno la seguente proprietà: \newline
 "Un cammino randomico su un grafo G che visita un cluster denso molto probabilmente uscirà dal cluster solamente dopo aver attraversato buona parte dei suoi vertici".
 Il parametro inflation permette di aumentare la granularità, questo fa in modo di permettere all'algoritmo di rilevare cluster più piccoli e quindi aumentare il numero di cluster rilevati dall'algoritmo.
-```{r message=FALSE, warning=FALSE}
+```{r Markov Clusters message=FALSE, warning=FALSE}
 adjmat <- as_adj(UD_nogenes, type = "both", attr = "weight")
 mcl.communities <- mcl(adjmat, addLoops = FALSE, inflation = 4, allow1 = TRUE) 
 
@@ -328,7 +325,7 @@ plot_pretty_graph(UD_nogenes, "graphopt", mcl.communities$Cluster, length(mcl.co
 L'algoritmo rileva ben 169 communities, l'accuratezza ci dimostrerà se sono sensate, oppure i raggruppamenti sono molto randomici.
 
 Esempio di sottografo con label cancer
-```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+```{r Cancer MCL subgraph eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 mcl_cancer_subgraph <- induced_subgraph(UD_nogenes, V(UD_nogenes)[mcl.communities$Cluster == 3])
 
 ggraph(mcl_cancer_subgraph, layout="graphopt") +
