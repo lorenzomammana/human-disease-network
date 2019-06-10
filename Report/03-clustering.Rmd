@@ -83,14 +83,10 @@ for (disease in disease_clusters)
   i = i + 1
 }
 
-ggraph(UD_nogenes, layout = "kk") +
-  geom_edge_fan(colour = "gray", show.legend = TRUE) + 
-  geom_node_point(aes(colour = V(UD_nogenes)$color)) +
-  labs(col="cluster") +
-  scale_color_gradientn(colours = rainbow(5)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Human Disease Network clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", V(UD_nogenes)$color, 22, E(UD_nogenes)$weight, 
+                  "Human Disease Network Clusters")
 ```
+
 Dal grafo risultante vediamo un buon numero di nodi vicini tra di loro che condividono il tipo di malattia.\newline
 Vediamo però anche un gran numero di nodi che sono lontani dal cluster di appartenenza!
 ```{r message=FALSE, warning=FALSE, include=FALSE}
@@ -226,13 +222,7 @@ betweennes.communities <- cluster_edge_betweenness(UD_nogenes, directed = FALSE,
 
 print(paste("N° di communities: ", max(betweennes.communities$membership)))
 
-ggraph(UD_nogenes, layout = 'kk') +
-  geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(colour = betweennes.communities$membership)) +
-  labs(col="cluster") +
-  scale_color_gradientn(colours = rainbow(5)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Girvan–Newman clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", betweennes.communities$membership, length(betweennes.communities), E(UD_nogenes)$weight, "Girvan–Newman Clusters")
 ```
 Questo algoritmo distingue 29 cluster all'interno della rete, ci aspettiamo quindi che i risultati in termini di accuratezza non siano particolarmente elevati in quanto non è ovviamente in grado di distinguere, ad esempio, i cluster di dimensione uno.
 
@@ -255,13 +245,7 @@ fgreedy.communities <- cluster_fast_greedy(UD_nogenes, modularity = TRUE,
 
 print(paste("N° di communities: ", max(fgreedy.communities$membership)))
 
-ggraph(UD_nogenes, layout = 'kk') +
-  geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(colour = fgreedy.communities$membership)) +
-  labs(col="cluster") +
-  scale_color_gradientn(colours = rainbow(5)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Fastgreedy clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", fgreedy.communities$membership, length(fgreedy.communities), E(UD_nogenes)$weight, "Fastgreedy Clusters")
 ```
 Notiamo che il risultato è simile a quello prodotto da Girvan–Newman, ma il numero di cluster è ancora minore e quindi molto probabilmente anche le performance saranno più basse.
 
@@ -282,13 +266,7 @@ louvain.communities <- cluster_louvain(UD_nogenes, weights = E(UD_nogenes)$weigh
 
 print(paste("N° di communities: ", max(louvain.communities$membership)))
 
-ggraph(UD_nogenes, layout = 'kk') +
-  geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(colour = louvain.communities$membership)) +
-  labs(col="cluster") +
-  scale_color_gradientn(colours = rainbow(5)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Louvain clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", louvain.communities$membership, length(louvain.communities), E(UD_nogenes)$weight, "Louvain Clusters")
 ```
 
 Anche in questo caso non ci aspettiamo che le performance differiscano particolarmente dagli algoritmi precedenti.
@@ -311,13 +289,7 @@ spinglass.communities <- cluster_spinglass(UD_nogenes, spins = 225,
 
 print(paste("N° di communities: ", max(spinglass.communities$membership)))
 
-ggraph(UD_nogenes, layout = 'kk') +
-  geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(colour = spinglass.communities$membership)) +
-  labs(col="cluster") +
-  scale_color_gradientn(colours = rainbow(5)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Spinglass clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", spinglass.communities$membership, length(spinglass.communities), E(UD_nogenes)$weight, "Spinglass Clusters")
 ```
 
 Dei 225 spin iniziali, solamente 41 sono stati popolati. L'algoritmo rileva comunque più cluster dei precedenti e dovrebbe quindi migliorare le prestazioni.
@@ -342,25 +314,23 @@ mcl.communities <- mcl(adjmat, addLoops = FALSE, inflation = 4, allow1 = TRUE)
 
 print(paste("N° di communities: ", mcl.communities$K))
 
-ggraph(UD_nogenes, layout = 'kk') +
-  geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(colour = mcl.communities$Cluster)) +
-  labs(col="cluster") +
-  scale_color_gradientn(colours = rainbow(5)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Markov Clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", mcl.communities$Cluster, length(mcl.communities), 
+                  E(UD_nogenes)$weight, "Markov Clusters")
 ```
 
 L'algoritmo rileva ben 169 communities, l'accuratezza ci dimostrerà se sono sensate, oppure i raggruppamenti sono molto randomici.
-```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
-Esempio di sottografo con label cancer
 
+Esempio di sottografo con label cancer
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 mcl_cancer_subgraph <- induced_subgraph(UD_nogenes, V(UD_nogenes)[mcl.communities$Cluster == 3])
-ggraph(mcl_cancer_subgraph, layout = 'kk') +
-  geom_edge_fan(colour = "gray", show.legend = TRUE) +
-  geom_node_point(colour = "red") +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Cancer MCL subgraph")
+
+ggraph(mcl_cancer_subgraph, layout="graphopt") +
+  geom_edge_fan(aes(width=E(mcl_cancer_subgraph)$weight), colour = "gray66", show.legend = FALSE) +
+  geom_node_point(aes(fill="#8DD3C7"), shape=21, col="grey25", show.legend = FALSE) +
+  scale_edge_width_continuous(range=c(0.2,0.9)) +
+  scale_size_continuous(range=c(1, 10)) +
+  theme_graph(base_size = 11, base_family = "sans") +
+  ggtitle("Cancer MCL subgraph") 
 ```
 
 ```{r include=FALSE}
@@ -392,20 +362,14 @@ for (n in 1:length(mcl.communities$Cluster))
 L'algoritmo Leiden [-@leiden] è un ulteriore evoluzione dell'algoritmo Louvain mostrato in precedenza. I creatori dell'algoritmo hanno dimostrato come Louvain generi spesso delle community che non sono ottimali, inoltre questo algoritmo converge ad una soluzione ottima molto più rapidamente. \newline
 In particolare con questo algoritmo è possibile decidere a priori il numero di cluster e per questo motivo dovrebbe essere in grado di ottenere performance molto buone sul grafo in questione.
 
-```{r}
+```{r Leiden Clusters}
 library(leiden)
 adjmat <- as_adj(UD_nogenes, type = "both", attr = "weight")
 leiden.communities <- leiden(adjmat, resolution_parameter = 86)
 print(max(leiden.communities))
 leiden.communities <- make_clusters(UD_nogenes, membership = leiden.communities)
 
-ggraph(UD_nogenes, layout = 'kk') +
-  geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(colour = leiden.communities$membership)) +
-  labs(col="cluster") +
-  scale_color_gradientn(colours = rainbow(5)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Louvain clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", leiden.communities$membership, length(leiden.communities), E(UD_nogenes)$weight, "Leiden Clusters")
 ```
 
 Settando il parametro di resolution è possibile far generare un numero di cluster pari al numero di componenti connesse distinte per malattia nel nostro grafo.
@@ -418,26 +382,19 @@ for (n in 1:length(leiden.communities$membership))
 }
 ```
 
-
 ## Label propagation
 
 L'algoritmo di label propagation [-@labelprop] inizializza tutti i nodi con una label random e poi iterativamente aggiorna la label di ogni nodo basandosi su una votazione a maggioranza tra le label dei vicini.
 Il risultato dell'algoritmo dipende dall'inizializzazione, settiamo quindi il seed per permettere la riproducibilità.
 
-```{r}
+```{r Label Propagation Clusters}
 set.seed(09062019)
 
 label_prop.communities <- cluster_label_prop(UD_nogenes, weights = E(UD_nogenes)$weight)
 
 print(paste("N° di communities: ", max(label_prop.communities$membership)))
 
-ggraph(UD_nogenes, layout = 'kk') +
-  geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(colour = label_prop.communities$membership)) +
-  labs(col="cluster") +
-  scale_color_gradientn(colours = rainbow(5)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Label Propagation clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", label_prop.communities$membership, length(label_prop.communities), E(UD_nogenes)$weight, "Label Propagation Clusters")
 ```
 L'algoritmo è molto semplice ed estremamente rapido, inoltre rileva ben 62 community che potrebbero essere indice di performance migliori.
 
@@ -451,7 +408,7 @@ for (n in 1:length(label_prop.communities$membership))
 
 Viene poi testato l'algoritmo utilizzando una tecnica semi-supervised, inizializzando circa il 20% delle label e vedendo come si comporta.
 
-```{r}
+```{r Label Propagation init Clusters}
 set.seed(09062019)
 V(UD_nogenes)$initial <- NA
 V(UD_nogenes)$fixed <- NA
@@ -467,11 +424,11 @@ for (dis in disease_clusters)
   }
 }
 
-
 V(UD_nogenes)$initial[is.na(V(UD_nogenes)$initial)] <- -1
 V(UD_nogenes)$fixed[is.na(V(UD_nogenes)$fixed)] <- FALSE
 print(paste("Percentuale vertici inizializzati", 
             sum(V(UD_nogenes)$initial > 0) / length(V(UD_nogenes))))
+
 label_prop_init.communities <- cluster_label_prop(UD_nogenes,
                                                   weights = E(UD_nogenes)$weight,
                                                   initial = V(UD_nogenes)$initial, 
@@ -479,13 +436,7 @@ label_prop_init.communities <- cluster_label_prop(UD_nogenes,
 
 print(paste("N° di communities: ", max(label_prop_init.communities$membership)))
 
-ggraph(UD_nogenes, layout = 'kk') +
-  geom_edge_fan(colour = "gray") + 
-  geom_node_point(aes(colour = label_prop_init.communities$membership)) +
-  labs(col="cluster") +
-  scale_color_gradientn(colours = rainbow(5)) +
-  theme_graph(base_family = "sans", base_size = 11) +
-  ggtitle("Label Propagation clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", label_prop_init.communities$membership, length(label_prop_init.communities), E(UD_nogenes)$weight, "Label Propagation init Clusters")
 ```
 
 Il numero rilevate viene ridotto, potenzialmente le performance dovrebbero però migliorare in quanto l'algoritmo ha una migliore conoscenza della struttura del grafo.

@@ -40,10 +40,10 @@ plot_graph <- function(graph, layout, measure, node_s1, node_s2, node_s3, label,
 }
 
 plot_pretty_graph <- function(graph, layout, fill, num_cluster, edge_width, title){
-  ggraph(graph, layout=layout) + #  "graphopt""
+  ggraph(graph, layout=layout) + #  "graphopt" "kk" "dh"
     geom_edge_fan(aes(width=edge_width), colour = "gray66", show.legend = FALSE) +
-    geom_node_point(aes(fill=fill), shape=21, col="grey25", show.legend = FALSE) +
-    scale_fill_gradientn(colours = rainbow_hcl(num_cluster))+#, palette = "viridis")) +
+    geom_node_point(aes(fill=fill), shape=21, col="grey25", size=3, show.legend = FALSE) +
+    scale_fill_gradientn(colours = rainbow(num_cluster)) + # rainbow_hcl(num_cluster)) +
     scale_edge_width_continuous(range=c(0.2,0.9)) +
     scale_size_continuous(range=c(1, 10)) +
     theme_graph(base_size = 11, base_family = "sans") +
