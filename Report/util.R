@@ -39,13 +39,24 @@ plot_graph <- function(graph, layout, measure, node_s1, node_s2, node_s3, label,
     ggtitle(title) 
 }
 
-plot_pretty_graph <- function(graph, layout, fill, num_cluster, edge_width, title){
+plot_pretty_graph <- function(graph, layout, fill, edge_width, title){
   ggraph(graph, layout=layout) + #  "graphopt" "kk" "dh"
     geom_edge_fan(aes(width=edge_width), colour = "gray66", show.legend = FALSE) +
     geom_node_point(aes(fill=fill), shape=21, col="grey25", size=3, show.legend = FALSE) +
-    scale_fill_gradientn(colours = rainbow(num_cluster)) + # rainbow_hcl(num_cluster)) +
+    scale_fill_gradientn(colours = rainbow(length(fill))) + # rainbow_hcl(num_cluster)) +
     scale_edge_width_continuous(range=c(0.2,0.9)) +
     scale_size_continuous(range=c(1, 10)) +
+    theme_graph(base_size = 11, base_family = "sans") +
+    ggtitle(title) 
+}
+
+plot_pretty_graph_legend <- function(graph, layout, fill, edge_width, title){
+  ggraph(graph, layout=layout) +
+    geom_edge_fan(aes(width=edge_width), colour = "gray66", show.legend = FALSE) +
+    geom_node_point(aes(fill=fill), shape=21, size=3) +
+    scale_fill_manual(values = rainbow(length(table(fill)))) +
+    scale_edge_width_continuous(range=c(0.2,0.9)) +
+    labs(fill="Clusters") +
     theme_graph(base_size = 11, base_family = "sans") +
     ggtitle(title) 
 }
@@ -61,7 +72,7 @@ plot_pretty_graph_centrality <- function(graph, layout, measure, edge_width, nod
     geom_node_text(aes(label = ifelse(measure > label_s1, 
                                       as.character(label), NA), size=2), 
                    show.legend = FALSE) +
-    #labs(size="indegree", fill="cluster") +
+    #labs(fill="Cluster", size="Degree") +
     scale_edge_width_continuous(range=c(0.2,0.9)) +
     scale_size_continuous(range=c(1, 10)) +
     theme_graph(base_size = 11, base_family = "sans") +

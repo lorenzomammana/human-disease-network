@@ -83,7 +83,7 @@ for (disease in disease_clusters)
   i = i + 1
 }
 
-plot_pretty_graph(UD_nogenes, "graphopt", V(UD_nogenes)$color, 22, E(UD_nogenes)$weight, 
+plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes$X1[nodes$X0 == "disease"], E(UD_nogenes)$weight, 
                   "Human Disease Network Clusters")
 ```
 
@@ -230,8 +230,7 @@ betweennes.communities <- cluster_edge_betweenness(UD_nogenes, directed = FALSE,
 
 print(paste("N° di communities: ", max(betweennes.communities$membership)))
 
-plot_pretty_graph(UD_nogenes, "graphopt", betweennes.communities$membership, 
-                  length(betweennes.communities), E(UD_nogenes)$weight, 
+plot_pretty_graph(UD_nogenes, "graphopt", betweennes.communities$membership, E(UD_nogenes)$weight, 
                   "Girvan–Newman Clusters")
 ```
 Questo algoritmo distingue 29 cluster all'interno della rete, ci aspettiamo quindi che i risultati in termini di accuratezza non siano particolarmente elevati in quanto non è ovviamente in grado di distinguere, ad esempio, i cluster di dimensione uno.
@@ -255,8 +254,7 @@ fgreedy.communities <- cluster_fast_greedy(UD_nogenes, modularity = TRUE,
 print(paste("N° di communities: ", max(fgreedy.communities$membership)))
 
 plot_pretty_graph(UD_nogenes, "graphopt", fgreedy.communities$membership, 
-                  length(fgreedy.communities), E(UD_nogenes)$weight, 
-                  "Fastgreedy Clusters")
+                  E(UD_nogenes)$weight, "Fastgreedy Clusters")
 ```
 Notiamo che il risultato è simile a quello prodotto da Girvan–Newman, ma il numero di cluster è ancora minore e quindi molto probabilmente anche le performance saranno più basse.
 
@@ -278,8 +276,7 @@ louvain.communities <- cluster_louvain(UD_nogenes, weights = E(UD_nogenes)$weigh
 print(paste("N° di communities: ", max(louvain.communities$membership)))
 
 plot_pretty_graph(UD_nogenes, "graphopt", louvain.communities$membership, 
-                  length(louvain.communities), E(UD_nogenes)$weight, 
-                  "Louvain Clusters")
+                  E(UD_nogenes)$weight, "Louvain Clusters")
 ```
 
 Anche in questo caso non ci aspettiamo che le performance differiscano particolarmente dagli algoritmi precedenti.
@@ -303,8 +300,7 @@ spinglass.communities <- cluster_spinglass(UD_nogenes, spins = 225,
 print(paste("N° di communities: ", max(spinglass.communities$membership)))
 
 plot_pretty_graph(UD_nogenes, "graphopt", spinglass.communities$membership, 
-                  length(spinglass.communities), E(UD_nogenes)$weight, 
-                  "Spinglass Clusters")
+                  E(UD_nogenes)$weight, "Spinglass Clusters")
 ```
 
 Dei 225 spin iniziali, solamente 41 sono stati popolati. L'algoritmo rileva comunque più cluster dei precedenti e dovrebbe quindi migliorare le prestazioni.
@@ -328,8 +324,8 @@ mcl.communities <- mcl(adjmat, addLoops = FALSE, inflation = 4, allow1 = TRUE)
 
 print(paste("N° di communities: ", mcl.communities$K))
 
-plot_pretty_graph(UD_nogenes, "graphopt", mcl.communities$Cluster, length(mcl.communities), 
-                  E(UD_nogenes)$weight, "Markov Clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", mcl.communities$Cluster, E(UD_nogenes)$weight, 
+                  "Markov Clusters")
 ```
 
 L'algoritmo rileva ben 169 communities, l'accuratezza ci dimostrerà se sono sensate, oppure i raggruppamenti sono molto randomici.
@@ -384,7 +380,7 @@ print(max(leiden.communities))
 leiden.communities <- make_clusters(UD_nogenes, membership = leiden.communities)
 
 plot_pretty_graph(UD_nogenes, "graphopt", leiden.communities$membership, 
-                  length(leiden.communities), E(UD_nogenes)$weight, "Leiden Clusters")
+                  E(UD_nogenes)$weight, "Leiden Clusters")
 ```
 
 Settando il parametro di resolution è possibile far generare un numero di cluster pari al numero di componenti connesse distinte per malattia nel nostro grafo.
@@ -410,8 +406,7 @@ label_prop.communities <- cluster_label_prop(UD_nogenes, weights = E(UD_nogenes)
 print(paste("N° di communities: ", max(label_prop.communities$membership)))
 
 plot_pretty_graph(UD_nogenes, "graphopt", label_prop.communities$membership, 
-                  length(label_prop.communities), E(UD_nogenes)$weight, 
-                  "Label Propagation Clusters")
+                  E(UD_nogenes)$weight, "Label Propagation Clusters")
 ```
 L'algoritmo è molto semplice ed estremamente rapido, inoltre rileva ben 62 community che potrebbero essere indice di performance migliori.
 
@@ -454,8 +449,7 @@ label_prop_init.communities <- cluster_label_prop(UD_nogenes,
 print(paste("N° di communities: ", max(label_prop_init.communities$membership)))
 
 plot_pretty_graph(UD_nogenes, "graphopt", label_prop_init.communities$membership, 
-                  length(label_prop_init.communities), E(UD_nogenes)$weight, 
-                  "Label Propagation init Clusters")
+                  E(UD_nogenes)$weight, "Label Propagation init Clusters")
 ```
 
 Il numero rilevate viene ridotto, potenzialmente le performance dovrebbero però migliorare in quanto l'algoritmo ha una migliore conoscenza della struttura del grafo.
