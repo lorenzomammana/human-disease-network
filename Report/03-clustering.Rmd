@@ -355,10 +355,13 @@ for (id in markov_cluster_df$id)
     
     value <- which.max(unlist(table(labels)))
     
-    
     if (length(value) != 0)
     {
       markov_cluster_df$name[markov_cluster_df$id == id] <- names(value)[1]
+    }
+    else
+    {
+      markov_cluster_df$name[markov_cluster_df$id == id] <- "Multiple"
     }
 }
   
