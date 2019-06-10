@@ -220,7 +220,7 @@ label_cluster <- function(clusters)
 
 ## Girvan–Newman
 
-Il primo algoritmo di clustering che abbiamo utilizzato è basato sull'utilizzo della misura di edge betweennes. \newline
+Il primo algoritmo di clustering che abbiamo utilizzato è basato sull'utilizzo della misura di edge betweenness. \newline
 L'algoritmo di Girvan-Newman [-@girvan-newman] si basa sull'idea che gli archi che connettono moduli separati della rete 
 dovrebbero avere un alto valore di edge betweennes. 
 
@@ -500,7 +500,14 @@ for (i in 4:length(nodes_results))
 
 accuracy_df$Multiple <- NULL
 
-panderOptions('table.split.table', 8*12)
+accuracy_df <- as.data.frame(t(accuracy_df))
+colnames(accuracy_df) <- accuracy_df[1, ]
+accuracy_df <- accuracy_df[-1, ]
+
+colnames(accuracy_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
+                           "leiden", "label prop", "label prop init")
+
+# panderOptions('table.split.table', 8*12)
 pander(format(accuracy_df, digits = 3))
 ```
 
@@ -530,8 +537,6 @@ for (i in 1:8)
     sep = ""
   )))
 }
-
-
 ```
 
 #### Analisi sulle malattie che venivano contrassegnate come Unclassified:
@@ -553,7 +558,7 @@ collegamenti rilevati :Blood group, Colton
 #### Analisi sulle malattie che venivano contrassegnate come Multiple:
 ```{r}
 multiple_disease <- nodes_results %>% filter(X1 == "Multiple")
-multiple_disease
+head(multiple_disease, 10)
 ```
 
 - Fanconi anemia is a clinically and genetically heterogeneous disorder that causes genomic instability. Characteristic clinical features include developmental abnormalities in major organ systems, early-onset bone marrow failure, and a high predisposition to cancer
