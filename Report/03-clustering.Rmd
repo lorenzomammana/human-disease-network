@@ -83,8 +83,8 @@ for (disease in disease_clusters)
   i = i + 1
 }
 
-plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes$X1[nodes$X0 == "disease"], E(UD_nogenes)$weight, 
-                  "Human Disease Network Clusters")
+plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes$X1[nodes$X0 == "disease"], 
+                         E(UD_nogenes)$weight, "Human Disease Network Clusters")
 ```
 
 Dal grafo risultante vediamo un buon numero di nodi vicini tra di loro che condividono il tipo di malattia.\newline
@@ -121,22 +121,27 @@ for (disease in disease_clusters)
 
 Proviamo a plottare le componenti connesse che condividono la stessa malattia:
 
-```{r echo=FALSE, fig.height=4.2}
+```{r componente1, echo=FALSE, fig.height=4.6, fig.width=4.6}
 grid.arrange(grobs = plots[1:4])
 ```
-```{r echo=FALSE, fig.height=4.2}
+
+```{r componente2, echo=FALSE, fig.height=4.6, fig.width=4.6}
 grid.arrange(grobs = plots[5:8])
 ```
-```{r echo=FALSE, fig.height=4.2}
+
+```{r componente3, echo=FALSE, fig.height=4.6, fig.width=4.6}
 grid.arrange(grobs = plots[9:12])
 ```
-```{r echo=FALSE, fig.height=4.2}
+
+```{r componente4, echo=FALSE, fig.height=4.6, fig.width=4.6}
 grid.arrange(grobs = plots[13:16])
 ```
-```{r echo=FALSE, fig.height=4.2}
+
+```{r componente5, echo=FALSE, fig.height=4.6, fig.width=4.6}
 grid.arrange(grobs = plots[17:20])
 ```
-```{r echo=FALSE, fig.height=4.2}
+
+```{r componente6, echo=FALSE, fig.height=4.6, fig.width=4.6}
 grid.arrange(grobs = plots[21:22])
 ```
 
@@ -545,7 +550,7 @@ for (i in 1:8)
 #### Analisi sulle malattie che venivano contrassegnate come Unclassified:
 ```{r}
 unclassified_disease <- nodes_results %>% filter(X1 == "Unclassified")
-unclassified_disease
+unclassified_disease %>% select(label, Betweenness, Fastgreedy, Louvain, Spinglass, Markov, Leiden, Label_prop, Label_prop_init)
 ```
 
 - Bannayan-Riley-Ruvalcaba syndrome identificata da tutti e quattro gli algoritmi come cancer: 
@@ -561,7 +566,7 @@ collegamenti rilevati :Blood group, Colton
 #### Analisi sulle malattie che venivano contrassegnate come Multiple:
 ```{r}
 multiple_disease <- nodes_results %>% filter(X1 == "Multiple")
-head(multiple_disease, 10)
+head(multiple_disease %>% select(label, Betweenness, Fastgreedy, Louvain, Spinglass, Markov, Leiden, Label_prop, Label_prop_init), 10)
 ```
 
 - Fanconi anemia is a clinically and genetically heterogeneous disorder that causes genomic instability. Characteristic clinical features include developmental abnormalities in major organ systems, early-onset bone marrow failure, and a high predisposition to cancer
