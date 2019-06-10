@@ -546,11 +546,12 @@ for (i in 1:8)
   )))
 }
 ```
-
+FIXME: sistemare i prossimi due capitoli per plottare delle tabelle decenti
 #### Analisi sulle malattie che venivano contrassegnate come Unclassified:
 ```{r}
 unclassified_disease <- nodes_results %>% filter(X1 == "Unclassified")
-unclassified_disease %>% select(label, Betweenness, Fastgreedy, Louvain, Spinglass, Markov, Leiden, Label_prop, Label_prop_init)
+unclassified_disease %>% select(label, Betweenness, Fastgreedy, Louvain, Spinglass, 
+                                Markov, Leiden, Label_prop, Label_prop_init)
 ```
 
 - Bannayan-Riley-Ruvalcaba syndrome identificata da tutti e quattro gli algoritmi come cancer: 
@@ -566,7 +567,8 @@ collegamenti rilevati :Blood group, Colton
 #### Analisi sulle malattie che venivano contrassegnate come Multiple:
 ```{r}
 multiple_disease <- nodes_results %>% filter(X1 == "Multiple")
-head(multiple_disease %>% select(label, Betweenness, Fastgreedy, Louvain, Spinglass, Markov, Leiden, Label_prop, Label_prop_init), 10)
+head(multiple_disease %>% select(label, Betweenness, Fastgreedy, Louvain, Spinglass, 
+                                 Markov, Leiden, Label_prop, Label_prop_init), 10)
 ```
 
 - Fanconi anemia is a clinically and genetically heterogeneous disorder that causes genomic instability. Characteristic clinical features include developmental abnormalities in major organ systems, early-onset bone marrow failure, and a high predisposition to cancer
