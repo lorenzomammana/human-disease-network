@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+<html xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Where in the World Happen Most Murders | Exploring Data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+        <meta name="description" content="A series of maps of the world showing where in the world the least and the most murders happen for the years 1995 to 2011.">
+    
+    
+        <meta property="og:image" content="
+
+    /img/preview/homicides-map.png
+
+">
+    
+    
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@yaph">
+<meta name="twitter:site" content="@yaph">
+<meta name="twitter:title" content="Where in the World Happen Most Murders">
+<meta name="twitter:description" content="A series of maps of the world showing where in the world the least and the most murders happen for the years 1995 to 2011.">
+<meta name="twitter:image:src" content="
+
+    /img/preview/homicides-map.png
+
+">
+
+    <meta name="author" content="Ramiro Gómez">
+    
+    <meta name="flattr:id" content="4pzdyq">
+    <link rel="canonical" href="https://exploring-data.com/info/intentional-homicides/">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    
+        
+    
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+        
+            <link rel="alternate" type="application/rss+xml" title="Exploring Data main RSS feed" href="https://exploring-data.com/rss.xml">
+        
+    
+</head>
+
+<body class="">
+
+    
+    <nav id="navbar" class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a id="site-name" class="navbar-brand" href="/">Exploring Data</a>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="main-navbar">
+            
+<ul class="nav navbar-nav">
+    
+    <li><a href="/data-visualization-books/">📕 Data Books</a></li>
+    <li><a href="/data-visualization-posters/">🛒 Posters</a></li>
+    <li><a href="https://www.amazon.com/s/ref=w_bl_sl_s_ap_web_7141123011?ie=UTF8&node=7141123011&field-brandtextbin=Exploring+Data+Apparel&_encoding=UTF8&tag=xpdt-20&linkCode=ur2&linkId=9e857f784277104a21c9a5542c76b9a5&camp=1789&creative=9325">👕 Shirts</a></li>
+    <li><a href="/datasearch/">🔍 Search for Data</a></li>
+    <li><a href="/sitemap/">🖧 Sitemap</a></li>
+</ul>
+
+            <div id="sharemenu" class="nav pull-right">
+    <div class="btn-group">
+        <a href="#" class="btn navbar-btn btn-success dropdown-toggle" data-toggle="dropdown">+</a>
+        <ul class="share dropdown-menu pull-right">
+            <li><a href="/rss.xml">RSS Feed</a></li>
+            <li><a href="https://twitter.com/share?url=https%3A//exploring-data.com/info/intentional-homicides/&text=Where%20in%20the%20World%20Happen%20Most%20Murders">Tweet this</a></li>
+            <li><a href="https://flattr.com/submit/auto?user_id=rg&url=https%3A//exploring-data.com/info/intentional-homicides/&title=Where%20in%20the%20World%20Happen%20Most%20Murders&language=en_GB&category=software">Flattr this</a></li>
+            <li><a href="https://www.facebook.com/sharer.php?u=https%3A//exploring-data.com/info/intentional-homicides/&t=Where%20in%20the%20World%20Happen%20Most%20Murders">Facebook</a></li>
+            <li><a href="https://plus.google.com/share?url=https%3A//exploring-data.com/info/intentional-homicides/">Google+</a></li>
+            <li><a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A//exploring-data.com/info/intentional-homicides/&title=Where%20in%20the%20World%20Happen%20Most%20Murders">LinkedIn</a></li>
+        </ul>
+    </div>
+</div>
+            
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+    
+
+    
+    
+    
+
+<div id="info" class="container">
+<div class="row">
+  <div class="col-md-9"><h1>Where in the World Happen Most Murders</h1>
+  <blockquote>
+<p>Intentional homicides are estimates of unlawful homicides purposely inflicted as a result of domestic disputes, interpersonal violence, violent conflicts over land resources, intergang violence over turf or control, and predatory violence and killing by armed groups. Intentional homicide does not include all intentional killing; the difference is usually in the organization of the killing. Individuals or small groups usually commit homicide, whereas killing in armed conflict is usually committed by fairly cohesive groups of up to several hundred members and is thus usually excluded.</p>
+</blockquote>
+<p>The above definition explains what data is included in the
+<a href="http://data.worldbank.org/indicator/VC.IHR.PSRC.P5">Intentional Homicides dataset</a>.
+The dataset ranges from 1995 to 2011 and currently is most comprehensive for 2008,
+which is shown by default.</p>
+<p>The individual years can be selected from the top menu or the range of years
+can be played as an animation by clicking on <code>Play Animation</code>.</p>
+<p>The visualization was created using map data from
+<a href="http://www.naturalearthdata.com/downloads/">Natural Earth</a>,
+the <a href="https://d3js.org/">JavaScript library D3.js</a> and the
+<a href="https://vis4.net/labs/multihue/">Chroma.js Color Scale Helper</a>.</p>
+  
+    
+
+<div class="postinfo">
+<hr class="clearfix">
+<div class="well">
+<p>Published on September 20, 2013 (updated on May 14, 2018) by <a href="http://ramiro.org/">Ramiro Gómez</a> (<a href="https://twitter.com/yaph">@yaph</a>). To be informed of new posts, subscribe to the <a href="/rss.xml">RSS feed</a>.<br>
+Tags: <a href="/tags/map/">map</a>, <a href="/tags/d3/">d3</a>, <a href="/tags/homicides/">homicides</a>, <a href="/tags/world/">world</a>, <a href="/tags/worldbank/">worldbank</a>, <a href="/tags/interactive/">interactive</a>.</p>
+
+
+</div>
+</div>
+
+  
+  </div>
+  <div class="col-md-3">
+    
+      <h3>Visualization</h3>
+      <a href="/map/world/intentional-homicides/"><img src="
+
+    /img/preview/homicides-map.png
+
+" alt="visualization preview" class="vis-preview img-responsive">
+      <a href="/map/world/intentional-homicides/" class="btn btn-primary voffset">View Visualization</a>
+      <hr>
+    
+    
+    
+    
+    
+    <h3>Keep Exploring</h3>
+<a href="/rss.xml" class="btn btn-lg btn-warning">Subscribe to News feed</a>
+
+<h3>Recent Visualizations</h3>
+<ul class="list-unstyled">
+
+<li><a href="/vis/mentor-author-graph/">Graph of Mentors, Books and Authors</a></li>
+
+<li><a href="/vis/big-sister-cities/">Graph of Big Sister Cities With +1 Million Inhabitants</a></li>
+
+<li><a href="/vis/spaghetti-western-actors-dbpedia/">Spaghetti Western Actors Network Graph DBpedia</a></li>
+
+<li><a href="/vis/programming-languages-influence-network-2014/">Programming Languages Influence Network 2014</a></li>
+
+<li><a href="/vis/ballon-dor-male-players-votes-2013/">Ballon d'Or 2013 Male Players Votes Network</a></li>
+
+</ul>
+  </div>
+</div>
+</div>
+
+    
+<div class="container">
+<hr>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+var disqus_shortname = 'exploringdata';
+var disqus_url = 'https://exploring-data.com/info/intentional-homicides/';
+(function() {
+var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+    
+    <div id="footer" class="container">
+      <div class="row"><div class="col-md-12">
+        <footer>
+            <hr>
+            <p>Exploring Data is a showcase of interactive data visualizations created with open data and open source tools, <a href="/about/">learn more</a>.<br>
+            © <script>document.write(new Date().getFullYear())</script> <a href="http://ramiro.org/">Ramiro Gómez</a>.</p>
+        </footer>
+      </div></div>
+    </div>
+    
+    
+
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-5102014-13', 'exploring-data.com');
+  ga('send', 'pageview');
+
+(function(c,a){function d(){var e=a.getElementsByTagName("a");var f=[];for(var g=0;g<e.length;++g){var h=e[g];if(h.host!=c.location.host){f.push(h)}}return f}function b(f){var e=f.srcElement||f.target;while(e&&(typeof e.tagName=="undefined"||e.tagName.toLowerCase()!="a"||!e.href)){e=e.parentNode}if(!e||!e.href){return}if(c.ga){ga("send","event","Outbound link","Click",e.href)}if(!e.target||e.target.match(/^_(self|parent|top)$/i)){setTimeout(function(){a.location.href=e.href},150);if(f.preventDefault){f.preventDefault()}else{f.returnValue=false}}}c.addEventListener("load",function(){var e=d();for(var f in e){e[f].addEventListener("click",b)}})}(window,document));
+</script>
+    <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    
+
+    <script src="/js/script.js"></script>
+    
+
+    
+  </body>
+</html>

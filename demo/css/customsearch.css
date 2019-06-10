@@ -1,0 +1,10 @@
+#gsc-search .gsc-cursor-box {
+text-align:center;
+}
+#gsc-search .gsc-cursor-page {
+font-size:1.1em;
+margin-right:20px;
+}
+#q {
+width:30em;
+}

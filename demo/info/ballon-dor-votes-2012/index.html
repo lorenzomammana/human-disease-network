@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+<html xmlns:fb="http://ogp.me/ns/fb#" lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Who Voted for Whom at Ballon d'Or 2012 | Exploring Data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+        <meta name="description" content="The Ballon d'Or 2012 visualization shows an interactive network graph of voters and voted players related based on votes cast for the male FIFA Ballon d'Or award in 2012.">
+    
+    
+        <meta property="og:image" content="
+
+    /img/preview/ballon-dor-votes-2012.jpg
+
+">
+    
+    
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@yaph">
+<meta name="twitter:site" content="@yaph">
+<meta name="twitter:title" content="Who Voted for Whom at Ballon d'Or 2012">
+<meta name="twitter:description" content="The Ballon d'Or 2012 visualization shows an interactive network graph of voters and voted players related based on votes cast for the male FIFA Ballon d'Or award in 2012.">
+<meta name="twitter:image:src" content="
+
+    /img/preview/ballon-dor-votes-2012.jpg
+
+">
+
+    <meta name="author" content="Ramiro Gómez">
+    
+    <meta name="flattr:id" content="4pzdyq">
+    <link rel="canonical" href="https://exploring-data.com/info/ballon-dor-votes-2012/">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    
+        
+    
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+        
+            <link rel="alternate" type="application/rss+xml" title="Exploring Data main RSS feed" href="https://exploring-data.com/rss.xml">
+        
+    
+</head>
+
+<body class="">
+
+    
+    <nav id="navbar" class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a id="site-name" class="navbar-brand" href="/">Exploring Data</a>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="main-navbar">
+            
+<ul class="nav navbar-nav">
+    
+    <li><a href="/data-visualization-books/">📕 Data Books</a></li>
+    <li><a href="/data-visualization-posters/">🛒 Posters</a></li>
+    <li><a href="https://www.amazon.com/s/ref=w_bl_sl_s_ap_web_7141123011?ie=UTF8&node=7141123011&field-brandtextbin=Exploring+Data+Apparel&_encoding=UTF8&tag=xpdt-20&linkCode=ur2&linkId=9e857f784277104a21c9a5542c76b9a5&camp=1789&creative=9325">👕 Shirts</a></li>
+    <li><a href="/datasearch/">🔍 Search for Data</a></li>
+    <li><a href="/sitemap/">🖧 Sitemap</a></li>
+</ul>
+
+            <div id="sharemenu" class="nav pull-right">
+    <div class="btn-group">
+        <a href="#" class="btn navbar-btn btn-success dropdown-toggle" data-toggle="dropdown">+</a>
+        <ul class="share dropdown-menu pull-right">
+            <li><a href="/rss.xml">RSS Feed</a></li>
+            <li><a href="https://twitter.com/share?url=https%3A//exploring-data.com/info/ballon-dor-votes-2012/&text=Who%20Voted%20for%20Whom%20at%20Ballon%20d%27Or%202012">Tweet this</a></li>
+            <li><a href="https://flattr.com/submit/auto?user_id=rg&url=https%3A//exploring-data.com/info/ballon-dor-votes-2012/&title=Who%20Voted%20for%20Whom%20at%20Ballon%20d%27Or%202012&language=en_GB&category=software">Flattr this</a></li>
+            <li><a href="https://www.facebook.com/sharer.php?u=https%3A//exploring-data.com/info/ballon-dor-votes-2012/&t=Who%20Voted%20for%20Whom%20at%20Ballon%20d%27Or%202012">Facebook</a></li>
+            <li><a href="https://plus.google.com/share?url=https%3A//exploring-data.com/info/ballon-dor-votes-2012/">Google+</a></li>
+            <li><a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A//exploring-data.com/info/ballon-dor-votes-2012/&title=Who%20Voted%20for%20Whom%20at%20Ballon%20d%27Or%202012">LinkedIn</a></li>
+        </ul>
+    </div>
+</div>
+            
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+    
+
+    
+    
+    
+
+<div id="info" class="container">
+<div class="row">
+  <div class="col-md-9"><h1>Who Voted for Whom at Ballon d'Or 2012</h1>
+  <p>With 91 goals scored in 2012 <a href="/vis/ballon-dor-votes-2012/#Messi Lionel">Lionel Messi</a> set a record, that only Messi himself seems to be able to break. Being honored as FIFA's world player of the year for the 4th time in a row &mdash; of course this is a record too &mdash; was inevitable. Messi was elected by 170 coaches and 170 captains of national teams in the FIFA Member Association and a selected group of 165 journalists.</p>
+<p>Messi received 41.60% of the voters' points followed by <a href="/vis/ballon-dor-votes-2012/#Cristiano Ronaldo">Cristiano Ronaldo</a> (23.68%), who <a href="http://sports.yahoo.com/blogs/soccer-dirty-tackle/cristiano-ronaldo-congratulates-lionel-messi-winning-fourth-ballon-231316746--sow.html">did not seem to enjoy</a> the ceremony that much, being 2nd for the 2nd time in a row and <a href="/vis/ballon-dor-votes-2012/#Iniesta Andrés">Andrés Iniesta</a> (10.91%), who came in 3rd.</p>
+<p>The <a href="/vis/ballon-dor-votes-2012/">Ballon d'Or 2012 visualization</a> shows the network of votes cast to award the footballer of the year 2012. Voters and voted for players make up the 524 nodes of the graph. Node size is based on indegree. The 1513 edges are based on the given votes, with each of the voters having three votes: 1st place 5 points (thickest line), 2nd place 3 points, and 3rd place 1 point (thinnest line). Node color indicates either biseing a captain (red), coach (violet), journalist (blue), or player who did not vote (green).</p>
+<p>The voting data is retrieved from this <a href="http://www.fifa.com/mm/document/ballond'or/playeroftheyear(men)/01/98/07/84/fboawardmenplayer2012-bycountry.pdf">PDF document</a> &mdash; I can hardly imagine a worse format to publish data. The graph file was created with a <a href="https://github.com/exploringdata/ballon-dor-votes-2012">Python script</a> and preprocessed using the <a href="https://gephi.org/">Gephi visualization platform</a> to apply a Fruchterman-Reingold layout with some manual adjustments as well as node sizing and coloring. The interactive version is rendered with the <a href="https://sigmajs.org/">JavaScript library sigma.js</a>.</p>
+<p>Below you can watch the tribute video created by illustrator Richard Swarbrick to celebrate Lionel Messi's 4th Ballon d'Or in a row. Congratulations Lionel Messi for being such a great footballer and keep on amazing football fans in the years to come.</p>
+<div class="embed-responsive embed-responsive-16by9">
+  <iframe class="embed-responsive-item" src="http://www.youtube.com/embed/ma4AkKgxzxc"></iframe>
+</div>
+  
+    
+
+<div class="postinfo">
+<hr class="clearfix">
+<div class="well">
+<p>Published on January 09, 2013 (updated on May 14, 2018) by <a href="http://ramiro.org/">Ramiro Gómez</a> (<a href="https://twitter.com/yaph">@yaph</a>). To be informed of new posts, subscribe to the <a href="/rss.xml">RSS feed</a>.<br>
+Tags: <a href="/tags/network-graph/">network graph</a>, <a href="/tags/football/">football</a>, <a href="/tags/sigmajs/">sigmajs</a>, <a href="/tags/gephi/">gephi</a>, <a href="/tags/networkx/">networkx</a>, <a href="/tags/interactive/">interactive</a>.</p>
+
+
+</div>
+</div>
+
+  
+  </div>
+  <div class="col-md-3">
+    
+      <h3>Visualization</h3>
+      <a href="/vis/ballon-dor-votes-2012/"><img src="
+
+    /img/preview/ballon-dor-votes-2012.jpg
+
+" alt="visualization preview" class="vis-preview img-responsive">
+      <a href="/vis/ballon-dor-votes-2012/" class="btn btn-primary voffset">View Visualization</a>
+      <hr>
+    
+    
+    
+      <h3>Visualization Poster</h3>
+      <a href="https://www.zazzle.com/network_of_ballon_dor_2012_votes-228597563002551181?rf=238355915198956003&tc=xpdt"><img class="img-thumbnail img-responsive" src="https://www.zazzle.com/rlv/network_of_ballon_dor_2012_votes-r61afaf94b98747cabb3d8dd138f69d8f_w2u_325.jpg" alt="Ballon d'Or Votes 2012 Poster"></a>
+      <a href="https://www.zazzle.com/network_of_ballon_dor_2012_votes-228597563002551181?rf=238355915198956003&tc=xpdt" class="btn btn-primary voffset">Buy Print</a>
+      <hr>
+    
+    
+    
+    <h3>Keep Exploring</h3>
+<a href="/rss.xml" class="btn btn-lg btn-warning">Subscribe to News feed</a>
+
+<h3>Recent Visualizations</h3>
+<ul class="list-unstyled">
+
+<li><a href="/vis/mentor-author-graph/">Graph of Mentors, Books and Authors</a></li>
+
+<li><a href="/vis/big-sister-cities/">Graph of Big Sister Cities With +1 Million Inhabitants</a></li>
+
+<li><a href="/vis/spaghetti-western-actors-dbpedia/">Spaghetti Western Actors Network Graph DBpedia</a></li>
+
+<li><a href="/vis/programming-languages-influence-network-2014/">Programming Languages Influence Network 2014</a></li>
+
+<li><a href="/vis/ballon-dor-male-players-votes-2013/">Ballon d'Or 2013 Male Players Votes Network</a></li>
+
+</ul>
+  </div>
+</div>
+</div>
+
+    
+<div class="container">
+<hr>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+var disqus_shortname = 'exploringdata';
+var disqus_url = 'https://exploring-data.com/info/ballon-dor-votes-2012/';
+(function() {
+var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+    
+    <div id="footer" class="container">
+      <div class="row"><div class="col-md-12">
+        <footer>
+            <hr>
+            <p>Exploring Data is a showcase of interactive data visualizations created with open data and open source tools, <a href="/about/">learn more</a>.<br>
+            © <script>document.write(new Date().getFullYear())</script> <a href="http://ramiro.org/">Ramiro Gómez</a>.</p>
+        </footer>
+      </div></div>
+    </div>
+    
+    
+
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-5102014-13', 'exploring-data.com');
+  ga('send', 'pageview');
+
+(function(c,a){function d(){var e=a.getElementsByTagName("a");var f=[];for(var g=0;g<e.length;++g){var h=e[g];if(h.host!=c.location.host){f.push(h)}}return f}function b(f){var e=f.srcElement||f.target;while(e&&(typeof e.tagName=="undefined"||e.tagName.toLowerCase()!="a"||!e.href)){e=e.parentNode}if(!e||!e.href){return}if(c.ga){ga("send","event","Outbound link","Click",e.href)}if(!e.target||e.target.match(/^_(self|parent|top)$/i)){setTimeout(function(){a.location.href=e.href},150);if(f.preventDefault){f.preventDefault()}else{f.returnValue=false}}}c.addEventListener("load",function(){var e=d();for(var f in e){e[f].addEventListener("click",b)}})}(window,document));
+</script>
+    <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    
+
+    <script src="/js/script.js"></script>
+    
+
+    
+  </body>
+</html>
