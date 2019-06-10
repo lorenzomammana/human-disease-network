@@ -10,7 +10,7 @@ source("util.R")
 # import libraries
 libraries_list <- c("ggraph", "igraph", "dplyr", "readr", "DiagrammeR", "tidyverse",
                     "Cairo", "networkD3", "CINNA", "scales", "gridExtra", "leiden",
-                    "pander")
+                    "pander", "MCL", "caret")
 import_libraries(libraries_list)
 
 # import graph
@@ -222,7 +222,9 @@ betweennes.communities <- cluster_edge_betweenness(UD_nogenes, directed = FALSE,
 
 print(paste("N° di communities: ", max(betweennes.communities$membership)))
 
-plot_pretty_graph(UD_nogenes, "graphopt", betweennes.communities$membership, length(betweennes.communities), E(UD_nogenes)$weight, "Girvan–Newman Clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", betweennes.communities$membership, 
+                  length(betweennes.communities), E(UD_nogenes)$weight, 
+                  "Girvan–Newman Clusters")
 ```
 Questo algoritmo distingue 29 cluster all'interno della rete, ci aspettiamo quindi che i risultati in termini di accuratezza non siano particolarmente elevati in quanto non è ovviamente in grado di distinguere, ad esempio, i cluster di dimensione uno.
 
@@ -245,7 +247,9 @@ fgreedy.communities <- cluster_fast_greedy(UD_nogenes, modularity = TRUE,
 
 print(paste("N° di communities: ", max(fgreedy.communities$membership)))
 
-plot_pretty_graph(UD_nogenes, "graphopt", fgreedy.communities$membership, length(fgreedy.communities), E(UD_nogenes)$weight, "Fastgreedy Clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", fgreedy.communities$membership, 
+                  length(fgreedy.communities), E(UD_nogenes)$weight, 
+                  "Fastgreedy Clusters")
 ```
 Notiamo che il risultato è simile a quello prodotto da Girvan–Newman, ma il numero di cluster è ancora minore e quindi molto probabilmente anche le performance saranno più basse.
 
@@ -266,7 +270,9 @@ louvain.communities <- cluster_louvain(UD_nogenes, weights = E(UD_nogenes)$weigh
 
 print(paste("N° di communities: ", max(louvain.communities$membership)))
 
-plot_pretty_graph(UD_nogenes, "graphopt", louvain.communities$membership, length(louvain.communities), E(UD_nogenes)$weight, "Louvain Clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", louvain.communities$membership, 
+                  length(louvain.communities), E(UD_nogenes)$weight, 
+                  "Louvain Clusters")
 ```
 
 Anche in questo caso non ci aspettiamo che le performance differiscano particolarmente dagli algoritmi precedenti.
@@ -289,7 +295,9 @@ spinglass.communities <- cluster_spinglass(UD_nogenes, spins = 225,
 
 print(paste("N° di communities: ", max(spinglass.communities$membership)))
 
-plot_pretty_graph(UD_nogenes, "graphopt", spinglass.communities$membership, length(spinglass.communities), E(UD_nogenes)$weight, "Spinglass Clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", spinglass.communities$membership, 
+                  length(spinglass.communities), E(UD_nogenes)$weight, 
+                  "Spinglass Clusters")
 ```
 
 Dei 225 spin iniziali, solamente 41 sono stati popolati. L'algoritmo rileva comunque più cluster dei precedenti e dovrebbe quindi migliorare le prestazioni.
@@ -308,7 +316,6 @@ L'algoritmo MCL [-@mcl] si basa sulla simulazione di percorsi stocastici sul gra
 "Un cammino randomico su un grafo G che visita un cluster denso molto probabilmente uscirà dal cluster solamente dopo aver attraversato buona parte dei suoi vertici".
 Il parametro inflation permette di aumentare la granularità, questo fa in modo di permettere all'algoritmo di rilevare cluster più piccoli e quindi aumentare il numero di cluster rilevati dall'algoritmo.
 ```{r message=FALSE, warning=FALSE}
-library(MCL)
 adjmat <- as_adj(UD_nogenes, type = "both", attr = "weight")
 mcl.communities <- mcl(adjmat, addLoops = FALSE, inflation = 4, allow1 = TRUE) 
 
@@ -334,7 +341,8 @@ ggraph(mcl_cancer_subgraph, layout="graphopt") +
 ```
 
 ```{r include=FALSE}
-markov_cluster_df <- as.data.frame(matrix(1:(mcl.communities$K), nrow = mcl.communities$K, dimnames = list(NULL, "id")))
+markov_cluster_df <- as.data.frame(matrix(1:(mcl.communities$K), nrow = mcl.communities$K, 
+                                          dimnames = list(NULL, "id")))
 markov_cluster_df$name <- NA
 markov_cluster_df$id <- unique(mcl.communities$Cluster)
 for (id in markov_cluster_df$id)
@@ -363,13 +371,13 @@ L'algoritmo Leiden [-@leiden] è un ulteriore evoluzione dell'algoritmo Louvain 
 In particolare con questo algoritmo è possibile decidere a priori il numero di cluster e per questo motivo dovrebbe essere in grado di ottenere performance molto buone sul grafo in questione.
 
 ```{r Leiden Clusters}
-library(leiden)
 adjmat <- as_adj(UD_nogenes, type = "both", attr = "weight")
 leiden.communities <- leiden(adjmat, resolution_parameter = 86)
 print(max(leiden.communities))
 leiden.communities <- make_clusters(UD_nogenes, membership = leiden.communities)
 
-plot_pretty_graph(UD_nogenes, "graphopt", leiden.communities$membership, length(leiden.communities), E(UD_nogenes)$weight, "Leiden Clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", leiden.communities$membership, 
+                  length(leiden.communities), E(UD_nogenes)$weight, "Leiden Clusters")
 ```
 
 Settando il parametro di resolution è possibile far generare un numero di cluster pari al numero di componenti connesse distinte per malattia nel nostro grafo.
@@ -394,7 +402,9 @@ label_prop.communities <- cluster_label_prop(UD_nogenes, weights = E(UD_nogenes)
 
 print(paste("N° di communities: ", max(label_prop.communities$membership)))
 
-plot_pretty_graph(UD_nogenes, "graphopt", label_prop.communities$membership, length(label_prop.communities), E(UD_nogenes)$weight, "Label Propagation Clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", label_prop.communities$membership, 
+                  length(label_prop.communities), E(UD_nogenes)$weight, 
+                  "Label Propagation Clusters")
 ```
 L'algoritmo è molto semplice ed estremamente rapido, inoltre rileva ben 62 community che potrebbero essere indice di performance migliori.
 
@@ -436,7 +446,9 @@ label_prop_init.communities <- cluster_label_prop(UD_nogenes,
 
 print(paste("N° di communities: ", max(label_prop_init.communities$membership)))
 
-plot_pretty_graph(UD_nogenes, "graphopt", label_prop_init.communities$membership, length(label_prop_init.communities), E(UD_nogenes)$weight, "Label Propagation init Clusters")
+plot_pretty_graph(UD_nogenes, "graphopt", label_prop_init.communities$membership, 
+                  length(label_prop_init.communities), E(UD_nogenes)$weight, 
+                  "Label Propagation init Clusters")
 ```
 
 Il numero rilevate viene ridotto, potenzialmente le performance dovrebbero però migliorare in quanto l'algoritmo ha una migliore conoscenza della struttura del grafo.
@@ -456,7 +468,6 @@ Valutiamo gli algoritmi in termini di accuratezza di classificazione dei nodi.
 Abbiamo deciso di considerare i nodi con etichetta "Multiple", che identificano nodi appartenenti a più cluster come dei "Jolly", facendo in modo che risultino sempre veri positivi.
 
 ```{r message=FALSE, warning=FALSE}
-library(caret)
 compute_confmat <- function(groundtruth, communities.algo)
 {
   l.union <- union(groundtruth, communities.algo)
