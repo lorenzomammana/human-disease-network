@@ -63,6 +63,7 @@ ggplot(edges, aes(x = edges$Source, y = edges$Target)) +
 
 Vediamo che sull'asse delle x abbiamo la metà dei nodi rispetto all'asse dell y, questo è dovuto al fatto che i nodi genici hanno solamente archi entranti e sono etichettati con un valore superiore a 1300. \newline
 La parte inferiore del grafo rappresenta quindi tutti i collegamente tra le malattie, mentre quella superiore quelli tra malattie e geni.
+
 ## Centrality Analitycs
 
 Le misure di centralità sono fondamentali per ricavare informazioni sulla struttura della rete senza visualizzarla.
@@ -174,24 +175,24 @@ plot_graph(graph, "dh", eigen$vector, 0.55, 0.04, 0.00005, nodes$label, 0.55,
            "Human Disease Network Eigenvector Centrality")
 ```
 
-## Pagerank
+<!-- ## Pagerank -->
 
-La misura di centralità basata su Pagerank risolve un problema particolare della misura precedente, per il quale se uno dei nodi della rete diventa una "autorità" allora passa tutta la sua centralità anche ai nodi vicini.
+<!-- La misura di centralità basata su Pagerank risolve un problema particolare della misura precedente, per il quale se uno dei nodi della rete diventa una "autorità" allora passa tutta la sua centralità anche ai nodi vicini. -->
 
-```{r pagerank_histogram, cache=TRUE}
-pagerank <- page_rank(graph, v = V(graph), directed = TRUE)
+<!-- ```{r pagerank_histogram, cache=TRUE} -->
+<!-- pagerank <- page_rank(graph, v = V(graph), directed = TRUE) -->
 
-histogram_plot(pagerank$vector, c(0, 1), "pagerank", "frequency", "Pagerank histogram")
+<!-- histogram_plot(pagerank$vector, c(0, 1), "pagerank", "frequency", "Pagerank histogram") -->
 
-# node with the highest pagerank
-V(graph)$label[order(pagerank$vector, decreasing=TRUE)][1:5] 
-# "Colon cancer"  "Deafness"  "Leukemia"  "Diabetes mellitus" "Thyroid carcinoma"
-```
+<!-- # node with the highest pagerank -->
+<!-- V(graph)$label[order(pagerank$vector, decreasing=TRUE)][1:5]  -->
+<!-- # "Colon cancer"  "Deafness"  "Leukemia"  "Diabetes mellitus" "Thyroid carcinoma" -->
+<!-- ``` -->
 
-```{r graph_pagerank, cache=TRUE}
-plot_graph(graph, "dh", pagerank$vector, 0.003, 0.001, 0.0007, nodes$label, 0.003, 
-           "Human Disease Network Pagerank Centrality")
-```
+<!-- ```{r graph_pagerank, cache=TRUE} -->
+<!-- plot_graph(graph, "dh", pagerank$vector, 0.003, 0.001, 0.0007, nodes$label, 0.003,  -->
+<!--            "Human Disease Network Pagerank Centrality") -->
+<!-- ``` -->
 
 ## Network without genes and weighted
 
@@ -257,6 +258,7 @@ plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_degree$res, E(UD_nogen
                              25, 15, 8, nodes$label[nodes$X0 == "disease"], 25, 
                              "Human Disease Network (nogenes) Degree Centrality")
 ```
+
 ### Betweenness
 
 ```{r UD_nogenes_betweennes_histogram}
@@ -296,25 +298,25 @@ plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_closeness, E(UD_nogene
                              "Human Disease Network (nogenes) Closeness Centrality")
 ```
 
-### Pagerank
-```{r UD_nogenes_pagerank_histogram}
-UD_nogenes_pagerank <- page_rank(UD_nogenes, v = V(UD_nogenes), directed = TRUE, 
-                                 weights=E(UD_nogenes)$weight)
+<!-- ### Pagerank -->
+<!-- ```{r UD_nogenes_pagerank_histogram} -->
+<!-- UD_nogenes_pagerank <- page_rank(UD_nogenes, v = V(UD_nogenes), directed = TRUE,  -->
+<!--                                  weights=E(UD_nogenes)$weight) -->
 
-histogram_plot(UD_nogenes_pagerank$vector, c(0, 1), "pagerank", "frequency", 
-               "Pagerank histogram (nogenes)")
+<!-- histogram_plot(UD_nogenes_pagerank$vector, c(0, 1), "pagerank", "frequency",  -->
+<!--                "Pagerank histogram (nogenes)") -->
 
-# nodes with the highest pagerank
-V(graph)$label[order(UD_nogenes_pagerank$vector, decreasing=TRUE)][1:5]
-# "Colon cancer"  "Deafness"  "Diabetes mellitus" "Breast cancer" "Leukemia" 
-```
+<!-- # nodes with the highest pagerank -->
+<!-- V(graph)$label[order(UD_nogenes_pagerank$vector, decreasing=TRUE)][1:5] -->
+<!-- # "Colon cancer"  "Deafness"  "Diabetes mellitus" "Breast cancer" "Leukemia"  -->
+<!-- ``` -->
 
-```{r UD_nogenes_pagerank}
-plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_pagerank$vector, 
-                             E(UD_nogenes)$weight, 0.01, 0.0025, 0.0008, 
-                             nodes$label[nodes$X0 == "disease"], 0.01, 
-                             "Human Disease Network (nogenes) Pagerank Centrality")
-```
+<!-- ```{r UD_nogenes_pagerank} -->
+<!-- plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_pagerank$vector,  -->
+<!--                              E(UD_nogenes)$weight, 0.01, 0.0025, 0.0008,  -->
+<!--                              nodes$label[nodes$X0 == "disease"], 0.01,  -->
+<!--                              "Human Disease Network (nogenes) Pagerank Centrality") -->
+<!-- ``` -->
 
 ### Eigenvector
 ```{r UD_nogenes_eigen_histogram}
