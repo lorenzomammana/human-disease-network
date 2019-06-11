@@ -10,7 +10,7 @@ source("util.R")
 # import libraries
 libraries_list <- c("ggraph", "igraph", "dplyr", "readr", "DiagrammeR", "tidyverse",
                     "Cairo", "networkD3", "CINNA", "scales", "gridExtra", "leiden",
-                    "pander", "MCL", "caret")
+                    "pander", "MCL", "caret", "aricode")
 import_libraries(libraries_list)
 
 # import graph
@@ -554,6 +554,7 @@ $$ ARI = \frac{\sum_{ij}{n_{ij}\choose 2} - \Big[\sum_i{a_i\choose 2} \sum_i{b_j
 Dove $a_i$ è la somma della riga i, $b_j$ è la somma della colonna j ed n è il numero totale di nodi nel grafo.
 
 ```{r message=FALSE, warning=FALSE}
+library(aricode)
 ari_df <- data.frame(matrix(ncol = 1, nrow = 8))
 colnames(ari_df) <- c("Adjusted Rand index")
 rownames(ari_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
@@ -561,19 +562,57 @@ rownames(ari_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "marko
 
 for (i in 1:8)
 {
-  ari_df[i, ] <- compute_ari(readRDS(paste(
-    "contingency_matrices/",
-    gsub(" ", "_", rownames(ari_df)[i]),
-    ".rds",
-    sep = ""
-  )))
+  groundtruth <- nodes_results[, 3]
+  clusters <- nodes_results[, 3 + i]
+  groundtruth[groundtruth == "Multiple"] <- clusters[groundtruth == "Multiple"]
+  ari_df[i, ] <- NMI(groundtruth, clusters)
 }
+
+pander(format(ari_df, digits = 3))
 ```
 
-####  Distribuzione di centralità 
+```{r message=FALSE, warning=FALSE}
+library(aricode)
+ari_df <- data.frame(matrix(ncol = 1, nrow = 8))
+colnames(ari_df) <- c("Adjusted Rand index")
+rownames(ari_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
+                           "leiden", "label prop", "label prop init")
 
+for (i in 1:nrow(ari_df))
+{
+  groundtruth <- nodes_results[, 3]
+  clusters <- nodes_results[, 3 + i]
+  groundtruth[groundtruth == "Multiple"] <- clusters[groundtruth == "Multiple"]
+  ari_df[i, ] <- ARI(groundtruth, clusters)
+}
 
-#### Confronto della distribuzione di centralità dell'intera rete delle malattie (nogenes) e dei clusters reilevati con l'algoritmo Leiden
+pander(format(ari_df, digits = 3))
+```
+
+### Normalized Mutual Information 
+
+Qua c'è da mettere la formula
+
+```{r message=FALSE, warning=FALSE}
+nmi_df <- data.frame(matrix(ncol = 1, nrow = 8))
+colnames(nmi_df) <- c("Normalized Mutual Information")
+rownames(nmi_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
+                           "leiden", "label prop", "label prop init")
+
+for (i in 1:nrow(nmi_df))
+{
+  groundtruth <- nodes_results[, 3]
+  clusters <- nodes_results[, 3 + i]
+  groundtruth[groundtruth == "Multiple"] <- clusters[groundtruth == "Multiple"]
+  nmi_df[i, ] <- NMI(groundtruth, clusters)
+}
+
+pander(format(nmi_df, digits = 3))
+```
+
+##  Distribuzione di centralità 
+
+Confrontiamo la distribuzione di centralità dell'intera rete delle malattie (nogenes) con quella dei clusters rilevati con l'algoritmo Leiden.
 
 ```{r}
 UD_nogenes_degree <- centr_degree(UD_nogenes, mode = "all", normalized = TRUE)
@@ -667,7 +706,7 @@ print(paste("Media della media dei pesi dei clusters individuati
             format(mean(leiden_weights[,1]), digits=3)))
 ```
 
-#### Analisi sulle malattie che venivano contrassegnate come Unclassified:
+## Analisi sulle malattie che venivano contrassegnate come Unclassified:
 
 ```{r}
 unclassified_disease <- nodes_results %>% filter(X1 == "Unclassified")
@@ -702,7 +741,7 @@ breast cancer, post-chemotherapy poor survival in
 collegamenti rilevati :Blood group, Colton
 
 
-#### Analisi sulle malattie che venivano contrassegnate come Multiple:
+## Analisi sulle malattie che venivano contrassegnate come Multiple:
 ```{r}
 multiple_disease <- nodes_results %>% filter(X1 == "Multiple")
 multiple_disease <- head(multiple_disease %>% select(label, Betweenness, Fastgreedy, Louvain, Spinglass, 
