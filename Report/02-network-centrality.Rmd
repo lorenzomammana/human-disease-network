@@ -11,7 +11,7 @@ source("util.R")
 
 # import libraries
 libraries_list <- c("ggraph", "igraph", "dplyr", "readr", "DiagrammeR", "tidyverse", 
-                    "Cairo", "networkD3", "CINNA", "scales")
+                    "Cairo", "networkD3", "CINNA", "scales", "pander")
 import_libraries(libraries_list)
 ```
 
@@ -335,6 +335,34 @@ plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_eigen$vector, E(UD_nog
                              0.6, 0.04, 0.001, nodes$label[nodes$X0 == "disease"], 0.6, 
                              "Human Disease Network (nogenes) Eigenvector Centrality")
 ```
+
+#### Transitività
+
+La transitività misura la probabilità che i vertici adiacenti di un vertice siano connessi. Questa è talvolta chiamato anche **coefficiente di clustering**.
+
+```{r}
+global_transitivity <-  transitivity(UD_nogenes, type = "global", isolates = "zero",
+                                       weights = E(UD_nogenes)$weight)
+
+local_transitivity <-  transitivity(UD_nogenes, type = "local", isolates = "zero",
+                                       weights = E(UD_nogenes)$weight)
+
+weighted_transitivity <-  transitivity(UD_nogenes, type = "weighted", isolates = "zero", 
+                                       weights = E(UD_nogenes)$weight)
+
+transitivity <- data.frame(matrix(ncol = 1, nrow = 3))
+
+colnames(transitivity) <- ""
+rownames(transitivity) <- c("Global Transitivity", "Local Transitivity Mean", 
+                            "Weighted Transitivity Mean")
+
+transitivity[1,1] <- global_transitivity
+transitivity[2,1] <- mean(local_transitivity)
+transitivity[3,1] <- mean(weighted_transitivity)
+
+pander(format(transitivity, digits = 3, justify="left"))
+```
+
 
 #### Dendogramma
 ```{r dendograms}
