@@ -200,7 +200,7 @@ label_cluster <- function(clusters)
   for (c in 1:length(clusters))
   {
     labels <- V(UD_nogenes)[clusters[[c]]]$X1
-    labels <- labels[labels != "Multiple"]
+    labels <- labels[labels != "Multiple" || labels != "Unclassified"]
     
     if (length(labels) != 0)
     {
@@ -208,7 +208,7 @@ label_cluster <- function(clusters)
       cluster_df$name[cluster_df$id == c] <- names(value)[1]
     } else
     {
-      cluster_df$name[cluster_df$id == c] <- "Multiple"
+      cluster_df$name[cluster_df$id == c] <- V(UD_nogenes)[clusters[[c]]]$X1
     }
   }
   
@@ -504,6 +504,7 @@ compute_confmat <- function(groundtruth, communities.algo)
   l.union <- union(groundtruth, communities.algo)
   
   groundtruth[groundtruth == "Multiple"] <- communities.algo[groundtruth == "Multiple"]
+  groundtruth[groundtruth == "Unclassified"] <- communities.algo[groundtruth == "Unclassified"]
   
   atable <-
     table(
@@ -527,6 +528,7 @@ for (i in 4:length(nodes_results))
 }
 
 accuracy_df$Multiple <- NULL
+accuracy_df$Unclassified <- NULL
 
 accuracy_df <- as.data.frame(t(accuracy_df))
 colnames(accuracy_df) <- accuracy_df[1, ]
@@ -565,24 +567,7 @@ for (i in 1:8)
   groundtruth <- nodes_results[, 3]
   clusters <- nodes_results[, 3 + i]
   groundtruth[groundtruth == "Multiple"] <- clusters[groundtruth == "Multiple"]
-  ari_df[i, ] <- NMI(groundtruth, clusters)
-}
-
-pander(format(ari_df, digits = 3))
-```
-
-```{r message=FALSE, warning=FALSE}
-library(aricode)
-ari_df <- data.frame(matrix(ncol = 1, nrow = 8))
-colnames(ari_df) <- c("Adjusted Rand index")
-rownames(ari_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
-                           "leiden", "label prop", "label prop init")
-
-for (i in 1:nrow(ari_df))
-{
-  groundtruth <- nodes_results[, 3]
-  clusters <- nodes_results[, 3 + i]
-  groundtruth[groundtruth == "Multiple"] <- clusters[groundtruth == "Multiple"]
+  groundtruth[groundtruth == "Unclassified"] <- clusters[groundtruth == "Unclassified"]
   ari_df[i, ] <- ARI(groundtruth, clusters)
 }
 
@@ -604,6 +589,7 @@ for (i in 1:nrow(nmi_df))
   groundtruth <- nodes_results[, 3]
   clusters <- nodes_results[, 3 + i]
   groundtruth[groundtruth == "Multiple"] <- clusters[groundtruth == "Multiple"]
+  groundtruth[groundtruth == "Unclassified"] <- clusters[groundtruth == "Unclassified"]
   nmi_df[i, ] <- NMI(groundtruth, clusters)
 }
 
