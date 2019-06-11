@@ -57,7 +57,9 @@ plot_pretty_graph_legend <- function(graph, layout, fill, edge_width, title){
     scale_fill_manual(values = rainbow(length(table(fill)))) +
     scale_edge_width_continuous(range=c(0.2,0.9)) +
     labs(fill="Clusters") +
+    guides(fill = guide_legend(title = "Clusters", title.position = "top"), col = guide_legend(ncol = 5)) +
     theme_graph(base_size = 11, base_family = "sans") +
+    theme(legend.position = "bottom", legend.text=element_text(size=8)) +
     ggtitle(title) 
 }
 
