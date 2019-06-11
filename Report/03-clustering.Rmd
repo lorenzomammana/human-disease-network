@@ -515,7 +515,7 @@ accuracy_df <- accuracy_df[-1, ]
 colnames(accuracy_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
                            "leiden", "label prop", "label prop init")
 
-# panderOptions('table.split.table', 8*12)
+panderOptions('table.split.table', 'Inf')
 pander(format(accuracy_df, digits = 3))
 ```
 
@@ -546,12 +546,109 @@ for (i in 1:8)
   )))
 }
 ```
-FIXME: sistemare i prossimi due capitoli per plottare delle tabelle decenti
+
+####  Distribuzione di centralità dell'intera rete delle malattie (nogenes)
+```{r}
+distribution = data.frame(matrix(ncol = 1, nrow = 4))
+colnames(distribution) <- "Values"
+rownames(distribution) <- c("Mean Degree Distribution", "Mean Betweenness Distribution", 
+                           "Mean Closeness Distribution", "Mean Eigenvector Distribution")
+
+distribution[1,1] <- mean(UD_nogenes_degree$res)
+distribution[2,1] <- mean(UD_nogenes_betweenness)
+distribution[3,1] <- mean(UD_nogenes_closeness)
+distribution[4,1] <- mean(UD_nogenes_eigen$vector)
+
+pander(format(distribution, digits = 3, justify="left"))
+```
+
+```{r}
+print(paste("Media dei pesi di Human Disease Network: ", format(mean(E(UD_nogenes)$weight), digits=3)))
+```
+
+#### Distribuzione di centralità dei clusters reilevato con l'algoritmo Leiden
+
+```{r}
+l <- length(unique(leiden.communities$membership))
+
+leiden_degree <- data.frame(matrix(ncol = 1, nrow = l))
+leiden_betweenness <- data.frame(matrix(ncol = 1, nrow = l))
+leiden_closeness <- data.frame(matrix(ncol = 1, nrow = l))
+leiden_eigen <- data.frame(matrix(ncol = 1, nrow = l))
+
+leiden_weights <- data.frame(matrix(ncol = 1, nrow = l))
+
+colnames(leiden_degree) <- "Values"
+colnames(leiden_betweenness) <- "Values"
+colnames(leiden_closeness) <- "Values"
+colnames(leiden_eigen) <- "Values"
+colnames(leiden_weights) <- "Values"
+  
+for (i in unique(leiden.communities$membership)) {
+  leiden_subgraph <- induced_subgraph(UD_nogenes, 
+                                      which(leiden.communities$membership == i))
+                                   
+  leiden_degree_vect <- centr_degree(leiden_subgraph, mode = "all", 
+                                          normalized = TRUE)
+  
+  leiden_betweenness_vect <- betweenness(leiden_subgraph, v = V(leiden_subgraph), 
+                                           normalized = TRUE, 
+                                           weights=E(leiden_subgraph)$weight)
+
+  leiden_closeness_vect <- closeness(leiden_subgraph, v = V(leiden_subgraph), 
+                                       normalized = TRUE, 
+                                       weights=E(leiden_subgraph)$weight)
+  
+  leiden_eigen_vect <- eigen_centrality(leiden_subgraph,
+                                         weights=E(leiden_subgraph)$weight)
+  
+  leiden_weights[i, 1] <- mean(E(leiden_subgraph)$weight)
+    
+  leiden_degree[i, ] <- mean(leiden_degree_vect$res)
+  leiden_betweenness[i, ] <- mean(leiden_betweenness_vect)
+  leiden_closeness[i, ]  <- mean(leiden_closeness_vect)
+  leiden_eigen[i, ] <- mean(leiden_eigen_vect$vector)
+}
+
+leiden_weights$Values[is.na(leiden_weights$Values)] <- 0
+leiden_degree$Values[is.na(leiden_degree$Values)] <- 0
+leiden_betweenness$Values[is.na(leiden_betweenness$Values)] <- 0
+leiden_closeness$Values[is.na(leiden_closeness$Values)] <- 0
+leiden_eigen$Values[is.na(leiden_eigen$Values)] <- 0
+```
+
+```{r}
+total_distribution = data.frame(matrix(ncol = 1, nrow = 4))
+colnames(total_distribution) <- "Values"
+rownames(total_distribution) <- c("Mean Degree Distribution", 
+                                  "Mean BetweennessDistribution", 
+                                  "Mean Closeness Distribution", 
+                                  "Mean Eigenvector Distribution")
+
+total_distribution[1,1] <- mean(leiden_degree[,1])
+total_distribution[2,1] <- mean(leiden_betweenness[,1])
+total_distribution[3,1] <- mean(leiden_closeness[,1])
+total_distribution[4,1] <- mean(leiden_eigen[,1])
+
+pander(format(total_distribution, digits = 3, justify="left"))
+```
+
+```{r}
+print(paste("Media della media dei pesi di ogni cluster individuato con l'algoritmo Leiden: ", 
+            format(mean(leiden_weights[,1]), digits=3)))
+```
+
 #### Analisi sulle malattie che venivano contrassegnate come Unclassified:
 ```{r}
 unclassified_disease <- nodes_results %>% filter(X1 == "Unclassified")
-unclassified_disease %>% select(label, Betweenness, Fastgreedy, Louvain, Spinglass, 
-                                Markov, Leiden, Label_prop, Label_prop_init)
+
+unclassified_disease <- unclassified_disease %>% select(label, Betweenness, Fastgreedy,
+                                                        Louvain,Spinglass, Markov, 
+                                                        Leiden, Label_prop,
+                                                        Label_prop_init)
+
+panderOptions('table.split.table', 'Inf')
+pander(format(unclassified_disease, digits=3))
 ```
 
 - Bannayan-Riley-Ruvalcaba syndrome identificata da tutti e quattro gli algoritmi come cancer: 
@@ -567,8 +664,11 @@ collegamenti rilevati :Blood group, Colton
 #### Analisi sulle malattie che venivano contrassegnate come Multiple:
 ```{r}
 multiple_disease <- nodes_results %>% filter(X1 == "Multiple")
-head(multiple_disease %>% select(label, Betweenness, Fastgreedy, Louvain, Spinglass, 
-                                 Markov, Leiden, Label_prop, Label_prop_init), 10)
+multiple_disease <- multiple_disease %>% select(label, Betweenness, Fastgreedy, Louvain, Spinglass, 
+                                 Markov, Leiden, Label_prop, Label_prop_init)
+
+panderOptions('table.split.table', 'Inf')
+pander(format(multiple_disease, digits=3))
 ```
 
 - Fanconi anemia is a clinically and genetically heterogeneous disorder that causes genomic instability. Characteristic clinical features include developmental abnormalities in major organ systems, early-onset bone marrow failure, and a high predisposition to cancer
