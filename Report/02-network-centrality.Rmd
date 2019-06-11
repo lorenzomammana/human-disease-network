@@ -1,6 +1,8 @@
 # Network analysis
 
 ## Operazioni preliminari
+
+Cominciamo caricando le librerie necessarie ed il grafo.
 ```{r message=FALSE, warning=FALSE}
 # set working directory
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
@@ -13,7 +15,7 @@ libraries_list <- c("ggraph", "igraph", "dplyr", "readr", "DiagrammeR", "tidyver
 import_libraries(libraries_list)
 ```
 
-```{r graph}
+```{r graph, cache=TRUE}
 # import graph
 edges <- read.csv(
   "../dataset/diseasome [Edges].csv",
@@ -31,44 +33,59 @@ edges <- edges %>% select(-timeset, -label)
 graph <- graph.data.frame(edges, directed = TRUE, vertices = nodes)
 # print(graph, e=TRUE, v=TRUE) ## IGRAPH 9af20f4 DNW- 1419 3926
 
-ggraph(graph, layout="graphopt") + #  "graphopt""
+ggraph(graph, layout="graphopt") + 
     geom_edge_fan(colour = "gray66", show.legend = FALSE) +
-    geom_node_point(fill= ifelse(nodes$X0 == "gene", "#FFAB40", "#F8F445"), #"#FFAB40",
+    geom_node_point(fill= ifelse(nodes$X0 == "gene", "#D61111", "#F8F445"), 
                     shape=21, col="grey25", show.legend = FALSE) +
     scale_size_continuous(range=c(1, 10)) +
     theme_graph(base_size = 11, base_family = "sans") +
     ggtitle("Human Disease Network") 
 ```
 
+In rosso sono rappresentati i geni, mentre in giallo sono rappresentate le malattie.
 ```{r}
-vcount(graph)
-ecount(graph)
+print(paste("N° di nodi: ", vcount(graph)))
+print(paste("N° di geni: ", sum(V(graph)$X1 == "gene")))
+print(paste("N° di archi: ",ecount(graph)))
 ```
 
+## Node similarity
+
+Plottiamo un grafo che, per ogni arco della rete, ha sulle ascisse il nodo sorgente, e sulle ordinate il nodo destinazione.
+Le colonne del grafo simili rappresentano nodi che sono simili all'interno della rete.
 ```{r edge_similarity}
-# similarities
 ggplot(edges, aes(x = edges$Source, y = edges$Target, color = "red")) + 
   geom_point() + 
   labs(x = "Source") +
   labs(y = "Target") +
-  ggtitle("Edges similarity")
-
-# no isolated nodes
+  ggtitle("Node similarity")
 ```
 
+Vediamo che sull'asse delle x abbiamo la metà dei nodi rispetto all'asse dell y, questo è dovuto al fatto che i nodi genici hanno solamente archi entranti e sono etichettati con un valore superiore a 1300. \newline
+La parte inferiore del grafo rappresenta quindi tutti i collegamente tra le malattie, mentre quella superiore quelli tra malattie e geni.
 ## Centrality Analitycs
 
-### Degree
+Le misure di centralità sono fondamentali per ricavare informazioni sulla struttura della rete senza visualizzarla.
+
+## Centralità di grado
+
+Cominciamo mostrando la centralità dei nodi ricavata utilizzando la formula di Freeman.
+
 ```{r degree_histogram}
 degree <- centr_degree(graph, mode = "all", normalized = TRUE)
 
 histogram_plot(degree$res, seq(0, 160, by = 20), "degree", "frequency", 
-               "Degree histogram")
-
-# nodes with the highest degree
-V(graph)$label[order(degree$res, decreasing=TRUE)][1:5]
-# "Colon cancer", "Deafness", "Leukemia", "Breast cancer", "Diabetes mellitus"
+               "Freeman degree centrality")
 ```
+
+Vediamo come la maggior parte dei nodi ha un valore di degree centrality vicino a uno, questo è dovuto al fatto che il grado della maggior parte dei geni è esattamente uno.
+
+Mostriamo quindi i 5 nodi con grado più elevato.
+```{r}
+V(graph)$label[order(degree$res, decreasing=TRUE)][1:5]
+```
+
+Essendo il grado diretto è inoltre utile effettuare valutazioni riguardo l'in-degree e l'out-degree.
 
 ```{r indegree_histogram}
 indegree <- centr_degree(graph, mode = "in", normalized = TRUE)
@@ -89,10 +106,16 @@ histogram_plot(outdegree$res, seq(0, 160, by = 20), "outdegree", "frequency",
 
 # node with the highest outdegree
 V(graph)$label[order(outdegree$res, decreasing=TRUE)][1:5]
-```
-Otteniamo sempre gli stessi risultati
 
-### Betweenness
+```
+
+Vediamo come tutti i 903 geni non hanno archi uscenti.
+
+## Betweenness
+
+La misura di betweenness è una misura di centralità meno locale della precedente, basata sulla seguente formula:
+$$ C_B(i) = \sum_{j\neq k}\frac{g_{jk}(i)}{g_{jk}} $$
+Dove $g_{jk}(i)$ rappresenta il numero di shortest-path che passano per i tra j e k, e $g_{jk}$ è il numero di shortest-path totali.
 
 ```{r betweennes_histogram, cache=TRUE}
 betweenness <- betweenness(graph, v = V(graph), directed = TRUE, normalized = TRUE)
@@ -104,13 +127,17 @@ V(graph)$label[order(betweenness, decreasing=TRUE)][1:5]
 # "Cardiomyopathy" "Lipodystrophy"     "Diabetes mellitus" "Glioblastoma"      "Deafness" 
 ```
 
+Nodi con alta betweenness rappresentano gli hub all'interno della rete.
+
 ```{r graph_betweennes, cache=TRUE}
 plot_graph(graph, "dh", betweenness, 0.14, 0.01, 0.0001, nodes$label, 0.14, 
            "Human Disease Network Betweenness Centrality")
 ```
 
-### Closeness
+## Closeness
 
+La misura di closeness rappresenta l'efficienza di un nodo nello scambiare informazioni, ed è calcolata usando la seguente formula:
+$$ C_c(i)=\Big[\sum_{j=1}^{n}d(i, j)\Big]^{-1}$$
 ```{r closeness_histogram, cache=TRUE}
 closeness <- closeness(graph, v = V(graph), normalized = TRUE)
 
@@ -126,23 +153,11 @@ plot_graph(graph, "dh", closeness, 0.23, 0.09, 0.07, nodes$label, 0.23,
            "Human Disease Network Closeness Centrality")
 ```
 
-### Pagerank
-```{r pagerank_histogram, cache=TRUE}
-pagerank <- page_rank(graph, v = V(graph), directed = TRUE)
+## Eigenvector
 
-histogram_plot(pagerank$vector, c(0, 1), "pagerank", "frequency", "Pagerank histogram")
-
-# node with the highest pagerank
-V(graph)$label[order(pagerank$vector, decreasing=TRUE)][1:5] 
-# "Colon cancer"  "Deafness"  "Leukemia"  "Diabetes mellitus" "Thyroid carcinoma"
-```
-
-```{r graph_pagerank, cache=TRUE}
-plot_graph(graph, "dh", pagerank$vector, 0.003, 0.001, 0.0007, nodes$label, 0.003, 
-           "Human Disease Network Pagerank Centrality")
-```
-
-### Eigenvector
+La centralità basata su autovettori rappresenta il concetto secondo il quale "un nodo è importante se è collegato ad altri nodi importanti" ed è calcolato tramite la seguente formula:
+$$ x_i = \frac{1}{\lambda} \sum_{k} a_{ki} x_k $$ 
+con $\lambda \neq 0$ e costante.
 
 ```{r eigen_histogram, cache=TRUE}
 eigen <- eigen_centrality(graph, directed = TRUE)
@@ -157,6 +172,25 @@ V(graph)$label[order(eigen$vector, decreasing=TRUE)][1:5]
 ```{r graph_eigen, cache=TRUE}
 plot_graph(graph, "dh", eigen$vector, 0.55, 0.04, 0.00005, nodes$label, 0.55, 
            "Human Disease Network Eigenvector Centrality")
+```
+
+## Pagerank
+
+La misura di centralità basata su Pagerank risolve un problema particolare della misura precedente, per il quale se uno dei nodi della rete diventa una "autorità" allora passa tutta la sua centralità anche ai nodi vicini.
+
+```{r pagerank_histogram, cache=TRUE}
+pagerank <- page_rank(graph, v = V(graph), directed = TRUE)
+
+histogram_plot(pagerank$vector, c(0, 1), "pagerank", "frequency", "Pagerank histogram")
+
+# node with the highest pagerank
+V(graph)$label[order(pagerank$vector, decreasing=TRUE)][1:5] 
+# "Colon cancer"  "Deafness"  "Leukemia"  "Diabetes mellitus" "Thyroid carcinoma"
+```
+
+```{r graph_pagerank, cache=TRUE}
+plot_graph(graph, "dh", pagerank$vector, 0.003, 0.001, 0.0007, nodes$label, 0.003, 
+           "Human Disease Network Pagerank Centrality")
 ```
 
 ## Network without genes and weighted
