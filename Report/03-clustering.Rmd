@@ -516,6 +516,7 @@ compute_confmat <- function(groundtruth, communities.algo)
 }
 
 accuracy_df = data.frame(matrix(ncol = 23, nrow = 8))
+disease_clusters <- disease_clusters[disease_clusters != "Unclassified"]
 colnames(accuracy_df) <- c(disease_clusters, "Accuracy")
 rownames(accuracy_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
                            "leiden", "label prop", "label prop init")
