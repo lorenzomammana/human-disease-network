@@ -53,9 +53,9 @@ print(paste("N° di archi: ",ecount(graph)))
 
 Plottiamo un grafo che, per ogni arco della rete, ha sulle ascisse il nodo sorgente, e sulle ordinate il nodo destinazione.
 Le colonne del grafo simili rappresentano nodi che sono simili all'interno della rete.
-```{r edge_similarity}
-ggplot(edges, aes(x = edges$Source, y = edges$Target, color = "red")) + 
-  geom_point() + 
+```{r node_similarity}
+ggplot(edges, aes(x = edges$Source, y = edges$Target)) + 
+  geom_point(color="#06a938") + 
   labs(x = "Source") +
   labs(y = "Target") +
   ggtitle("Node similarity")
