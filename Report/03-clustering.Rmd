@@ -537,7 +537,10 @@ accuracy_df <- accuracy_df[-1, ]
 
 colnames(accuracy_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
                            "leiden", "label prop", "label prop init")
+```
 
+\newpage
+```{r}
 panderOptions('table.split.table', 'Inf')
 pander(format(accuracy_df, digits = 3))
 ```
@@ -570,10 +573,25 @@ for (i in 1:8)
 }
 ```
 
-####  Distribuzione di centralità dell'intera rete delle malattie (nogenes)
+####  Distribuzione di centralità 
+
+
+#### Confronto della distribuzione di centralità dell'intera rete delle malattie (nogenes) e dei clusters reilevati con l'algoritmo Leiden
+
 ```{r}
-distribution = data.frame(matrix(ncol = 1, nrow = 4))
-colnames(distribution) <- "Values"
+UD_nogenes_degree <- centr_degree(UD_nogenes, mode = "all", normalized = TRUE)
+
+UD_nogenes_betweenness <- betweenness(UD_nogenes, v = V(UD_nogenes), directed = TRUE, 
+                                      normalized = TRUE, weights=E(UD_nogenes)$weight)
+
+UD_nogenes_closeness <- closeness(UD_nogenes, v = V(UD_nogenes), normalized = TRUE, 
+                                  weights=E(UD_nogenes)$weight)
+
+UD_nogenes_eigen <- eigen_centrality(UD_nogenes, directed = TRUE, weights=E(UD_nogenes)$weight)
+
+
+distribution = data.frame(matrix(ncol = 2, nrow = 4))
+colnames(distribution) <- c("Nogenes Network", "Leiden Clusters")
 rownames(distribution) <- c("Mean Degree Distribution", "Mean Betweenness Distribution", 
                            "Mean Closeness Distribution", "Mean Eigenvector Distribution")
 
@@ -582,14 +600,8 @@ distribution[2,1] <- mean(UD_nogenes_betweenness)
 distribution[3,1] <- mean(UD_nogenes_closeness)
 distribution[4,1] <- mean(UD_nogenes_eigen$vector)
 
-pander(format(distribution, digits = 3, justify="left"))
 ```
 
-```{r}
-print(paste("Media dei pesi di Human Disease Network: ", format(mean(E(UD_nogenes)$weight), digits=3)))
-```
-
-#### Distribuzione di centralità dei clusters reilevato con l'algoritmo Leiden
 
 ```{r}
 l <- length(unique(leiden.communities$membership))
@@ -641,27 +653,23 @@ leiden_eigen$Values[is.na(leiden_eigen$Values)] <- 0
 ```
 
 ```{r}
-total_distribution = data.frame(matrix(ncol = 1, nrow = 4))
-colnames(total_distribution) <- "Values"
-rownames(total_distribution) <- c("Mean Degree Distribution", 
-                                  "Mean BetweennessDistribution", 
-                                  "Mean Closeness Distribution", 
-                                  "Mean Eigenvector Distribution")
+distribution[1,2] <- mean(leiden_degree[,1])
+distribution[2,2] <- mean(leiden_betweenness[,1])
+distribution[3,2] <- mean(leiden_closeness[,1])
+distribution[4,2] <- mean(leiden_eigen[,1])
 
-total_distribution[1,1] <- mean(leiden_degree[,1])
-total_distribution[2,1] <- mean(leiden_betweenness[,1])
-total_distribution[3,1] <- mean(leiden_closeness[,1])
-total_distribution[4,1] <- mean(leiden_eigen[,1])
-
-pander(format(total_distribution, digits = 3, justify="left"))
+pander(format(distribution, digits = 3, justify="left"))
 ```
 
 ```{r}
+print(paste("Media dei pesi di Human Disease Network: ", format(mean(E(UD_nogenes)$weight), digits=3)))
+
 print(paste("Media della media dei pesi di ogni cluster individuato con l'algoritmo Leiden: ", 
             format(mean(leiden_weights[,1]), digits=3)))
 ```
 
 #### Analisi sulle malattie che venivano contrassegnate come Unclassified:
+
 ```{r}
 unclassified_disease <- nodes_results %>% filter(X1 == "Unclassified")
 
@@ -670,7 +678,18 @@ unclassified_disease <- unclassified_disease %>% select(label, Betweenness, Fast
                                                         Leiden, Label_prop,
                                                         Label_prop_init)
 
-panderOptions('table.split.table', 'Inf')
+col <- unclassified_disease$label
+
+unclassified_disease <- as.data.frame(t(unclassified_disease))
+colnames(unclassified_disease) <- unclassified_disease[1, ]
+unclassified_disease <- unclassified_disease[-1, ]
+
+colnames(unclassified_disease) <- col
+
+```
+\newpage
+```{r}
+panderOptions('table.split.table', 8*18)
 pander(format(unclassified_disease, digits=3))
 ```
 
@@ -687,10 +706,23 @@ collegamenti rilevati :Blood group, Colton
 #### Analisi sulle malattie che venivano contrassegnate come Multiple:
 ```{r}
 multiple_disease <- nodes_results %>% filter(X1 == "Multiple")
-multiple_disease <- multiple_disease %>% select(label, Betweenness, Fastgreedy, Louvain, Spinglass, 
-                                 Markov, Leiden, Label_prop, Label_prop_init)
+multiple_disease <- head(multiple_disease %>% select(label, Betweenness, Fastgreedy, Louvain, Spinglass, 
+                                 Markov, Leiden, Label_prop, Label_prop_init), 10)
 
-panderOptions('table.split.table', 'Inf')
+col <- multiple_disease$label
+
+multiple_disease <- as.data.frame(t(multiple_disease))
+colnames(multiple_disease) <- multiple_disease[1, ]
+multiple_disease <- multiple_disease[-1, ]
+
+colnames(multiple_disease) <- col
+```
+\newpage
+
+Vengono mostrate nella tabella sottostante le prime 10 malattie che venivano identificate come Multiple e il nuovo cluster di appartenenza a seconda dell'algoritmo utilizzato. 
+
+```{r}
+panderOptions('table.split.table', 8*18)
 pander(format(multiple_disease, digits=3))
 ```
 
