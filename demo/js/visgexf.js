@@ -269,7 +269,7 @@ var visgexf = {
   },
 
   resetSearch: function() {
-    document.location.href = document.location.pathname;
+    document.location.href = document.location.pathname + "?" + window.location.search.substr(1);
   },
 
   resetFilter: function() {
