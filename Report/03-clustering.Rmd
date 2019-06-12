@@ -182,6 +182,7 @@ nodes_results$Markov <- NA
 nodes_results$Leiden <- NA
 nodes_results$Label_prop <- NA
 nodes_results$Label_prop_init <- NA
+nodes_results$Lead_eigen <- NA
 ```
 
 ### Regola di clustering
@@ -300,24 +301,40 @@ plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Louvain,
 ## Spinglass
 
 Questo algoritmo [-@spinglass] fa utilizzo di tecniche derivate dalla statistica fisica per costruire le community. 
-Permette di specificare il parametro spins che idealmente rappresenta il numero k di cluster, il problema è che l'algoritmo cerca di riempire tutti i 225 cluster, ma è possibile che non ci riesca e quindi il risultato mostrerà un numero di cluster molto ridotto:
+Permette di specificare il parametro spins che idealmente rappresenta il numero k di cluster, il problema è che l'algoritmo cerca di riempire tutti i cluster, ma è possibile che non ci riesca e quindi il risultato mostrerà un numero di cluster molto ridotto:
+
+DA MODIFICARE: Abbiamo ripetuto bla, bla bla
 
 ```{r}
-set.seed(09062019)
+# set.seed(12062019)
+# 
+# iteration_df <-
+#   as.data.frame(matrix(
+#     NA,
+#     nrow = length(V(UD_nogenes)),
+#     ncol = 100
+#   ))
+# 
+# for (i in 1:100)
+# {
+#   spinglass.communities <- cluster_spinglass(UD_nogenes, spins = 130, 
+#                                            weights = E(UD_nogenes)$weight)
+#   spinglass_cluster_df <- label_cluster(spinglass.communities)
+#   
+#   for (n in 1:length(spinglass.communities$membership))
+#   {
+#     iteration_df[n, i] <- spinglass_cluster_df$name[spinglass.communities$membership[n]]
+#   }
+#   
+#   print(paste(i, "/100"))
+# }
 
-spinglass.communities <- cluster_spinglass(UD_nogenes, spins = 225, 
-                                           weights = E(UD_nogenes)$weight)
+# 100 iterazioni
+iteration_df <- readRDS("spinglass_iterations.rds")
 
-print(paste("N° di communities: ", max(spinglass.communities$membership)))
-```
-
-Dei 225 spin iniziali, solamente 41 sono stati popolati. L'algoritmo rileva comunque più cluster dei precedenti e dovrebbe quindi migliorare le prestazioni.
-
-```{r include=FALSE}
-spinglass_cluster_df <- label_cluster(spinglass.communities)
-for (n in 1:length(spinglass.communities$membership))
+for (n in 1:nrow(iteration_df))
 {
-  nodes_results$Spinglass[n] <- spinglass_cluster_df$name[spinglass.communities$membership[n]]
+  nodes_results$Spinglass[n] <- Mode(iteration_df[n, ])[[1]]
 }
 ```
 
@@ -422,18 +439,33 @@ L'algoritmo di label propagation [-@labelprop] inizializza tutti i nodi con una 
 Il risultato dell'algoritmo dipende dall'inizializzazione, settiamo quindi il seed per permettere la riproducibilità.
 
 ```{r}
-set.seed(09062019)
+# set.seed(12062019)
+# 
+# iteration_df <-
+#   as.data.frame(matrix(
+#     NA,
+#     nrow = length(V(UD_nogenes)),
+#     ncol = 1000
+#   ))
+# 
+# for (i in 1:1000)
+# {
+#   label_prop.communities <- cluster_label_prop(UD_nogenes, weights = E(UD_nogenes)$weight)
+#   label_prop_cluster_df <- label_cluster(label_prop.communities)
+# 
+#   for (n in 1:length(label_prop.communities$membership))
+#   {
+#     iteration_df[n, i] <- label_prop_cluster_df$name[label_prop.communities$membership[n]]
+#   }
+# 
+#   print(paste(i, "/1000"))
+# }
 
-label_prop.communities <- cluster_label_prop(UD_nogenes, weights = E(UD_nogenes)$weight)
+iteration_df <- readRDS("label_prop_iterations.rds")
 
-print(paste("N° di communities: ", max(label_prop.communities$membership)))
-```
-
-```{r include=FALSE}
-label_prop_cluster_df <- label_cluster(label_prop.communities)
-for (n in 1:length(label_prop.communities$membership))
+for (n in 1:nrow(iteration_df))
 {
-  nodes_results$Label_prop[n] <- label_prop_cluster_df$name[label_prop.communities$membership[n]]
+  nodes_results$Label_prop[n] <- Mode(iteration_df[n, ])[[1]]
 }
 ```
 
@@ -447,48 +479,87 @@ plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Label_prop,
 Viene poi testato l'algoritmo utilizzando una tecnica semi-supervised, inizializzando circa il 20% delle label e vedendo come si comporta.
 
 ```{r}
-set.seed(09062019)
-V(UD_nogenes)$initial <- NA
-V(UD_nogenes)$fixed <- NA
+# set.seed(09062019)
+# 
+# 
+# iteration_df <-
+#   as.data.frame(matrix(
+#     NA,
+#     nrow = length(V(UD_nogenes)),
+#     ncol = 1000
+#   ))
+# 
+# for (i in 1:1000)
+# {
+#   V(UD_nogenes)$initial <- NA
+#   V(UD_nogenes)$fixed <- NA
+#   
+#   for (dis in disease_clusters)
+#   {
+#     disnodes <- V(UD_nogenes)[V(UD_nogenes)$X1 == dis]
+#     disnodes <- sample(disnodes, 0.25 * length(disnodes))
+#     for (node in disnodes)
+#     {
+#       V(UD_nogenes)[node]$initial <-
+#         which(disease_clusters == V(UD_nogenes)[node]$X1)
+#       V(UD_nogenes)[node]$fixed <- TRUE
+#     }
+#   }
+# 
+#   V(UD_nogenes)$initial[is.na(V(UD_nogenes)$initial)] <- -1
+#   V(UD_nogenes)$fixed[is.na(V(UD_nogenes)$fixed)] <- FALSE
+# 
+#   label_prop_init.communities <- cluster_label_prop(UD_nogenes,
+#                                                   weights = E(UD_nogenes)$weight,
+#                                                   initial = V(UD_nogenes)$initial, 
+#                                                   fixed = V(UD_nogenes)$fixed)
+#   
+#   label_prop_init_cluster_df <- label_cluster(label_prop_init.communities)
+# 
+#   for (n in 1:length(label_prop_init.communities$membership))
+#   {
+#     iteration_df[n, i] <- label_prop_init_cluster_df$name[label_prop_init.communities$membership[n]]
+#   }
+# 
+#   print(paste(i, "/1000"))
+# }
 
-for (dis in disease_clusters)
+iteration_df <- readRDS("label_prop_init_iterations.rds")
+
+for (n in 1:nrow(iteration_df))
 {
-  disnodes <- V(UD_nogenes)[V(UD_nogenes)$X1 == dis]
-  disnodes <- sample(disnodes, 0.25 * length(disnodes))
-  for (node in disnodes)
-  {
-      V(UD_nogenes)[node]$initial <- which(disease_clusters == V(UD_nogenes)[node]$X1)
-      V(UD_nogenes)[node]$fixed <- TRUE
-  }
+  nodes_results$Label_prop_init[n] <- Mode(iteration_df[n, ])[[1]]
 }
 
-V(UD_nogenes)$initial[is.na(V(UD_nogenes)$initial)] <- -1
-V(UD_nogenes)$fixed[is.na(V(UD_nogenes)$fixed)] <- FALSE
-print(paste("Percentuale vertici inizializzati", 
-            sum(V(UD_nogenes)$initial > 0) / length(V(UD_nogenes))))
 
-label_prop_init.communities <- cluster_label_prop(UD_nogenes,
-                                                  weights = E(UD_nogenes)$weight,
-                                                  initial = V(UD_nogenes)$initial, 
-                                                  fixed = V(UD_nogenes)$fixed)
-
-print(paste("N° di communities: ", max(label_prop_init.communities$membership)))
 ```
 
 Il numero rilevate viene ridotto, potenzialmente le performance dovrebbero però migliorare in quanto l'algoritmo ha una migliore conoscenza della struttura del grafo.
 
-```{r}
-label_prop_init_cluster_df <- label_cluster(label_prop_init.communities)
-for (n in 1:length(label_prop_init.communities$membership))
-{
-  nodes_results$Label_prop_init[n] <- 
-    label_prop_init_cluster_df$name[label_prop_init.communities$membership[n]]
-}
-```
-
 ```{r Label Propagation init Clusters}
 plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Label_prop_init,
                   E(UD_nogenes)$weight, "Label Propagation init Clusters")
+```
+
+## Leading eigenvector
+
+```{r}
+lead_eigen.communities <- cluster_leading_eigen(UD_nogenes, weights = E(UD_nogenes)$weight)
+
+print(paste("N° di communities: ", max(lead_eigen.communities$membership)))
+```
+
+```{r include=FALSE}
+lead_eigen_cluster_df <- label_cluster(lead_eigen.communities)
+for (n in 1:length(lead_eigen.communities$membership))
+{
+  nodes_results$Lead_eigen[n] <- lead_eigen_cluster_df$name[lead_eigen.communities$membership[n]]
+}
+```
+
+```{r Leading eigenvector Clusters}
+plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Lead_eigen,
+                  E(UD_nogenes)$weight, "Leading eigenvector Clusters")
 ```
 
 ## Valutazione degli algoritmi
@@ -515,11 +586,10 @@ compute_confmat <- function(groundtruth, communities.algo)
   return(confusionMatrix(atable))
 }
 
-accuracy_df = data.frame(matrix(ncol = 23, nrow = 8))
-disease_clusters <- disease_clusters[disease_clusters != "Unclassified"]
+accuracy_df <- data.frame(matrix(ncol = 23, nrow = 9))
 colnames(accuracy_df) <- c(disease_clusters, "Accuracy")
 rownames(accuracy_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
-                           "leiden", "label prop", "label prop init")
+                           "leiden", "label prop", "label prop init", "lead eigenvector")
 
 for (i in 4:length(nodes_results))
 {
@@ -533,15 +603,25 @@ accuracy_df$Unclassified <- NULL
 
 accuracy_df <- as.data.frame(t(accuracy_df))
 colnames(accuracy_df) <- accuracy_df[1, ]
-accuracy_df <- accuracy_df[-1, ]
+
+rownames(accuracy_df) <- c("Ear,Nose...", "Cancer", "Opthalmolog", "Endocrine", 
+                           "Cardiovasc", "Neurologic", "Hematologic", "Nutritional",
+                           "Muscular", "Respiratory","Immunologic", "Dermatologic",
+                           "Psychiatric", "Metabolic", "Gastrointest","Bone", "Skeletal",
+                           "Renal", "Development", "Connective tissue disorder", "Accuracy")
+
+temp <- accuracy_df[14, ]
+accuracy_df[14, ] <- accuracy_df[20, ]
+accuracy_df[20, ] <- temp
 
 colnames(accuracy_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
-                           "leiden", "label prop", "label prop init")
+                           "leiden", "label prop", "label prop init", "lead eigenvector")
 ```
 
 \newpage
 ```{r}
 panderOptions('table.split.table', 'Inf')
+panderOptions('table.split.cells', 15)
 pander(format(accuracy_df, digits = 3))
 ```
 
@@ -558,12 +638,12 @@ Dove $a_i$ è la somma della riga i, $b_j$ è la somma della colonna j ed n è i
 
 ```{r message=FALSE, warning=FALSE}
 library(aricode)
-ari_df <- data.frame(matrix(ncol = 1, nrow = 8))
+ari_df <- data.frame(matrix(ncol = 1, nrow = 9))
 colnames(ari_df) <- c("Adjusted Rand index")
 rownames(ari_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
-                           "leiden", "label prop", "label prop init")
+                           "leiden", "label prop", "label prop init", "lead eigenvector")
 
-for (i in 1:8)
+for (i in 1:9)
 {
   groundtruth <- nodes_results[, 3]
   clusters <- nodes_results[, 3 + i]
@@ -580,10 +660,10 @@ pander(format(ari_df, digits = 3))
 Qua c'è da mettere la formula
 
 ```{r message=FALSE, warning=FALSE}
-nmi_df <- data.frame(matrix(ncol = 1, nrow = 8))
+nmi_df <- data.frame(matrix(ncol = 1, nrow = 9))
 colnames(nmi_df) <- c("Normalized Mutual Information")
 rownames(nmi_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
-                           "leiden", "label prop", "label prop init")
+                           "leiden", "label prop", "label prop init", "lead eigenvector")
 
 for (i in 1:nrow(nmi_df))
 {
@@ -601,7 +681,7 @@ pander(format(nmi_df, digits = 3))
 
 Confrontiamo la distribuzione di centralità dell'intera rete delle malattie (nogenes) con quella dei clusters rilevati con l'algoritmo Leiden.
 
-```{r}
+```{r include=FALSE}
 UD_nogenes_degree <- centr_degree(UD_nogenes, mode = "all", normalized = TRUE)
 
 UD_nogenes_betweenness <- betweenness(UD_nogenes, v = V(UD_nogenes), directed = TRUE, 
@@ -626,7 +706,7 @@ distribution[4,1] <- mean(UD_nogenes_eigen$vector)
 ```
 
 
-```{r}
+```{r include=FALSE}
 l <- length(unique(leiden.communities$membership))
 
 leiden_degree <- data.frame(matrix(ncol = 1, nrow = l))
