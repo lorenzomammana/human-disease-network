@@ -604,7 +604,7 @@ accuracy_df$Unclassified <- NULL
 accuracy_df <- as.data.frame(t(accuracy_df))
 colnames(accuracy_df) <- accuracy_df[1, ]
 
-rownames(accuracy_df) <- c("Ear,Nose...", "Cancer", "Opthalmolog", "Endocrine", 
+rownames(accuracy_df) <- c("Ear,Nose...", "Cancer", "Opthalmolog", "Endocrine",
                            "Cardiovasc", "Neurologic", "Hematologic", "Nutritional",
                            "Muscular", "Respiratory","Immunologic", "Dermatologic",
                            "Psychiatric", "Metabolic", "Gastrointest","Bone", "Skeletal",
@@ -615,13 +615,12 @@ accuracy_df[14, ] <- accuracy_df[20, ]
 accuracy_df[20, ] <- temp
 
 colnames(accuracy_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
-                           "leiden", "label prop", "label prop init", "lead eigenvector")
+                          "leiden", "label prop", "label prop init", "lead eigenvector")
 ```
 
-\newpage
 ```{r}
-panderOptions('table.split.table', 'Inf')
-panderOptions('table.split.cells', 15)
+panderOptions('table.split.table', 8*10)
+panderOptions('table.split.cells', 30)
 pander(format(accuracy_df, digits = 3))
 ```
 
@@ -699,8 +698,8 @@ UD_nogenes_eigen <- eigen_centrality(UD_nogenes, directed = TRUE, weights=E(UD_n
 
 distribution = data.frame(matrix(ncol = 2, nrow = 4))
 colnames(distribution) <- c("Nogenes Network", "Leiden Clusters")
-rownames(distribution) <- c("Mean Degree Distribution", "Mean Betweenness Distribution", 
-                           "Mean Closeness Distribution", "Mean Eigenvector Distribution")
+rownames(distribution) <- c("Mean Degree", "Mean Betweenness", 
+                           "Mean Closeness", "Mean Eigenvector")
 
 distribution[1,1] <- mean(UD_nogenes_degree$res)
 distribution[2,1] <- mean(UD_nogenes_betweenness)
@@ -772,8 +771,7 @@ pander(format(distribution, digits = 3, justify="left"))
 print(paste("Media dei pesi di Human Disease Network: ", 
             format(mean(E(UD_nogenes)$weight), digits=3)))
 
-print(paste("Media della media dei pesi dei clusters individuati 
-            con l'algoritmo Leiden: ", 
+print(paste("Media della media dei pesi dei clusters individuati con l'algoritmo Leiden: ", 
             format(mean(leiden_weights[,1]), digits=3)))
 ```
 
@@ -798,24 +796,23 @@ colnames(unclassified_disease) <- col
 ```
 \newpage
 ```{r}
-panderOptions('table.split.table', 8*16)
+panderOptions('table.split.table', 8*14)
 pander(format(unclassified_disease, digits=3))
 ```
 
-- Bannayan-Riley-Ruvalcaba syndrome identificata da tutti e quattro gli algoritmi come cancer: 
-da alcune risorse (https://omim.org/entry/158350?search=bannayan-riley-ruvalcaba%20syndrome&highlight=%22bannayan%20riley%20ruvalcaba%20syndrome%22%20%22bannayan%20riley%20ruvalcaba%20syndromic%22%20%22bannayan%20riley%20ruvalcaba%22%20%22bannayanrileyruvalcaba%20syndrome%22%20%22bannayanrileyruvalcaba%20syndromic%22%20bannayanrileyruvalcaba%20syndrome%20syndromic) pare ci sia un collegamento con il cancro al seno.
+Dalla precedente tabella, risulta evidente come alcune malattie, che inizialmente non avevano un cluster di appartenenza, vengano identificate dalla maggior parte degli algoritmo di clustering come appartenenti ad una determinata community.  
 
-- Benzene toxicity susceptibility to : leukemia, post-chemotherapy, susceptibility to, included
-breast cancer, post-chemotherapy poor survival in
-
-- Aquaporin-1 deficiency classicifata in Hematological: 
-collegamenti rilevati :Blood group, Colton
-
+(FIXME url colorato altriemnti non si capisce)
+Gli esempi più evidenti sono:  
+- **Aquaporin-1 deficiency**: viene identificata da tutti e 7 gli algoritmi come appartenente alla community *Hematological*. Verificando meglio attraverso la fonte [OMIM - Online Mendelian Inheritance in Man](https://omim.org), una trattazione sintetica di geni umani e fenotipi genetici, è possibile verificare la relazione di questo disturbo con i gruppi sanguigni.  
+- **Benzene toxicity**: viene indentificata da tutti gli algoritmi come appartenente al cluster *Cancer*. In questo caso questo tipo di malattia sembreremme ricevere numerose influenze da Leukemia, Post-chemotherapy, Breast cancer etc.  
+- **Bannayan-Riley- Ruvalcaba syndrome**: viene identificata da tutti gli algoritmi (meno uno FIXME) come appartenente alla community *Cancer*. Collegamento con il cancro al seno.
 
 ## Analisi sulle malattie che venivano contrassegnate come Multiple:
 ```{r}
 multiple_disease <- nodes_results %>% filter(X1 == "Multiple")
-multiple_disease <- head(multiple_disease %>% select(label, Betweenness, Fastgreedy, Louvain, Spinglass, 
+multiple_disease <- head(multiple_disease %>% 
+                           select(label, Betweenness, Fastgreedy, Louvain, Spinglass, 
                                  Markov, Leiden, Label_prop, Label_prop_init), 10)
 
 col <- multiple_disease$label
@@ -831,10 +828,15 @@ colnames(multiple_disease) <- col
 Vengono mostrate nella tabella sottostante le prime 10 malattie che venivano identificate come Multiple e il nuovo cluster di appartenenza a seconda dell'algoritmo utilizzato. 
 
 ```{r}
-panderOptions('table.split.table', 8*16)
+panderOptions('table.split.table', 8*14)
 pander(format(multiple_disease, digits=3))
 ```
 
-- Fanconi anemia is a clinically and genetically heterogeneous disorder that causes genomic instability. Characteristic clinical features include developmental abnormalities in major organ systems, early-onset bone marrow failure, and a high predisposition to cancer
+In questo caso, risulta evidente come in alcuni casi le malattie non si inseriscano più in diversi cluster, ma alcune di queste presentano un unica community ricorrente. FIXME  
 
-- Dejerine-Sottas neuropathy is a demyelinating peripheral neuropathy with onset in infancy
+In questo caso gli esempi che ci vengono in supporto sono:  
+- **Fanconi anemia**: viene indentificata come appartenente al cluster *Cancer*. Infatti tra le principali caratteristiche cliniche di questa malattia vi è un'alta predisposizione al cancro.  
+- **Walker- Warburg syndrome**: viene indentificata da tutti gli algoritmi come appartenente alla community *Muscular*.  
+- **Rubenstein- Taybi syndrome**: viene identificata come appartenente alla community *Cancer*.  
+
+In altri casi invece, come per **Waardenburg syndrome**, **Stickler syndrome** e **Waardenburg-Shah syndrome** multipli cluster sembrano influire sulle malattie.
