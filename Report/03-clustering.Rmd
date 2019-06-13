@@ -195,9 +195,8 @@ label_cluster <- function(clusters)
 
 ## Girvan–Newman
 
-Il primo algoritmo di clustering che abbiamo utilizzato è basato sull'utilizzo della misura di edge betweenness. \newline
-L'algoritmo di Girvan-Newman [-@girvan-newman] si basa sull'idea che gli archi che connettono moduli separati della rete 
-dovrebbero avere un alto valore di edge betweenness. 
+Il primo algoritmo di clustering che abbiamo utilizzato appartiene alla famiglia degli algoritmo **Hierarchy-centric community**. Esso è basato sull'utilizzo della misura di edge betweenness. \newline
+L'algoritmo di Girvan-Newman [-@girvan-newman] si fonda sull'idea che gli archi che connettono moduli separati della rete dovrebbero avere un alto valore di edge betweenness. 
 
 ```{r message=FALSE, warning=FALSE}
 betweenness.communities <- cluster_edge_betweenness(UD_nogenes, directed = FALSE, 
@@ -206,7 +205,7 @@ betweenness.communities <- cluster_edge_betweenness(UD_nogenes, directed = FALSE
 print(paste("N° di communities: ", max(betweenness.communities$membership)))
 ```
 
-Questo algoritmo distingue 29 cluster all'interno della rete, ci aspettiamo quindi che i risultati in termini di accuratezza non siano particolarmente elevati in quanto non è ovviamente in grado di distinguere, ad esempio, i cluster di dimensione uno.
+Questo algoritmo distingue 29 cluster all'interno della rete. Ci aspettiamo quindi che i risultati in termini di purezza non siano particolarmente elevati in quanto non è ovviamente in grado di distinguere, ad esempio, i cluster di dimensione uno.
 
 ```{r include=FALSE}
 betweenness_cluster_df <- label_cluster(betweenness.communities)
@@ -224,6 +223,7 @@ plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Betweenness,
 \newpage
 
 ## Fastgreedy
+
 L'algoritmo fastgreedy [-@fastgreedy] cerca le communities all'interno della rete andando a massimizzare il valore di modularità, utilizzando un approccio bottom-up, rispetto a quello top-down utilizzato da Girvan–Newman. \newline
 Inizialmente ogni nodo rappresenta una community e, iterativamente, ogni nodo viene unito in modo tale che l'unione sia localmente ottima (massimo aumento della modularità). L'algoritmo si ferma quando non è più possibile far aumentare la modularità.
 
@@ -541,9 +541,13 @@ plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Lead_eigen,
 
 ## Valutazione degli algoritmi
 
+Le performance vengono misurate tramite valutazione con groundtruth.
+
 ### Purity
 
-Valutiamo gli algoritmi in termini di accuratezza di classificazione dei nodi.
+Valutiamo gli algoritmi in termini di accuratezza di classificazione dei nodi.  
+
+La **purity** è un identificatore che indica quanto bene una community può rappresentare un’intera classe, calcolata osservando le etichette delle istanze. Essa viene calcolata come segue: $$\frac{1}{N} \sum_{i=1}^{k} \underset{j}{max} |C_i \cap L_j|$$  
 Abbiamo deciso di considerare i nodi con etichetta "Multiple" e "Unclassified", come dei "Jolly", facendo in modo che risultino sempre veri positivi.
 
 ```{r message=FALSE, warning=FALSE}
@@ -563,9 +567,9 @@ compute_confmat <- function(groundtruth, communities.algo)
   return(confusionMatrix(atable))
 }
 
-accuracy_df <- data.frame(matrix(ncol = 23, nrow = 9))
-colnames(accuracy_df) <- c(disease_clusters, "Purity")
-rownames(accuracy_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "markov",
+purity_df <- data.frame(matrix(ncol = 23, nrow = 9))
+colnames(purity_df) <- c(disease_clusters, "Purity")
+rownames(purity_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "markov",
                            "leiden", "label prop", "label prop init", "lead eigenvector")
 
 
@@ -574,42 +578,42 @@ for (i in 4:length(nodes_results))
 {
   f_measure <- 0
   confmat <- compute_confmat(nodes_results$X1, nodes_results[, i])
-  accuracy_df[i - 3, ] <- unname(c(diag(confmat$table / rowSums(confmat$table)),
+  purity_df[i - 3, ] <- unname(c(diag(confmat$table / rowSums(confmat$table)),
                                 confmat$overall[1]))
   
   f_measure <- sum(confmat$byClass[, 7], na.rm = TRUE) / 22
   print(f_measure)
 }
 
-accuracy_df$Multiple <- NULL
-accuracy_df$Unclassified <- NULL
+purity_df$Multiple <- NULL
+purity_df$Unclassified <- NULL
 
-accuracy_df <- as.data.frame(t(accuracy_df))
-colnames(accuracy_df) <- accuracy_df[1, ]
+purity_df <- as.data.frame(t(purity_df))
+colnames(purity_df) <- purity_df[1, ]
 
-rownames(accuracy_df) <- c("Ear,Nose...", "Cancer", "Opthalmolog", "Endocrine",
+rownames(purity_df) <- c("Ear,Nose...", "Cancer", "Opthalmolog", "Endocrine",
                            "Cardiovasc", "Neurologic", "Hematologic", "Nutritional",
                            "Muscular", "Respiratory","Immunologic", "Dermatologic",
                            "Psychiatric", "Metabolic", "Gastrointest","Bone", "Skeletal",
                            "Renal", "Development", "Connective tissue disorder", "Purity")
 
-temp <- accuracy_df[14, ]
-accuracy_df[14, ] <- accuracy_df[20, ]
-accuracy_df[20, ] <- temp
+temp <- purity_df[14, ]
+purity_df[14, ] <- purity_df[20, ]
+purity_df[20, ] <- temp
 
-colnames(accuracy_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "markov",
+colnames(purity_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "markov",
                           "leiden", "label prop", "label prop init", "lead eigenvector")
 ```
 
 ```{r}
 panderOptions('table.split.table', 8*10)
 panderOptions('table.split.cells', 30)
-pander(format(accuracy_df, digits = 3))
+pander(format(purity_df, digits = 3))
 ```
 
 ### Adjusted Rand index
 
-L'adjusted Rand index (ARI) misura l'accuratezza dei raggruppamenti costruiti dagli algoritmi utilizzando la seguente formula applicata sulla tabella di contingenza dei risutlati dell'algoritmo:
+L'adjusted Rand index (ARI) misura l'accuratezza (FIXME: purity?) dei raggruppamenti costruiti dagli algoritmi utilizzando la seguente formula applicata sulla tabella di contingenza dei risutlati dell'algoritmo:
 
 $$ ARI = \frac{\sum_{ij}{n_{ij}\choose 2} - \Big[\sum_i{a_i\choose 2} \sum_i{b_j\choose 2} \Big]/{n\choose 2}}
               {\frac{1}{2} \Big[\sum_i{a_i\choose 2} + \sum_i{b_j\choose 2} \Big] 
@@ -662,6 +666,11 @@ for (i in 1:nrow(nmi_df))
 
 pander(format(nmi_df, digits = 3))
 ```
+
+### Precision, Recall e F-measure
+
+FIXME
+
 
 ##  Distribuzione di centralità 
 
@@ -807,7 +816,7 @@ colnames(multiple_disease) <- col
 ```
 \newpage
 
-Vengono mostrate nella tabella sottostante le prime 10 malattie che venivano identificate come Multiple e il nuovo cluster di appartenenza a seconda dell'algoritmo utilizzato. 
+Vengono mostrate nella tabella sottostante le prime 10 malattie che venivano identificate come Multiple e il nuovo cluster di appartenenza a seconda dell'algoritmo utilizzato.  
 
 ```{r}
 panderOptions('table.split.table', 8*14)
