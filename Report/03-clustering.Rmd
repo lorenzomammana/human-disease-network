@@ -27,38 +27,9 @@ nodes <- read.csv(
 nodes <- nodes %>% select(-timeset)
 edges <- edges %>% select(-timeset, -label)
 
-graph <- graph.data.frame(edges, directed = FALSE, vertices = nodes)
-```
-
-Il grafo caricato ha tutti i pesi degli archi uguali ad uno; li aggiorniamo calcolando per ogni coppia di nodi il numero di
-geni che condividono:
-```{r}
-# for (i in 1:length(edges[, 5]))
-# {
-#   edge <- edges[i, ]
-# 
-#   n1 <- V(graph)[as.character(edge$Source)]
-#   n2 <- V(graph)[as.character(edge$Target)]
-# 
-#   n1.neigh <- neighborhood(graph, nodes = n1)[[1]]
-#   n2.neigh <- neighborhood(graph, nodes = n2)[[1]]
-# 
-#   n1.neigh <- as.numeric(n1.neigh[n1.neigh$X1 == "gene"])
-#   n2.neigh <- as.numeric(n2.neigh[n2.neigh$X1 == "gene"])
-# 
-#   weight <- length(intersect(n1.neigh, n2.neigh))
-# 
-#   edges[i, ]$weight <- weight
-# }
-
 weight <- readRDS("edgeweights.rds")
 edges$weight <- weight
-```
 
-Dato che il peso degli archi denota il numero di geni condivisi è possibile rimuovere tutti i nodi genici dal grafo in quanto
-non portano più informazione utile, e sono inutili al fine del clustering. \newline
-Siccome ogni coppia di nodi è connessa da un doppio arco identico, abbiamo deciso di disorientare il grafo mantenendo solamente uno dei due archi.
-```{r}
 graph <- graph.data.frame(edges, directed = FALSE, vertices = nodes)
 
 UD_nogenes <- induced_subgraph(graph, which(nodes$X1 != "gene"))
@@ -72,7 +43,8 @@ UD_nogenes <- igraph::simplify(UD_nogenes)
 ## Groundtruth
 
 Le malattie nel grafo sono clusterizzate in macrogruppi medici (cancro, cardiovascolare, etc...), verifichiamo se questi cluster si trovano
-effettivamente vicini all'interno della rete
+effettivamente vicini all'interno della rete.
+
 ```{r Human Disease Network Clusters}
 disease_clusters <- unique(V(UD_nogenes)$X1)
 
@@ -140,7 +112,7 @@ grid.arrange(grobs = plots[17:20])
 grid.arrange(grobs = plots[21:22])
 ```
 
-Notiamo subito che non tutte le malattie formano un cluster compatto all'interno della rete, questo potrebbe essere molto problematico in quanto, non avendo attributi sui nodi, possiamo solo limitarci a raggruppare nodi che sono vicini all'interno della rete. \newline
+Notiamo subito che non tutte le malattie formano un cluster, questo potrebbe essere molto problematico in quanto, non avendo attributi sui nodi, possiamo solo limitarci a raggruppare nodi che sono vicini all'interno della rete. \newline
 
 Vediamo quante componenti connesse abbiamo per ogni cluster:
 ```{r}
@@ -167,6 +139,8 @@ print(n.cluster.single)
 ```
 L'algoritmo ottimale dovrebbe essere in grado di distinguere 225 cluster basandosi unicamente sulla locazione del nodo all'interno della rete. \newline 
 In particolare abbiamo 161 nodi i cui vicini non rappresentano la stessa malattia!
+
+\newpage 
 
 ## Algoritmi di clustering
 
@@ -235,7 +209,7 @@ print(paste("N° di communities: ", max(betweenness.communities$membership)))
 Questo algoritmo distingue 29 cluster all'interno della rete, ci aspettiamo quindi che i risultati in termini di accuratezza non siano particolarmente elevati in quanto non è ovviamente in grado di distinguere, ad esempio, i cluster di dimensione uno.
 
 ```{r include=FALSE}
-betweennes_cluster_df <- label_cluster(betweenness.communities)
+betweenness_cluster_df <- label_cluster(betweenness.communities)
 for (n in 1:length(betweenness.communities$membership))
 {
   nodes_results$Betweenness[n] <- betweenness_cluster_df$name[betweenness.communities$membership[n]]
@@ -246,6 +220,8 @@ for (n in 1:length(betweenness.communities$membership))
 plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Betweenness,
                   E(UD_nogenes)$weight, "Girvan Newman Clusters")
 ```
+
+\newpage
 
 ## Fastgreedy
 L'algoritmo fastgreedy [-@fastgreedy] cerca le communities all'interno della rete andando a massimizzare il valore di modularità, utilizzando un approccio bottom-up, rispetto a quello top-down utilizzato da Girvan–Newman. \newline
@@ -298,14 +274,15 @@ plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Louvain,
                   E(UD_nogenes)$weight, "Louvain Clusters")
 ```
 
+\newpage
+
 ## Spinglass
 
 Questo algoritmo [-@spinglass] fa utilizzo di tecniche derivate dalla statistica fisica per costruire le community. 
-Permette di specificare il parametro spins che idealmente rappresenta il numero k di cluster, il problema è che l'algoritmo cerca di riempire tutti i cluster, ma è possibile che non ci riesca e quindi il risultato mostrerà un numero di cluster molto ridotto:
+Permette di specificare il parametro spins che idealmente rappresenta il numero k di cluster, il problema è che l'algoritmo cerca di riempire tutti i cluster, ma è possibile che non ci riesca e quindi il risultato mostrerà un numero di cluster molto ridotto.
+I risultati dell'algoritmo differiscono in base all'inizializzazione delle etichette, per questo motivo il processo di assegnazione delle etichette è stato ripetuto 100 volte per ottenere una stima più affidabile.
 
-DA MODIFICARE: Abbiamo ripetuto bla, bla bla
-
-```{r}
+```{r eval=FALSE, include=FALSE}
 # set.seed(12062019)
 # 
 # iteration_df <-
@@ -328,7 +305,9 @@ DA MODIFICARE: Abbiamo ripetuto bla, bla bla
 # 
 #   print(paste(i, "/100"))
 # }
+```
 
+```{r}
 # 100 iterazioni
 iteration_df <- readRDS("spinglass_iterations.rds")
 
@@ -337,6 +316,8 @@ for (n in 1:nrow(iteration_df))
   nodes_results$Spinglass[n] <- Mode(iteration_df[n, ])[[1]]
 }
 ```
+
+Il numero di cluster costruiti varia in base all'inizializzazione ed è circa 40.
 
 ```{r Spinglass Clusters}
 plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Spinglass,
@@ -347,7 +328,7 @@ plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Spinglass,
 
 L'algoritmo MCL [-@mcl] si basa sulla simulazione di percorsi stocastici sul grafo, sfruttando il paradigma di clustering secondo il quale le community hanno la seguente proprietà: \newline
 "Un cammino randomico su un grafo G che visita un cluster denso molto probabilmente uscirà dal cluster solamente dopo aver attraversato buona parte dei suoi vertici".
-Il parametro inflation permette di aumentare la granularità, questo fa in modo di permettere all'algoritmo di rilevare cluster più piccoli e quindi aumentare il numero di cluster rilevati dall'algoritmo.
+Il parametro inflation permette di aumentare la granularità, questo permette all'algoritmo di rilevare cluster più piccoli e quindi aumentare il numero di cluster rilevati.
 
 ```{r message=FALSE, warning=FALSE}
 adjmat <- as_adj(UD_nogenes, type = "both", attr = "weight")
@@ -391,19 +372,7 @@ plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Markov,
 
 L'algoritmo rileva ben 169 communities, l'accuratezza ci dimostrerà se sono sensate, oppure i raggruppamenti sono molto randomici.
 
-Esempio di sottografo con label cancer:
-
-```{r Cancer MCL subgraph, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
-mcl_cancer_subgraph <- induced_subgraph(UD_nogenes, V(UD_nogenes)[mcl.communities$Cluster == 3])
-
-ggraph(mcl_cancer_subgraph, layout="graphopt") +
-  geom_edge_fan(aes(width=E(mcl_cancer_subgraph)$weight), colour = "gray66", show.legend = FALSE) +
-  geom_node_point(aes(fill="#8DD3C7"), shape=21, col="grey25", show.legend = FALSE) +
-  scale_edge_width_continuous(range=c(0.2,0.9)) +
-  scale_size_continuous(range=c(1, 10)) +
-  theme_graph(base_size = 11, base_family = "sans") +
-  ggtitle("Cancer MCL subgraph") 
-```
+\newpage
 
 ## Leiden Algorithm
 
@@ -432,13 +401,13 @@ plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Leiden,
                   E(UD_nogenes)$weight, "Leiden Clusters")
 ```
 
+\newpage
 
 ## Label propagation
 
 L'algoritmo di label propagation [-@labelprop] inizializza tutti i nodi con una label random e poi iterativamente aggiorna la label di ogni nodo basandosi su una votazione a maggioranza tra le label dei vicini.
-Il risultato dell'algoritmo dipende dall'inizializzazione, settiamo quindi il seed per permettere la riproducibilità.
-
-```{r}
+Il risultato dell'algoritmo dipende dall'inizializzazione, iteriamo quindi il procedimento 1000 volte per ottenere delle stime consistenti.
+```{r eval=FALSE, include=FALSE}
 # set.seed(12062019)
 # 
 # iteration_df <-
@@ -460,7 +429,10 @@ Il risultato dell'algoritmo dipende dall'inizializzazione, settiamo quindi il se
 # 
 #   print(paste(i, "/1000"))
 # }
+```
 
+```{r}
+# 1000 iterazioni
 iteration_df <- readRDS("label_prop_iterations.rds")
 
 for (n in 1:nrow(iteration_df))
@@ -478,7 +450,7 @@ plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Label_prop,
 
 Viene poi testato l'algoritmo utilizzando una tecnica semi-supervised, inizializzando circa il 20% delle label e vedendo come si comporta.
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 # set.seed(09062019)
 # 
 # 
@@ -525,17 +497,19 @@ Viene poi testato l'algoritmo utilizzando una tecnica semi-supervised, inizializ
 #   print(paste(i, "/1000"))
 # }
 
+```
+
+```{r}
+# 1000 iterazioni
 iteration_df <- readRDS("label_prop_init_iterations.rds")
 
 for (n in 1:nrow(iteration_df))
 {
   nodes_results$Label_prop_init[n] <- Mode(iteration_df[n, ])[[1]]
 }
-
-
 ```
 
-Il numero rilevate viene ridotto, potenzialmente le performance dovrebbero però migliorare in quanto l'algoritmo ha una migliore conoscenza della struttura del grafo.
+Avendo inizializzato le label ci aspettiamo un buon aumento delle performance.
 
 ```{r Label Propagation init Clusters}
 plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Label_prop_init,
@@ -543,6 +517,8 @@ plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Label_prop_init,
 ```
 
 ## Leading eigenvector
+
+L'algoritmo in questione [-@eigen] si basa sull'utilizzo di clustering divisivo con l'obiettivo di massimizzare la modularità. Ad ogni step separa il grafo in due componenti in modo tale che la separazione vada ad incrementare la modularità. La separazione è determinata valutando l'autovettore principale della matrice di modularità $B=A-P$.
 
 ```{r}
 lead_eigen.communities <- cluster_leading_eigen(UD_nogenes, weights = E(UD_nogenes)$weight)
@@ -565,10 +541,10 @@ plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Lead_eigen,
 
 ## Valutazione degli algoritmi
 
-### Accuracy
+### Purity
 
 Valutiamo gli algoritmi in termini di accuratezza di classificazione dei nodi.
-Abbiamo deciso di considerare i nodi con etichetta "Multiple", che identificano nodi appartenenti a più cluster come dei "Jolly", facendo in modo che risultino sempre veri positivi.
+Abbiamo deciso di considerare i nodi con etichetta "Multiple" e "Unclassified", come dei "Jolly", facendo in modo che risultino sempre veri positivi.
 
 ```{r message=FALSE, warning=FALSE}
 compute_confmat <- function(groundtruth, communities.algo)
@@ -592,11 +568,17 @@ colnames(accuracy_df) <- c(disease_clusters, "Purity")
 rownames(accuracy_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "markov",
                            "leiden", "label prop", "label prop init", "lead eigenvector")
 
+
+
 for (i in 4:length(nodes_results))
 {
+  f_measure <- 0
   confmat <- compute_confmat(nodes_results$X1, nodes_results[, i])
   accuracy_df[i - 3, ] <- unname(c(diag(confmat$table / rowSums(confmat$table)),
                                 confmat$overall[1]))
+  
+  f_measure <- sum(confmat$byClass[, 7], na.rm = TRUE) / 22
+  print(f_measure)
 }
 
 accuracy_df$Multiple <- NULL

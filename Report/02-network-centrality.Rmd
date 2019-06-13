@@ -66,7 +66,7 @@ La parte inferiore del grafo rappresenta quindi tutti i collegamente tra le mala
 
 ## Centrality Analitycs
 
-Le misure di centralità sono fondamentali per ricavare informazioni sulla struttura della rete senza visualizzarla.
+Le misure di centralità sono utili per rilevare quali sono e dove si trovano i nodi importani all'interno della rete.
 
 ## Centralità di grado
 
@@ -196,7 +196,7 @@ plot_graph(graph, "dh", pagerank$vector, 0.003, 0.001, 0.0007, nodes$label, 0.00
 
 ## Coefficiente di clustering
 
-La transitività misura la probabilità che i vertici adiacenti di un vertice siano connessi. Questa è talvolta chiamato anche **coefficiente di clustering**.
+Il coefficiente di clustering locale è una misura utile per valutare la densità locale della rete, il coefficiente globale invece ci da un'idea su quanto sia clusterizzata la rete.
 
 ```{r clustering coefficient, message=FALSE, warning=FALSE, cache=TRUE}
 global_transitivity <- transitivity(graph, type = "global", isolates = "zero")
@@ -215,6 +215,8 @@ transitivity[2,1] <- global_transitivity
 pander(format(transitivity, digits = 3, justify="left"))
 ```
 
+Vediamo che il valore del coefficiente di clustering globale è molto basso e questo può indicare che avremo difficoltà nel valutare algoritmi di clustering su questa rete.
+
 ## Grafo utilizzato per il clustering
 
 ### Rimozione geni
@@ -232,7 +234,7 @@ Abbiamo deciso di pesare ogni arco dato il numero di geni condivisi dalle coppie
 La rete iniziale è un grafo diretto che ha però una coppia di archi di uguale peso, per ogni malattia che condivide un gene.
 Abbiamo deciso di rimuovere uno dei due archi e disorientare il grafo, per ottenere un grafo esattamente identico, ma più facilmente gestibile e visualizzabile avendo dimezzato il numero di archi.
 
-```{r UD_nogenes_netwrok, include=FALSE}
+```{r UD_nogenes_network, include=FALSE}
 for (i in 1:length(edges[, 5]))
 {
   edge <- edges[i, ]
@@ -279,7 +281,7 @@ Ricalcoliamo le misure di centralità sul nuovo grafo.
 
 ### Degree
 
-```{r UD_nogenes_degree_histogram, message=FALSE, warning=FALSE}
+```{r UD_nogenes_degree_histogram, message=FALSE, warning=FALSE, cache=TRUE}
 UD_nogenes_degree <- centr_degree(UD_nogenes, mode = "all", normalized = TRUE)
 
 histogram_plot(UD_nogenes_degree$res, seq(0, 160, by = 20), "degree", "frequency", 
@@ -290,7 +292,7 @@ V(graph)$label[order(UD_nogenes_degree$res, decreasing=TRUE)][1:5]
 # "Colon cancer", "Breast cancer"     "Gastric cancer"    "Leukemia"  "Thyroid carcinoma"
 ```
 
-```{r UD_nogenes_degree, message=FALSE, warning=FALSE}
+```{r UD_nogenes_degree, message=FALSE, warning=FALSE, cache=TRUE}
 plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_degree$res, E(UD_nogenes)$weight, 
                              25, 15, 8, nodes$label[nodes$X0 == "disease"], 25, 
                              "Human Disease Network (nogenes) Degree Centrality")
@@ -298,7 +300,7 @@ plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_degree$res, E(UD_nogen
 
 ### Betweenness
 
-```{r UD_nogenes_betweennes_histogram, message=FALSE, warning=FALSE}
+```{r UD_nogenes_betweennes_histogram, message=FALSE, warning=FALSE, cache=TRUE}
 UD_nogenes_betweenness <- betweenness(UD_nogenes, v = V(UD_nogenes), directed = TRUE, 
                                       normalized = TRUE, weights=E(UD_nogenes)$weight)
 
@@ -310,14 +312,14 @@ V(graph)$label[order(UD_nogenes_betweenness, decreasing=TRUE)][1:5]
 # "Cardiomyopathy"  "Lipodystrophy" "Diabetes mellitus" "Glioblastoma"  "Myopathy"
 ```
 
-```{r UD_nogenes_UD_nogenes_betweennes, message=FALSE, warning=FALSE}
+```{r UD_nogenes_UD_nogenes_betweennes, message=FALSE, warning=FALSE, cache=TRUE}
 plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_betweenness, E(UD_nogenes)$weight, 
                              0.3, 0.1, 0.005, nodes$label[nodes$X0 == "disease"], 0.3, 
                              "Human Disease Network (nogenes) Betweenness Centrality")
 ```
 
 ### Closeness
-```{r UD_nogenes_closeness_histogram, message=FALSE, warning=FALSE}
+```{r UD_nogenes_closeness_histogram, message=FALSE, warning=FALSE, cache=TRUE}
 UD_nogenes_closeness <- closeness(UD_nogenes, v = V(UD_nogenes), normalized = TRUE, 
                                   weights=E(UD_nogenes)$weight)
 
@@ -329,14 +331,14 @@ V(graph)$label[order(UD_nogenes_closeness, decreasing=TRUE)][1:5]
 # "Diabetes mellitus" "Lipodystrophy"  "Glioblastoma"  "Cardiomyopathy" "Insulin resistance"
 ```
 
-```{r UD_nogenes_closeness, message=FALSE, warning=FALSE}
+```{r UD_nogenes_closeness, message=FALSE, warning=FALSE, cache=TRUE}
 plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_closeness, E(UD_nogenes)$weight, 
                              0.11, 0.09, 0.07, nodes$label[nodes$X0 == "disease"], 0.11, 
                              "Human Disease Network (nogenes) Closeness Centrality")
 ```
 
 ### Eigenvector
-```{r UD_nogenes_eigen_histogram, message=FALSE, warning=FALSE}
+```{r UD_nogenes_eigen_histogram, message=FALSE, warning=FALSE, cache=TRUE}
 UD_nogenes_eigen <- eigen_centrality(UD_nogenes, directed = TRUE, weights=E(UD_nogenes)$weight)
 
 histogram_plot(UD_nogenes_eigen$vector, c(0, 1), "eigen", "frequency", 
@@ -347,7 +349,7 @@ V(graph)$label[order(UD_nogenes_eigen$vector, decreasing=TRUE)][1:5]
 #"Colon cancer" "Breast cancer"  "Ovarian cancer" "Lymphoma" "Pancreatic cancer"
 ```
 
-```{r UD_nogenes_eigen, message=FALSE, warning=FALSE}
+```{r UD_nogenes_eigen, message=FALSE, warning=FALSE, cache=TRUE}
 plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_eigen$vector, E(UD_nogenes)$weight, 
                              0.6, 0.04, 0.001, nodes$label[nodes$X0 == "disease"], 0.6, 
                              "Human Disease Network (nogenes) Eigenvector Centrality")
@@ -361,7 +363,7 @@ Non calcoliamo PageRank in quanto non è una misura particolarmente esplicativa 
 
 La transitività misura la probabilità che i vertici adiacenti di un vertice siano connessi. Questa è talvolta chiamato anche **coefficiente di clustering**.
 
-```{r clustering coefficient, message=FALSE, warning=FALSE, cache=TRUE}
+```{r clustering coefficient nogenes, message=FALSE, warning=FALSE, cache=TRUE}
 global_transitivity <-  transitivity(UD_nogenes, type = "global", isolates = "zero",
                                        weights = E(UD_nogenes)$weight)
 
@@ -388,3 +390,5 @@ transitivity[3,1] <- mean(weighted_transitivity)
 
 pander(format(transitivity, digits = 3, justify="left"))
 ```
+
+Le misure sono quasi raddoppiate rispetto alla controparte genica, questo ci fa pensare che gli accorgimenti addottati per migliorare la rete siano corretti.
