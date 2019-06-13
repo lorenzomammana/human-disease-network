@@ -223,22 +223,22 @@ label_cluster <- function(clusters)
 
 Il primo algoritmo di clustering che abbiamo utilizzato è basato sull'utilizzo della misura di edge betweenness. \newline
 L'algoritmo di Girvan-Newman [-@girvan-newman] si basa sull'idea che gli archi che connettono moduli separati della rete 
-dovrebbero avere un alto valore di edge betweennes. 
+dovrebbero avere un alto valore di edge betweenness. 
 
 ```{r message=FALSE, warning=FALSE}
-betweennes.communities <- cluster_edge_betweenness(UD_nogenes, directed = FALSE, 
+betweenness.communities <- cluster_edge_betweenness(UD_nogenes, directed = FALSE, 
                                                    weights = E(UD_nogenes)$weight)
 
-print(paste("N° di communities: ", max(betweennes.communities$membership)))
+print(paste("N° di communities: ", max(betweenness.communities$membership)))
 ```
 
 Questo algoritmo distingue 29 cluster all'interno della rete, ci aspettiamo quindi che i risultati in termini di accuratezza non siano particolarmente elevati in quanto non è ovviamente in grado di distinguere, ad esempio, i cluster di dimensione uno.
 
 ```{r include=FALSE}
-betweennes_cluster_df <- label_cluster(betweennes.communities)
-for (n in 1:length(betweennes.communities$membership))
+betweennes_cluster_df <- label_cluster(betweenness.communities)
+for (n in 1:length(betweenness.communities$membership))
 {
-  nodes_results$Betweenness[n] <- betweennes_cluster_df$name[betweennes.communities$membership[n]]
+  nodes_results$Betweenness[n] <- betweenness_cluster_df$name[betweenness.communities$membership[n]]
 }
 ```
 
@@ -588,7 +588,7 @@ compute_confmat <- function(groundtruth, communities.algo)
 
 accuracy_df <- data.frame(matrix(ncol = 23, nrow = 9))
 colnames(accuracy_df) <- c(disease_clusters, "Purity")
-rownames(accuracy_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
+rownames(accuracy_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "markov",
                            "leiden", "label prop", "label prop init", "lead eigenvector")
 
 for (i in 4:length(nodes_results))
@@ -614,7 +614,7 @@ temp <- accuracy_df[14, ]
 accuracy_df[14, ] <- accuracy_df[20, ]
 accuracy_df[20, ] <- temp
 
-colnames(accuracy_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
+colnames(accuracy_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "markov",
                           "leiden", "label prop", "label prop init", "lead eigenvector")
 ```
 
@@ -639,7 +639,7 @@ Dove $a_i$ è la somma della riga i, $b_j$ è la somma della colonna j ed n è i
 library(aricode)
 ari_df <- data.frame(matrix(ncol = 1, nrow = 9))
 colnames(ari_df) <- c("Adjusted Rand index")
-rownames(ari_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
+rownames(ari_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "markov",
                            "leiden", "label prop", "label prop init", "lead eigenvector")
 
 for (i in 1:9)
@@ -665,7 +665,7 @@ Dove $MI$ rappresenta la Mutual Information tra i cluster ($\Omega$) e le classi
 ```{r message=FALSE, warning=FALSE}
 nmi_df <- data.frame(matrix(ncol = 1, nrow = 9))
 colnames(nmi_df) <- c("Normalized Mutual Information")
-rownames(nmi_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
+rownames(nmi_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "markov",
                            "leiden", "label prop", "label prop init", "lead eigenvector")
 
 for (i in 1:nrow(nmi_df))
