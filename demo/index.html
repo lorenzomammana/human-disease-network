@@ -46,7 +46,12 @@ https://exploring-data.com/img/large/human-disease-network.png
             <link rel="alternate" type="application/rss+xml" title="Exploring Data main RSS feed" href="https://exploring-data.com/rss.xml">
         
     <script>
+	
+		
 		function drawGraph(filename) {
+		
+		document.getElementById("site-name").innerHTML = window.location.search.substr(1).split("=")[1];
+		
 		var props = {
 			drawing: {
 				defaultLabelColor: '#fff',
@@ -95,12 +100,6 @@ https://exploring-data.com/img/large/human-disease-network.png
     </div>
 </form></li>
 </ul>
-
-        <div class="pull-right">
-          <a href="/info/human-disease-network/" class="btn navbar-btn btn-info">ℹ Info</a>
-        </div>
-        
-  
 
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
@@ -156,11 +155,12 @@ https://exploring-data.com/img/large/human-disease-network.png
     
       
     <script>
-	console.log('/gexf/' + window.location.search.substr(1).split("=")[1] + '.json');
 	drawGraph('/gexf/' + window.location.search.substr(1).split("=")[1] + '.json');
 	</script>
       
-    
+	<div id="locator">
+    <img src="ataemp.jpg"></img>
+	</div>
 	<script>
 	</script>
     
