@@ -802,9 +802,8 @@ pander(format(unclassified_disease, digits=3))
 
 Dalla precedente tabella, risulta evidente come alcune malattie, che inizialmente non avevano un cluster di appartenenza, vengano identificate dalla maggior parte degli algoritmo di clustering come appartenenti ad una determinata community.  
 
-(FIXME url colorato altriemnti non si capisce)
 Gli esempi più evidenti sono:  
-- **Aquaporin-1 deficiency**: viene identificata da tutti e 7 gli algoritmi come appartenente alla community *Hematological*. Verificando meglio attraverso la fonte [OMIM - Online Mendelian Inheritance in Man](https://omim.org), una trattazione sintetica di geni umani e fenotipi genetici, è possibile verificare la relazione di questo disturbo con i gruppi sanguigni.  
+- **Aquaporin-1 deficiency**: viene identificata da tutti e 7 gli algoritmi come appartenente alla community *Hematological*. Verificando meglio attraverso la fonte \textcolor{blue}{[OMIM - Online Mendelian Inheritance in Man](https://omim.org)}, una trattazione sintetica di geni umani e fenotipi genetici, è possibile verificare la relazione di questo disturbo con i gruppi sanguigni.  
 - **Benzene toxicity**: viene indentificata da tutti gli algoritmi come appartenente al cluster *Cancer*. In questo caso questo tipo di malattia sembreremme ricevere numerose influenze da Leukemia, Post-chemotherapy, Breast cancer etc.  
 - **Bannayan-Riley- Ruvalcaba syndrome**: viene identificata da tutti gli algoritmi (meno uno FIXME) come appartenente alla community *Cancer*. Collegamento con il cancro al seno.
 
