@@ -77,3 +77,5 @@ height: 400px;
 .vis-preview {
 margin-bottom:1em;
 }
+
+#locator { position: absolute; visibility: visible; left: 50px; bottom: -250px; z-index: 200; }

@@ -22,7 +22,9 @@ var visgexf = {
     visgexf.props = props;
     viscontainer = document.getElementById(visid);
     // adjust height of graph to screen
-    var h_win = $(window).height() - $('#navbar').height();
+    // var h_win = $(window).height() - $('#navbar').height();
+	var h_win = 700;
+	console.log(h_win);
     var h_vis = $(viscontainer).height();
     if (h_win > 400) {
       $(viscontainer).height(h_win);
@@ -269,7 +271,7 @@ var visgexf = {
   },
 
   resetSearch: function() {
-    document.location.href = document.location.pathname + "?" + window.location.search.substr(1);
+    document.getElementById("site-name").innerHTML = document.location.pathname + "?" + window.location.search.substr(1);
   },
 
   resetFilter: function() {

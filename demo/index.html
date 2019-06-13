@@ -51,6 +51,7 @@ https://exploring-data.com/img/large/human-disease-network.png
 		function drawGraph(filename) {
 		
 		document.getElementById("site-name").innerHTML = window.location.search.substr(1).split("=")[1];
+		document.getElementById("reset-link").href = "?" + window.location.search.substr(1);
 		
 		var props = {
 			drawing: {
@@ -96,7 +97,7 @@ https://exploring-data.com/img/large/human-disease-network.png
 <ul class="nav navbar-nav">
   <li><form id="highlight-node" class="navbar-form navbar-left" role="search">
     <div class="form-group">
-         <input class="form-control typeahead" type="text" placeholder="Highlight node"><span id="search-reset">⊗</span>
+         <input class="form-control typeahead" type="text" placeholder="Highlight node"><a id="reset-link" href=""><span id="search-reset">⊗</span></a>
     </div>
 </form></li>
 </ul>
@@ -157,14 +158,12 @@ https://exploring-data.com/img/large/human-disease-network.png
     <script>
 	drawGraph('/gexf/' + window.location.search.substr(1).split("=")[1] + '.json');
 	</script>
-    
-<!--	
+<!--    	
     <div id="locator">
-    <img src="ataemp.jpg"></img>
+    <img src="twolineslegend.png"></img>
 	</div>
--->
 	<script>
 	</script>
-    
+-->    
   </body>
 </html>
