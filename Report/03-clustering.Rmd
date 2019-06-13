@@ -201,7 +201,7 @@ label_cluster <- function(clusters)
   for (c in 1:length(clusters))
   {
     labels <- V(UD_nogenes)[clusters[[c]]]$X1
-    labels <- labels[labels != "Multiple" || labels != "Unclassified"]
+    labels <- labels[which(labels != "Multiple" & labels != "Unclassified")]
     
     if (length(labels) != 0)
     {
@@ -587,7 +587,7 @@ compute_confmat <- function(groundtruth, communities.algo)
 }
 
 accuracy_df <- data.frame(matrix(ncol = 23, nrow = 9))
-colnames(accuracy_df) <- c(disease_clusters, "Accuracy")
+colnames(accuracy_df) <- c(disease_clusters, "Purity")
 rownames(accuracy_df) <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
                            "leiden", "label prop", "label prop init", "lead eigenvector")
 
@@ -608,7 +608,7 @@ rownames(accuracy_df) <- c("Ear,Nose...", "Cancer", "Opthalmolog", "Endocrine",
                            "Cardiovasc", "Neurologic", "Hematologic", "Nutritional",
                            "Muscular", "Respiratory","Immunologic", "Dermatologic",
                            "Psychiatric", "Metabolic", "Gastrointest","Bone", "Skeletal",
-                           "Renal", "Development", "Connective tissue disorder", "Accuracy")
+                           "Renal", "Development", "Connective tissue disorder", "Purity")
 
 temp <- accuracy_df[14, ]
 accuracy_df[14, ] <- accuracy_df[20, ]
@@ -627,7 +627,7 @@ pander(format(accuracy_df, digits = 3))
 
 ### Adjusted Rand index
 
-L'adjusted Rand index (ARI) misura l'accuratezza dei raggruppamenti costruiti dagli algoritmi utilizzando la seguente formula applicata sulla tabella di contingenza dell'algoritmo:
+L'adjusted Rand index (ARI) misura l'accuratezza dei raggruppamenti costruiti dagli algoritmi utilizzando la seguente formula applicata sulla tabella di contingenza dei risutlati dell'algoritmo:
 
 $$ ARI = \frac{\sum_{ij}{n_{ij}\choose 2} - \Big[\sum_i{a_i\choose 2} \sum_i{b_j\choose 2} \Big]/{n\choose 2}}
               {\frac{1}{2} \Big[\sum_i{a_i\choose 2} + \sum_i{b_j\choose 2} \Big] 
@@ -657,7 +657,11 @@ pander(format(ari_df, digits = 3))
 
 ### Normalized Mutual Information 
 
-Qua c'è da mettere la formula
+La Normalized Mutual Information rispetto alla purity è una misura più penalizzante, è calcolata con la seguetne formula:
+
+$$ NMI(\Omega; C) = \frac{MI(\Omega; C)}{[H(\Omega)+H(C)]/2} $$
+
+Dove $MI$ rappresenta la Mutual Information tra i cluster ($\Omega$) e le classi ($C$), mentre $H$ è la misura dell'entropia.
 
 ```{r message=FALSE, warning=FALSE}
 nmi_df <- data.frame(matrix(ncol = 1, nrow = 9))
