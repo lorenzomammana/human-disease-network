@@ -543,6 +543,11 @@ plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Lead_eigen,
 
 Le performance vengono misurate tramite valutazione con groundtruth.
 
+### Precision, Recall e F-measure
+
+FIXME tabella dell'fmeasure
+FIXME aggiungere precision e recall...
+
 ### Purity
 
 Valutiamo gli algoritmi in termini di accuratezza di classificazione dei nodi.  
@@ -571,8 +576,6 @@ purity_df <- data.frame(matrix(ncol = 23, nrow = 9))
 colnames(purity_df) <- c(disease_clusters, "Purity")
 rownames(purity_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "markov",
                            "leiden", "label prop", "label prop init", "lead eigenvector")
-
-
 
 for (i in 4:length(nodes_results))
 {
@@ -606,14 +609,14 @@ colnames(purity_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "m
 ```
 
 ```{r}
-panderOptions('table.split.table', 8*10)
-panderOptions('table.split.cells', 30)
+panderOptions('table.split.table', 8*15)
+# panderOptions('table.split.cells', 30)
 pander(format(purity_df, digits = 3))
 ```
 
 ### Adjusted Rand index
 
-L'adjusted Rand index (ARI) misura l'accuratezza (FIXME: purity?) dei raggruppamenti costruiti dagli algoritmi utilizzando la seguente formula applicata sulla tabella di contingenza dei risutlati dell'algoritmo:
+L'adjusted Rand index (ARI) misura l'accuratezza dei raggruppamenti costruiti dagli algoritmi utilizzando la seguente formula applicata sulla tabella di contingenza dei risutlati dell'algoritmo:
 
 $$ ARI = \frac{\sum_{ij}{n_{ij}\choose 2} - \Big[\sum_i{a_i\choose 2} \sum_i{b_j\choose 2} \Big]/{n\choose 2}}
               {\frac{1}{2} \Big[\sum_i{a_i\choose 2} + \sum_i{b_j\choose 2} \Big] 
@@ -666,11 +669,6 @@ for (i in 1:nrow(nmi_df))
 
 pander(format(nmi_df, digits = 3))
 ```
-
-### Precision, Recall e F-measure
-
-FIXME
-
 
 ##  Distribuzione di centralità 
 
@@ -788,7 +786,7 @@ colnames(unclassified_disease) <- col
 ```
 \newpage
 ```{r}
-panderOptions('table.split.table', 8*14)
+panderOptions('table.split.table', 8*17)
 pander(format(unclassified_disease, digits=3))
 ```
 
@@ -797,7 +795,7 @@ Dalla precedente tabella, risulta evidente come alcune malattie, che inizialment
 Gli esempi più evidenti sono:  
 - **Aquaporin-1 deficiency**: viene identificata da tutti e 7 gli algoritmi come appartenente alla community *Hematological*. Verificando meglio attraverso la fonte \textcolor{blue}{[OMIM - Online Mendelian Inheritance in Man](https://omim.org)}, una trattazione sintetica di geni umani e fenotipi genetici, è possibile verificare la relazione di questo disturbo con i gruppi sanguigni.  
 - **Benzene toxicity**: viene indentificata da tutti gli algoritmi come appartenente al cluster *Cancer*. In questo caso questo tipo di malattia sembreremme ricevere numerose influenze da Leukemia, Post-chemotherapy, Breast cancer etc.  
-- **Bannayan-Riley- Ruvalcaba syndrome**: viene identificata da tutti gli algoritmi (meno uno FIXME) come appartenente alla community *Cancer*. Collegamento con il cancro al seno.
+- **Bannayan-Riley- Ruvalcaba syndrome**: viene identificata da quasi tutti gli algoritmi come appartenente alla community *Cancer*. Infatti questa malattia sembrerebbe avere un collegamento con il cancro al seno.
 
 ## Analisi sulle malattie che venivano contrassegnate come Multiple:
 ```{r}
@@ -819,15 +817,17 @@ colnames(multiple_disease) <- col
 Vengono mostrate nella tabella sottostante le prime 10 malattie che venivano identificate come Multiple e il nuovo cluster di appartenenza a seconda dell'algoritmo utilizzato.  
 
 ```{r}
-panderOptions('table.split.table', 8*14)
+panderOptions('table.split.table', 8*18)
 pander(format(multiple_disease, digits=3))
 ```
 
-In questo caso, risulta evidente come in alcuni casi le malattie non si inseriscano più in diversi cluster, ma alcune di queste presentano un unica community ricorrente. FIXME  
+In questo caso, risulta evidente come in alcuni casi le malattie non si inseriscano più in diversi cluster, ma alcune di queste presentano un unica community ricorrente.   
 
 In questo caso gli esempi che ci vengono in supporto sono:  
 - **Fanconi anemia**: viene indentificata come appartenente al cluster *Cancer*. Infatti tra le principali caratteristiche cliniche di questa malattia vi è un'alta predisposizione al cancro.  
+- **Waardenburg syndrome**: viene indentificata anche lei come appartenente al cluster *Cancer*.  
 - **Walker- Warburg syndrome**: viene indentificata da tutti gli algoritmi come appartenente alla community *Muscular*.  
 - **Rubenstein- Taybi syndrome**: viene identificata come appartenente alla community *Cancer*.  
+- **Dejerine-Sottas disease**: viene indentificata da tutti gli algoritmi come appartenente alla community *Neurological*.  
 
-In altri casi invece, come per **Waardenburg syndrome**, **Stickler syndrome** e **Waardenburg-Shah syndrome** multipli cluster sembrano influire sulle malattie.
+In altri casi invece, come per **Usher syndrome**, **Mitochondrial complex deciency**, **Waardenburg-Shah syndrome**, **Kallmann syndrome** e **Stickler syndrome** multipli cluster sembrano influire sulle malattie.

@@ -70,8 +70,8 @@ Le reti complesse sono difficili da visualizzare, quindi si ricorre a misure e s
 
 ## Centralità di grado
 
-Il grado di un nodo è il numero di archi entranti o uscenti. Formalmente, $ \text{outdegree}(i) = \sum_{j=1}^{n} A_{ij}$, $ \text{indegree}(j) = \sum_{i=1}^{n} A_{ij}$. 
-Questa quantità permettera di calcolare la distribuzione di grado, essenziale per capire il livello di connessione del grafo: se è bassa, la maggior parte dei nodi avranno pochi link, mentra qualcuno ne avrà molti.  
+Il grado di un nodo è il numero di archi entranti o uscenti. Formalmente, l'outdegree di un nodo i è dato da $\sum_{j=1}^{n} A_{ij}$ mentre l'indegree di un nodo j è dato da $\sum_{i=1}^{n} A_{ij}$. 
+Questa quantità permetterà di calcolare la distribuzione di grado, essenziale per capire il livello di connessione del grafo: se è bassa, la maggior parte dei nodi avranno pochi link, mentre qualcuno ne avrà molti.  
 I nodi della rete che presenteranno molti collegamenti verrano definiti come **hub**.
 
 Cominciamo mostrando la centralità dei nodi ricavata utilizzando la formula di Freeman: $$C_D = \frac{\sum_{i=1}^{N} C_D(n^*) - C_D(i)}{(N - 1) (N - 2)}$$
@@ -123,7 +123,7 @@ La centralizzazione in base al grado è una misura puramente locale, che può va
 La misura di betweenness è una misura di centralità meno locale della precedente, basata sulla seguente formula:
 $$ C_B(i) = \sum_{j\neq k}\frac{g_{jk}(i)}{g_{jk}} $$
 Dove $g_{jk}(i)$ rappresenta il numero di shortest-path che passano per i tra j e k, e $g_{jk}$ è il numero di shortest-path totali.  
-Essa verrà calcolata nella sua forma normalizzata $$C'_B(i) = \frac{C_B(i)}{(n - 1) (n - 2) / 2}$$.
+Essa verrà calcolata nella sua forma normalizzata $$C'_B(i) = \frac{C_B(i)}{(n - 1) (n - 2) / 2}$$
 
 ```{r betweennes_histogram, message=FALSE, warning=FALSE, cache=TRUE}
 betweenness <- betweenness(graph, v = V(graph), directed = TRUE, normalized = TRUE)
