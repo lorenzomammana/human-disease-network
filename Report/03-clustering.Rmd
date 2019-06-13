@@ -209,7 +209,7 @@ label_cluster <- function(clusters)
       cluster_df$name[cluster_df$id == c] <- names(value)[1]
     } else
     {
-      cluster_df$name[cluster_df$id == c] <- V(UD_nogenes)[clusters[[c]]]$X1
+      cluster_df$name[cluster_df$id == c] <- V(UD_nogenes)[clusters[[c]]]$X1[1]
     }
   }
   
@@ -317,15 +317,15 @@ DA MODIFICARE: Abbiamo ripetuto bla, bla bla
 # 
 # for (i in 1:100)
 # {
-#   spinglass.communities <- cluster_spinglass(UD_nogenes, spins = 130, 
+#   spinglass.communities <- cluster_spinglass(UD_nogenes, spins = 130,
 #                                            weights = E(UD_nogenes)$weight)
 #   spinglass_cluster_df <- label_cluster(spinglass.communities)
-#   
+# 
 #   for (n in 1:length(spinglass.communities$membership))
 #   {
 #     iteration_df[n, i] <- spinglass_cluster_df$name[spinglass.communities$membership[n]]
 #   }
-#   
+# 
 #   print(paste(i, "/100"))
 # }
 
@@ -493,7 +493,7 @@ Viene poi testato l'algoritmo utilizzando una tecnica semi-supervised, inizializ
 # {
 #   V(UD_nogenes)$initial <- NA
 #   V(UD_nogenes)$fixed <- NA
-#   
+# 
 #   for (dis in disease_clusters)
 #   {
 #     disnodes <- V(UD_nogenes)[V(UD_nogenes)$X1 == dis]
@@ -511,9 +511,10 @@ Viene poi testato l'algoritmo utilizzando una tecnica semi-supervised, inizializ
 # 
 #   label_prop_init.communities <- cluster_label_prop(UD_nogenes,
 #                                                   weights = E(UD_nogenes)$weight,
-#                                                   initial = V(UD_nogenes)$initial, 
+#                                                   initial = V(UD_nogenes)$initial,
 #                                                   fixed = V(UD_nogenes)$fixed)
 #   
+#   label_prop_init_cluster_df <- NA
 #   label_prop_init_cluster_df <- label_cluster(label_prop_init.communities)
 # 
 #   for (n in 1:length(label_prop_init.communities$membership))

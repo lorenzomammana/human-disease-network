@@ -2,9 +2,9 @@ library(jsonlite)
 
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-filename <- "C:/Users/loren/Desktop/Human-Disease-Network/demo/gexf/human-disease-network.json"
+filename <- "../demo/gexf/human-disease-network.json"
 algo <- c("betweennes", "fastgreedy", "louvain", "spinglass", "markov",
-                           "leiden", "label prop", "label prop init", "lead eigenvector")
+                           "leiden", "label-prop", "label-prop-init", "lead-eigenvector")
 
 built.graph <- fromJSON(filename, flatten=TRUE)
 colors <- c(unique(built.graph$nodes$color))
