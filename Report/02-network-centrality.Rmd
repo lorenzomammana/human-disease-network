@@ -194,6 +194,27 @@ plot_graph(graph, "dh", pagerank$vector, 0.003, 0.001, 0.0007, nodes$label, 0.00
            "Human Disease Network Pagerank Centrality")
 ```
 
+## Coefficiente di clustering
+
+La transitività misura la probabilità che i vertici adiacenti di un vertice siano connessi. Questa è talvolta chiamato anche **coefficiente di clustering**.
+
+```{r clustering coefficient, message=FALSE, warning=FALSE, cache=TRUE}
+global_transitivity <- transitivity(graph, type = "global", isolates = "zero")
+
+local_transitivity <- transitivity(graph, type = "local", isolates = "zero")
+
+transitivity <- data.frame(matrix(ncol = 1, nrow = 2))
+
+colnames(transitivity) <- "Value"
+rownames(transitivity) <- c("Network Local Transitivity", 
+                            "Network Global Transitivity")
+
+transitivity[1,1] <- mean(local_transitivity)
+transitivity[2,1] <- global_transitivity
+
+pander(format(transitivity, digits = 3, justify="left"))
+```
+
 ## Grafo utilizzato per il clustering
 
 ### Rimozione geni
@@ -350,18 +371,20 @@ local_transitivity <-  transitivity(UD_nogenes, type = "local", isolates = "zero
 weighted_transitivity <-  transitivity(UD_nogenes, type = "weighted", isolates = "zero", 
                                        weights = E(UD_nogenes)$weight)
 
-transitivity <- data.frame(matrix(ncol = 1, nrow = 2))
+transitivity <- data.frame(matrix(ncol = 1, nrow = 3))
 
 colnames(transitivity) <- "Value"
-rownames(transitivity) <- c("Network Transitivity", 
+rownames(transitivity) <- c("Network Local Transitivity", 
+                            "Network Global Transitivity",
                             "Network Weighted Transitivity")
 
 plot_pretty_graph_centrality(UD_nogenes, "dh", local_transitivity, E(UD_nogenes)$weight, 
                              0.99, 0.3, 0, nodes$label[nodes$X0 == "disease"], 1.1, 
-                             "Human Disease Network (nogenes) Weighted tranitivity")
+                             "Nogenes Weighted Clustering coeff")
 
 transitivity[1,1] <- mean(local_transitivity)
-transitivity[2,1] <- mean(weighted_transitivity)
+transitivity[2, 1] <- global_transitivity
+transitivity[3,1] <- mean(weighted_transitivity)
 
 pander(format(transitivity, digits = 3, justify="left"))
 ```
