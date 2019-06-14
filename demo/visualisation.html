@@ -32,9 +32,8 @@ https://exploring-data.com/img/large/human-disease-network.png
     <link rel="canonical" href="https://exploring-data.com/vis/human-disease-network/">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
-    
-    
-        
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     
     <link href="/css/typeahead.css" rel="stylesheet">
     <link href="/css/sigmagraphdark.css" rel="stylesheet">
@@ -50,8 +49,18 @@ https://exploring-data.com/img/large/human-disease-network.png
 		
 		function drawGraph(filename) {
 		
-		document.getElementById("site-name").innerHTML = window.location.search.substr(1).split("=")[1];
-		document.getElementById("reset-link").href = "?" + window.location.search.substr(1);
+		var sitename = window.location.search.substr(1).split("&")[0];
+		var showlegend = window.location.search.substr(1).split("&")[1];
+		
+		document.getElementById("site-name").innerHTML = sitename.split("=")[1];
+		document.getElementById("reset-link").href = "?" + sitename + "&" + showlegend;
+		
+		
+		if (showlegend.split("=")[1] == "yes") {
+			document.getElementById("locator").style.display = "block";
+		} else {
+			document.getElementById("locator").style.display = "none";
+		}
 		
 		var props = {
 			drawing: {
@@ -89,7 +98,7 @@ https://exploring-data.com/img/large/human-disease-network.png
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a id="site-name" class="navbar-brand" href="/">Exploring Data</a>
+      <a id="site-name" class="navbar-brand" href="/" onclick="return false;">Exploring Data</a>
     </div>
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="main-navbar">
@@ -101,7 +110,11 @@ https://exploring-data.com/img/large/human-disease-network.png
     </div>
 </form></li>
 </ul>
-
+	
+	<div class="pull-right">
+        <a href="/" class="btn navbar-btn btn-info"><i class="fa fa-home"></i> Home</a>
+    </div>
+		
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
@@ -154,16 +167,17 @@ https://exploring-data.com/img/large/human-disease-network.png
 
     <script src="/js/script.js"></script>
     
-      
-    <script>
-	drawGraph('/gexf/' + window.location.search.substr(1).split("=")[1] + '.json');
-	</script>
-<!--    	
     <div id="locator">
     <img src="twolineslegend.png"></img>
 	</div>
+	
+    <script>
+	drawGraph('/gexf/' + window.location.search.substr(1).split("&")[0].split("=")[1] + '.json');
+	</script>
+	
+
 	<script>
 	</script>
--->    
+	
   </body>
 </html>
