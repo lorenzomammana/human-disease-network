@@ -66,11 +66,12 @@ La parte inferiore del grafo rappresenta quindi tutti i collegamente tra le mala
 
 ## Centrality Analitycs
 
-Le reti complesse sono difficili da visualizzare, quindi si ricorre a misure e statistiche descrittive, quali le misure di centralità, per ricavare informazioni sulla struttura della rete. Esse risultano  utili per rilevare quali sono e dove si trovano i nodi importani all'interno della rete.
+Le reti complesse sono difficili da visualizzare, quindi si ricorre a misure e statistiche descrittive, quali le misure di centralità, per ricavare informazioni sulla struttura della rete. Esse risultano  utili per rilevare quali sono e dove si trovano i nodi importanti all'interno della rete.
 
 ## Centralità di grado
 
-Il grado di un nodo è il numero di archi entranti o uscenti. Formalmente, l'outdegree di un nodo i è dato da $\sum_{j=1}^{n} A_{ij}$ mentre l'indegree di un nodo j è dato da $\sum_{i=1}^{n} A_{ij}$. 
+Il grado di un nodo di un grafo diretto è dato dalla somma del numero di archi entranti e uscenti. \newline
+Formalmente, l'outdegree di un nodo i è dato da $\sum_{j=1}^{n} A_{ij}$ mentre l'indegree di un nodo j è dato da $\sum_{i=1}^{n} A_{ij}$. 
 Questa quantità permetterà di calcolare la distribuzione di grado, essenziale per capire il livello di connessione del grafo: se è bassa, la maggior parte dei nodi avranno pochi link, mentre qualcuno ne avrà molti.  
 I nodi della rete che presenteranno molti collegamenti verrano definiti come **hub**.
 
@@ -203,7 +204,7 @@ plot_graph(graph, "dh", pagerank$vector, 0.003, 0.001, 0.0007, nodes$label, 0.00
 
 ## Coefficiente di clustering
 
-Il**coefficiente di clustering** o transitività misura la probabilità che i vertici adiacenti di un vertice siano connessi.  
+Il coefficiente di clustering o transitività misura la probabilità che i vertici adiacenti di un vertice siano connessi.  
 Il coefficiente di clustering locale è una misura utile per valutare la densità locale della rete, il coefficiente globale invece ci da un'idea su quanto sia clusterizzata la rete.  
 Più la rete è densa maggiore sarà il valore coefficiente di clustering. Questo accade in situazione con elevato numero di archi. La media può dare un’idea generale del grado di clustering. 
 
@@ -230,7 +231,8 @@ Vediamo che il valore del coefficiente di clustering globale è molto basso e qu
 
 ### Rimozione geni
 
-Dalle analisi effettuate sulla rete è evidente come i geni all'interno della rete siano superflui, essendo le malattie collegate tra di loro se condividono almeno un gene, la presenza genica è ridondante e soprattutto aumenta enormemente il rischio di confondere i risultati degli algoritmi di community detection. \newline
+Dalle analisi effettuate è evidente come i geni all'interno della rete siano superflui. \newline
+Essendo le malattie collegate tra di loro se condividono almeno un gene, la presenza genica è ridondante e soprattutto aumenta enormemente il rischio di confondere i risultati degli algoritmi di community detection. \newline
 Abbiamo quindi deciso di lavorare sul grafo a cui vengono rimossi i geni per eseguire le valutazioni degli algoritmi.
 
 ### Pesatura degli archi
@@ -295,7 +297,7 @@ Ricalcoliamo le misure di centralità sul nuovo grafo.
 UD_nogenes_degree <- centr_degree(UD_nogenes, mode = "all", normalized = TRUE)
 
 histogram_plot(UD_nogenes_degree$res, seq(0, 160, by = 20), "degree", "frequency", 
-               "Degree histogram (nogenes)")
+               "HDN-Nogenes Degree histogram ")
 
 # nodes with the highest degree
 V(graph)$label[order(UD_nogenes_degree$res, decreasing=TRUE)][1:5]
@@ -305,7 +307,7 @@ V(graph)$label[order(UD_nogenes_degree$res, decreasing=TRUE)][1:5]
 ```{r UD_nogenes_degree, message=FALSE, warning=FALSE, cache=TRUE}
 plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_degree$res, E(UD_nogenes)$weight, 
                              25, 15, 8, nodes$label[nodes$X0 == "disease"], 25, 
-                             "Human Disease Network (nogenes) Degree Centrality")
+                             "HDN-Nogenes Degree Centrality")
 ```
 
 ### Betweenness
@@ -315,7 +317,7 @@ UD_nogenes_betweenness <- betweenness(UD_nogenes, v = V(UD_nogenes), directed = 
                                       normalized = TRUE, weights=E(UD_nogenes)$weight)
 
 histogram_plot(UD_nogenes_betweenness, c(0, 1), "betweenness", "frequency", 
-               "Betweenness histogram (nogenes)")
+               "HDN-Nogenes Betweenness histogram")
 
 # nodes with the highest betweenness
 V(graph)$label[order(UD_nogenes_betweenness, decreasing=TRUE)][1:5]
@@ -325,7 +327,7 @@ V(graph)$label[order(UD_nogenes_betweenness, decreasing=TRUE)][1:5]
 ```{r UD_nogenes_UD_nogenes_betweennes, message=FALSE, warning=FALSE, cache=TRUE}
 plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_betweenness, E(UD_nogenes)$weight, 
                              0.3, 0.1, 0.005, nodes$label[nodes$X0 == "disease"], 0.3, 
-                             "Human Disease Network (nogenes) Betweenness Centrality")
+                             "HDN-Nogenes Betweenness Centrality")
 ```
 
 ### Closeness
@@ -334,7 +336,7 @@ UD_nogenes_closeness <- closeness(UD_nogenes, v = V(UD_nogenes), normalized = TR
                                   weights=E(UD_nogenes)$weight)
 
 histogram_plot(UD_nogenes_closeness, c(0, 1), "closeness", "frequency", 
-               "Closeness histogram (nogenes)")
+               "HDN-Nogenes Closeness histogram")
 
 # nodes with the highest closeness
 V(graph)$label[order(UD_nogenes_closeness, decreasing=TRUE)][1:5]
@@ -344,7 +346,7 @@ V(graph)$label[order(UD_nogenes_closeness, decreasing=TRUE)][1:5]
 ```{r UD_nogenes_closeness, message=FALSE, warning=FALSE, cache=TRUE}
 plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_closeness, E(UD_nogenes)$weight, 
                              0.11, 0.09, 0.07, nodes$label[nodes$X0 == "disease"], 0.11, 
-                             "Human Disease Network (nogenes) Closeness Centrality")
+                             "HDN-Nogenes Closeness Centrality")
 ```
 
 ### Eigenvector
@@ -352,7 +354,7 @@ plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_closeness, E(UD_nogene
 UD_nogenes_eigen <- eigen_centrality(UD_nogenes, directed = TRUE, weights=E(UD_nogenes)$weight)
 
 histogram_plot(UD_nogenes_eigen$vector, c(0, 1), "eigen", "frequency", 
-               "Eigenvector histogram (nogenes)")
+               "HDN-Nogenes Eigenvector histogram")
 
 # nodes with the highest eigenvector
 V(graph)$label[order(UD_nogenes_eigen$vector, decreasing=TRUE)][1:5]
@@ -362,7 +364,7 @@ V(graph)$label[order(UD_nogenes_eigen$vector, decreasing=TRUE)][1:5]
 ```{r UD_nogenes_eigen, message=FALSE, warning=FALSE, cache=TRUE}
 plot_pretty_graph_centrality(UD_nogenes, "dh", UD_nogenes_eigen$vector, E(UD_nogenes)$weight, 
                              0.6, 0.04, 0.001, nodes$label[nodes$X0 == "disease"], 0.6, 
-                             "Human Disease Network (nogenes) Eigenvector Centrality")
+                             "HDN-Nogenes Eigenvector Centrality")
 ```
 
 ### PageRank
@@ -389,10 +391,6 @@ colnames(transitivity) <- "Value"
 rownames(transitivity) <- c("Network Local Transitivity", 
                             "Network Global Transitivity",
                             "Network Weighted Transitivity")
-
-plot_pretty_graph_centrality(UD_nogenes, "dh", local_transitivity, E(UD_nogenes)$weight, 
-                             0.99, 0.7, 0.6, nodes$label[nodes$X0 == "disease"], 1.1, 
-                             "Nogenes Weighted Clustering coeff")
 
 transitivity[1,1] <- mean(local_transitivity)
 transitivity[2, 1] <- global_transitivity
