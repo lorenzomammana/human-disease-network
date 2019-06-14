@@ -543,14 +543,11 @@ plot_pretty_graph_legend(UD_nogenes, "graphopt", nodes_results$Lead_eigen,
 
 Le performance vengono misurate tramite valutazione con groundtruth.
 
-### Precision, Recall e F-measure
-
-FIXME tabella dell'fmeasure
-FIXME aggiungere precision e recall...
-
-### Purity
+### Accuracy
 
 Valutiamo gli algoritmi in termini di accuratezza di classificazione dei nodi.  
+
+#### Purity 
 
 La **purity** è un identificatore che indica quanto bene una community può rappresentare un’intera classe, calcolata osservando le etichette delle istanze. Essa viene calcolata come segue: $$\frac{1}{N} \sum_{i=1}^{k} \underset{j}{max} |C_i \cap L_j|$$  
 Abbiamo deciso di considerare i nodi con etichetta "Multiple" e "Unclassified", come dei "Jolly", facendo in modo che risultino sempre veri positivi.
@@ -614,6 +611,8 @@ panderOptions('table.split.table', 8*15)
 # panderOptions('table.split.cells', 30)
 pander(format(purity_df, digits = 3))
 ```
+
+#### F-measure
 
 ```{r}
 rownames(fmeasure_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "markov",
