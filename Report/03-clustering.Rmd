@@ -615,8 +615,8 @@ purity_df[20, ] <- temp
 colnames(purity_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "markov",
                           "leiden", "label prop", "label prop init", "lead eigenvector")
 ```
-
-```{r}
+\newpage 
+```{r echo=FALSE}
 panderOptions('table.split.table', 8*15)
 # panderOptions('table.split.cells', 30)
 pander(format(purity_df, digits = 3))
@@ -659,7 +659,9 @@ for (i in 1:9)
   groundtruth[groundtruth == "Unclassified"] <- clusters[groundtruth == "Unclassified"]
   ari_df[i, ] <- ARI(groundtruth, clusters)
 }
-
+```
+\newpage 
+```{r echo=FALSE}
 pander(format(ari_df, digits = 3))
 ```
 
