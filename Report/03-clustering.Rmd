@@ -27,7 +27,7 @@ nodes <- read.csv(
 nodes <- nodes %>% select(-timeset)
 edges <- edges %>% select(-timeset, -label)
 
-weight <- readRDS("edgeweights.rds")
+weight <- readRDS("rds_files/edgeweights.rds")
 edges$weight <- weight
 
 graph <- graph.data.frame(edges, directed = FALSE, vertices = nodes)
@@ -319,7 +319,7 @@ I risultati dell'algoritmo differiscono in base all'inizializzazione delle etich
 
 ```{r}
 # 100 iterazioni
-iteration_df <- readRDS("spinglass_iterations.rds")
+iteration_df <- readRDS("rds_files/spinglass_iterations.rds")
 
 for (n in 1:nrow(iteration_df))
 {
@@ -443,7 +443,7 @@ Il risultato dell'algoritmo dipende dall'inizializzazione, iteriamo quindi il pr
 
 ```{r}
 # 1000 iterazioni
-iteration_df <- readRDS("label_prop_iterations.rds")
+iteration_df <- readRDS("rds_files/label_prop_iterations.rds")
 
 for (n in 1:nrow(iteration_df))
 {
@@ -511,7 +511,7 @@ Viene poi testato l'algoritmo utilizzando una tecnica semi-supervised, inizializ
 
 ```{r}
 # 1000 iterazioni
-iteration_df <- readRDS("label_prop_init_iterations.rds")
+iteration_df <- readRDS("rds_files/label_prop_init_iterations.rds")
 
 for (n in 1:nrow(iteration_df))
 {
