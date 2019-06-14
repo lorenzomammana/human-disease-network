@@ -1,0 +1,76 @@
+# (APPENDIX) Appendix {-} 
+
+# Appendice
+
+
+## Analisi sulle malattie contrassegnate come Unclassified:
+
+```{r}
+unclassified_disease <- nodes_results %>% filter(X1 == "Unclassified")
+
+unclassified_disease <- unclassified_disease %>% select(label, Betweenness, Fastgreedy,
+                                                        Louvain,Spinglass, Markov, 
+                                                        Leiden, Label_prop,
+                                                        Label_prop_init)
+
+col <- unclassified_disease$label
+
+unclassified_disease <- as.data.frame(t(unclassified_disease))
+colnames(unclassified_disease) <- unclassified_disease[1, ]
+unclassified_disease <- unclassified_disease[-1, ]
+
+colnames(unclassified_disease) <- col
+
+```
+\newpage
+```{r}
+panderOptions('table.split.table', 8*17)
+pander(format(unclassified_disease, digits=3))
+```
+
+Dalla precedente tabella, risulta evidente come alcune malattie, che inizialmente non avevano un cluster di appartenenza, vengano identificate dalla maggior parte degli algoritmo di clustering come appartenenti ad una determinata community.  
+
+Gli esempi più evidenti sono:  
+\begin{itemize}
+\item \textbf{Aquaporin-1 deficiency}: viene identificata da tutti e 7 gli algoritmi come appartenente alla community \textit{Hematological}. Verificando meglio attraverso la fonte \textcolor{blue}{[OMIM - Online Mendelian Inheritance in Man](https://omim.org)}, una trattazione sintetica di geni umani e fenotipi genetici, è possibile verificare la relazione di questo disturbo con i gruppi sanguigni.  
+\item \textbf{Benzene toxicity}: viene indentificata da tutti gli algoritmi come appartenente al cluster \textit{Cancer}. In questo caso questo tipo di malattia sembreremme ricevere numerose influenze da Leukemia, Post-chemotherapy, Breast cancer etc.  
+\item \textbf{Bannayan-Riley- Ruvalcaba syndrome}: viene identificata da quasi tutti gli algoritmi come appartenente alla community \textit{Cancer}. Infatti questa malattia sembrerebbe avere un collegamento con il cancro al seno.
+\end{itemize}
+
+## Analisi sulle malattie contrassegnate come Multiple:
+
+```{r}
+multiple_disease <- nodes_results %>% filter(X1 == "Multiple")
+multiple_disease <- head(multiple_disease %>% 
+                           select(label, Betweenness, Fastgreedy, Louvain, Spinglass, 
+                                 Markov, Leiden, Label_prop, Label_prop_init), 10)
+
+col <- multiple_disease$label
+
+multiple_disease <- as.data.frame(t(multiple_disease))
+colnames(multiple_disease) <- multiple_disease[1, ]
+multiple_disease <- multiple_disease[-1, ]
+
+colnames(multiple_disease) <- col
+```
+
+Vengono mostrate nella tabella sottostante le prime 10 malattie che venivano identificate come Multiple e il nuovo cluster di appartenenza a seconda dell'algoritmo utilizzato.  
+
+```{r}
+panderOptions('table.split.table', 8*18)
+pander(format(multiple_disease, digits=3))
+```
+
+In questo caso, risulta evidente come in alcuni casi le malattie non si inseriscano più in diversi cluster, ma alcune di queste presentano un unica community ricorrente.   
+
+In questo caso gli esempi che ci vengono in supporto sono:  
+\begin{itemize}
+\item \textbf{Fanconi anemia}: viene indentificata come appartenente al cluster \textit{Cancer}. Infatti tra le principali caratteristiche cliniche di questa malattia vi è un'alta predisposizione al cancro.  
+\item \textbf{Waardenburg syndrome}: viene indentificata anche lei come appartenente al cluster \textit{Cancer}.  
+\item \textbf{Walker- Warburg syndrome}: viene indentificata da tutti gli algoritmi come appartenente alla community \textit{Muscular}.  
+\item \textbf{Rubenstein- Taybi syndrome}: viene identificata come appartenente alla community \textit{Cancer}.  
+\item \textbf{Dejerine-Sottas disease}: viene indentificata da tutti gli algoritmi come appartenente alla community \textit{Neurological}.  
+
+\end{itemize}
+
+In altri casi invece, come per \textbf{Usher syndrome}, \textbf{Mitochondrial complex deciency}, \textbf{Waardenburg-Shah syndrome}, \textbf{Kallmann syndrome} e \textbf{Stickler syndrome} multipli cluster sembrano influire sulle malattie.

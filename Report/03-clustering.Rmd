@@ -577,6 +577,8 @@ colnames(purity_df) <- c(disease_clusters, "Purity")
 rownames(purity_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "markov",
                            "leiden", "label prop", "label prop init", "lead eigenvector")
 
+fmeasure_df <- data.frame(matrix(ncol = 1, nrow = 9))
+
 for (i in 4:length(nodes_results))
 {
   f_measure <- 0
@@ -584,8 +586,7 @@ for (i in 4:length(nodes_results))
   purity_df[i - 3, ] <- unname(c(diag(confmat$table / rowSums(confmat$table)),
                                 confmat$overall[1]))
   
-  f_measure <- sum(confmat$byClass[, 7], na.rm = TRUE) / 22
-  print(f_measure)
+  fmeasure_df[i - 3, ] <- sum(confmat$byClass[, 7], na.rm = TRUE) / 22
 }
 
 purity_df$Multiple <- NULL
@@ -612,6 +613,15 @@ colnames(purity_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "m
 panderOptions('table.split.table', 8*15)
 # panderOptions('table.split.cells', 30)
 pander(format(purity_df, digits = 3))
+```
+
+```{r}
+rownames(fmeasure_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "markov",
+                           "leiden", "label prop", "label prop init", "lead eigenvector")
+
+colnames(fmeasure_df) <- c("F-Measure")
+
+pander(fmeasure_df)
 ```
 
 ### Adjusted Rand index
@@ -646,7 +656,7 @@ pander(format(ari_df, digits = 3))
 
 ### Normalized Mutual Information 
 
-La Normalized Mutual Information rispetto alla purity è una misura più penalizzante, è calcolata con la seguetne formula:
+La Normalized Mutual Information rispetto alla purity è una misura più penalizzante, è calcolata con la seguente formula:
 
 $$ NMI(\Omega; C) = \frac{MI(\Omega; C)}{[H(\Omega)+H(C)]/2} $$
 
@@ -765,69 +775,3 @@ print(paste("Media della media dei pesi dei clusters individuati con l'algoritmo
             format(mean(leiden_weights[,1]), digits=3)))
 ```
 
-## Analisi sulle malattie che venivano contrassegnate come Unclassified:
-
-```{r}
-unclassified_disease <- nodes_results %>% filter(X1 == "Unclassified")
-
-unclassified_disease <- unclassified_disease %>% select(label, Betweenness, Fastgreedy,
-                                                        Louvain,Spinglass, Markov, 
-                                                        Leiden, Label_prop,
-                                                        Label_prop_init)
-
-col <- unclassified_disease$label
-
-unclassified_disease <- as.data.frame(t(unclassified_disease))
-colnames(unclassified_disease) <- unclassified_disease[1, ]
-unclassified_disease <- unclassified_disease[-1, ]
-
-colnames(unclassified_disease) <- col
-
-```
-\newpage
-```{r}
-panderOptions('table.split.table', 8*17)
-pander(format(unclassified_disease, digits=3))
-```
-
-Dalla precedente tabella, risulta evidente come alcune malattie, che inizialmente non avevano un cluster di appartenenza, vengano identificate dalla maggior parte degli algoritmo di clustering come appartenenti ad una determinata community.  
-
-Gli esempi più evidenti sono:  
-- **Aquaporin-1 deficiency**: viene identificata da tutti e 7 gli algoritmi come appartenente alla community *Hematological*. Verificando meglio attraverso la fonte \textcolor{blue}{[OMIM - Online Mendelian Inheritance in Man](https://omim.org)}, una trattazione sintetica di geni umani e fenotipi genetici, è possibile verificare la relazione di questo disturbo con i gruppi sanguigni.  
-- **Benzene toxicity**: viene indentificata da tutti gli algoritmi come appartenente al cluster *Cancer*. In questo caso questo tipo di malattia sembreremme ricevere numerose influenze da Leukemia, Post-chemotherapy, Breast cancer etc.  
-- **Bannayan-Riley- Ruvalcaba syndrome**: viene identificata da quasi tutti gli algoritmi come appartenente alla community *Cancer*. Infatti questa malattia sembrerebbe avere un collegamento con il cancro al seno.
-
-## Analisi sulle malattie che venivano contrassegnate come Multiple:
-```{r}
-multiple_disease <- nodes_results %>% filter(X1 == "Multiple")
-multiple_disease <- head(multiple_disease %>% 
-                           select(label, Betweenness, Fastgreedy, Louvain, Spinglass, 
-                                 Markov, Leiden, Label_prop, Label_prop_init), 10)
-
-col <- multiple_disease$label
-
-multiple_disease <- as.data.frame(t(multiple_disease))
-colnames(multiple_disease) <- multiple_disease[1, ]
-multiple_disease <- multiple_disease[-1, ]
-
-colnames(multiple_disease) <- col
-```
-\newpage
-
-Vengono mostrate nella tabella sottostante le prime 10 malattie che venivano identificate come Multiple e il nuovo cluster di appartenenza a seconda dell'algoritmo utilizzato.  
-
-```{r}
-panderOptions('table.split.table', 8*18)
-pander(format(multiple_disease, digits=3))
-```
-
-In questo caso, risulta evidente come in alcuni casi le malattie non si inseriscano più in diversi cluster, ma alcune di queste presentano un unica community ricorrente.   
-
-In questo caso gli esempi che ci vengono in supporto sono:  
-- **Fanconi anemia**: viene indentificata come appartenente al cluster *Cancer*. Infatti tra le principali caratteristiche cliniche di questa malattia vi è un'alta predisposizione al cancro.  
-- **Waardenburg syndrome**: viene indentificata anche lei come appartenente al cluster *Cancer*.  
-- **Walker- Warburg syndrome**: viene indentificata da tutti gli algoritmi come appartenente alla community *Muscular*.  
-- **Rubenstein- Taybi syndrome**: viene identificata come appartenente alla community *Cancer*.  
-- **Dejerine-Sottas disease**: viene indentificata da tutti gli algoritmi come appartenente alla community *Neurological*.  
-
-In altri casi invece, come per **Usher syndrome**, **Mitochondrial complex deciency**, **Waardenburg-Shah syndrome**, **Kallmann syndrome** e **Stickler syndrome** multipli cluster sembrano influire sulle malattie.

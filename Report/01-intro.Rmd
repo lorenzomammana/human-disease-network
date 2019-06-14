@@ -10,8 +10,3 @@ L'obiettivo di studio su questa rete è quello di verificare la presenza di dist
 I ricercatori hanno manualmente etichettato ogni nodo, scegliendo tra 22 cluster che rappresentano il sistema fisiologico colpito dalla malattia, permettendo quindi di avere una groundtruth su cui effettuare delle valutazioni. \newline
 Basandosi sulle ipotesi effettuate in precedenza, sono riusciti a dimostrare come alcuni di questi cluster si trovino effettivamente vicini e ben connessi all'interno della rete (Es. i nodi relativi al cancro condividono un enorme numero di geni), mentre altri cluster sono sparsi per tutta la rete e quindi difficilmente classificabili utilizzando approcci automatici di partizionamento.\newline
 L'obiettivo del lavoro è stato quindi quello di valutare le performance di vari algoritmi di \textit{graph partitioning} e \textit{community detection}, nel rilevare i cluster all'interno della rete, utilizzando principalmente approcci non supervisionati e semi-supervisionati.
-```{r echo=TRUE}
-# Da togliere in fase finale
-# Se knitti singolo file da errore senza codice!
-a = 5
-```
