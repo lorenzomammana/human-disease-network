@@ -579,10 +579,10 @@ compute_confmat <- function(groundtruth, communities.algo)
   return(confusionMatrix(atable))
 }
 
-purity_df <- data.frame(matrix(ncol = 23, nrow = 9))
+purity_df <- data.frame(matrix(ncol = 23, nrow = 10))
 colnames(purity_df) <- c(disease_clusters, "Purity")
 rownames(purity_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "markov",
-                           "leiden", "label prop", "label prop init", "lead eigenvector")
+                           "leiden", "label prop", "label prop init", "lead eigenvector", "average")
 
 fmeasure_df <- data.frame(matrix(ncol = 1, nrow = 9))
 
@@ -592,12 +592,12 @@ for (i in 4:length(nodes_results))
   confmat <- compute_confmat(nodes_results$X1, nodes_results[, i])
   purity_df[i - 3, ] <- unname(c(diag(confmat$table / rowSums(confmat$table)),
                                 confmat$overall[1]))
-  
   fmeasure_df[i - 3, ] <- sum(confmat$byClass[, 7], na.rm = TRUE) / 22
 }
 
 purity_df$Multiple <- NULL
 purity_df$Unclassified <- NULL
+purity_df[10, ] <- colMeans(purity_df[c(1:9), ])
 
 purity_df <- as.data.frame(t(purity_df))
 colnames(purity_df) <- purity_df[1, ]
@@ -613,7 +613,7 @@ purity_df[14, ] <- purity_df[20, ]
 purity_df[20, ] <- temp
 
 colnames(purity_df) <- c("betweenness", "fastgreedy", "louvain", "spinglass", "markov",
-                          "leiden", "label prop", "label prop init", "lead eigenvector")
+                          "leiden", "label prop", "label prop init", "lead eigenvector", "average")
 ```
 \newpage 
 ```{r echo=FALSE}
