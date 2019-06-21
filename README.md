@@ -13,7 +13,7 @@ Human Disease Network: clustering and performance evaluation. Project for the Da
 Make sure you have Python 3.7 [installed locally](http://install.python-guide.org).
 
 ```bash
-$ git clone https://github.com/GiorgiaAuroraAdorni/human-disease-network
+$ git clone https://github.com/lorenzomammana/human-disease-network
 $ cd  human-disease-network/demo
 $ python3 -m http.server 8000
 ```
